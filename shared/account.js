@@ -66,5 +66,42 @@
       return r.status === "ok" ? { ok: true } : { ok: false, msg: MSG[r.status] || r.status };
     } catch { return { ok: false, msg: MSG.net }; }
   }
-  window.KQ = { ready, session, login, load, save, logout: () => setSession(null) };
+
+  // 前のアプリ（Claudeのページ）で書き出したコードを読む。2つのアプリのコードをまとめて貼ってもOK
+  const unb64 = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
+  async function gunzip(u8){ return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer()); }
+  async function decode(text){
+    const out = [];
+    for (const part of String(text || "").split(/(?=KOKUSHI-)/)) {
+      const m = /^KOKUSHI-([A-Z]+)1([GJ]):([A-Za-z0-9+/=\s]+)/.exec(part); if (!m) continue;
+      let u8 = unb64(m[3].replace(/\s+/g, ""));
+      if (m[2] === "G") { if (!window.DecompressionStream) throw new Error("old"); u8 = await gunzip(u8); }
+      const d = JSON.parse(new TextDecoder().decode(u8));
+      if (d && (d.app === "kakomon" || d.app === "prep") && d.rec) out.push(d);
+    }
+    return out;
+  }
+  function merge(base, add){
+    const rec = { ...(base?.rec || {}) }, weak = { ...(base?.weak || {}) };
+    let n = 0;
+    for (const [id, r] of Object.entries(add.rec || {})) if (r && (!rec[id] || (r.t || 0) > (rec[id].t || 0))) { rec[id] = r; n++; }
+    for (const [id, w] of Object.entries(add.weak || {})) if (w && (!weak[id] || (w.t || 0) > (weak[id].t || 0))) weak[id] = w;
+    return { data: { v: 1, at: Date.now(), rec, weak }, n, total: Object.keys(rec).length };
+  }
+  async function migrate(text){
+    let list;
+    try { list = await decode(text); } catch (e) { return { ok: false, msg: e.message === "old" ? "このブラウザでは読めません。新しいSafariやChromeで開いてください" : "コードが読めませんでした。最初から最後までぜんぶ貼れているか確かめてください" }; }
+    if (!list.length) return { ok: false, msg: "コードが見つかりませんでした。「KOKUSHI-」で始まる文字をぜんぶ貼ってください" };
+    const res = [];
+    for (const d of list) {
+      const cur = await load(d.app);
+      if (!cur.ok) return { ok: false, msg: cur.msg || "クラウドにつながりませんでした" };
+      const m = merge(cur.data, d);
+      const s = await save(d.app, m.data);
+      if (!s.ok) return { ok: false, msg: s.msg || "保存できませんでした" };
+      res.push({ app: d.app, n: m.n, total: m.total });
+    }
+    return { ok: true, res };
+  }
+  window.KQ = { ready, session, login, load, save, logout: () => setSession(null), decode, migrate };
 })();

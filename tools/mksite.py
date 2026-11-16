@@ -12,6 +12,7 @@ def sub1(s, a, b):
     return s.replace(a, b, 1)
 for app, path, ls in [("kakomon", "index.html", "kokushi-rec-v1"), ("prep", "prep/index.html", "kokushi-prep-rec-v1")]:
     s = open(os.path.join(src, path), encoding="utf-8").read()
+    s = re.sub(r'  <div class="notice" id="move-notice">.*?</div>\n', '', s, count=1, flags=re.S)
     s = sub1(s, "</style>", ".acct{color:var(--box-ink);font-size:12.5px;font-weight:700;text-decoration:none;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:5px 12px;white-space:nowrap}\n.acct:hover{background:rgba(255,255,255,.1)}\n</style>")
     s = sub1(s, '    <nav class="tabs"', '    <a class="acct" id="acct" href="../">ログインして保存</a>\n    <nav class="tabs"')
     s = sub1(s, f'const LS = "{ls}";', f'const KQS = window.KQ && KQ.session();\nconst LS = "{ls}" + (KQS ? "@" + KQS.nick.toLowerCase() : "");')

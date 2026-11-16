@@ -55,6 +55,9 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
 .app span{font-size:13px;color:var(--sub)}
 .me{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
 .me b{font-size:18px}
+.steps{margin:0 0 12px;padding-left:1.4em;font-size:14px}
+.steps li{margin-bottom:4px}
+.code{width:100%;min-height:90px;font:12px ui-monospace,monospace;color:var(--ink);background:var(--paper);border:1px solid var(--line2);border-radius:12px;padding:8px 10px;word-break:break-all}
 .warn{background:var(--ng-soft);border-radius:12px;padding:10px 14px;font-size:13.5px}
 </style>
 </head>
@@ -95,6 +98,22 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     <p class="note" style="margin:8px 0 0">記録は自動でクラウドに保存されます。ほかの端末では、同じニックネームと数字でログインしてください。</p>
   </div>
 
+
+  <!-- 引っ越し -->
+  <div class="panel" id="move-box">
+    <h2>前のアプリから記録を引っ越す</h2>
+    <p class="note">前に使っていたクイズ（Claudeのページ）の記録を、このサイトに移せます。</p>
+    <ol class="steps">
+      <li>前のクイズを開いて、ホームのいちばん下の<b>「記録を書き出す（コピー）」</b>を押す</li>
+      <li>下の欄に<b>貼りつけ</b>て「引っ越す」を押す</li>
+      <li>過去問クイズと対策問題集の両方を使っていた人は、もう片方でも同じことをする（2つまとめて貼ってもOK）</li>
+    </ol>
+    <p class="warn" id="move-login" style="margin:0 0 10px">先に上でニックネーム登録（ログイン）をしてください。記録はそのニックネームに入ります。</p>
+    <textarea id="move-code" class="code" placeholder="KOKUSHI-… で始まるコードをここに貼る" aria-label="引っ越しコード"></textarea>
+    <button class="btn primary" id="move-go" type="button" style="margin-top:10px">引っ越す</button>
+    <div class="msg" id="move-msg" role="status"></div>
+  </div>
+
   <div class="panel">
     <h2>問題をえらぶ</h2>
     <div class="apps">
@@ -120,6 +139,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     $("#login-box").hidden = !!s; $("#me-box").hidden = !s;
     if (s) $("#me-nick").textContent = s.nick;
     $("#setup-warn").hidden = KQ.ready();
+    $("#move-login").hidden = !!s; $("#move-go").disabled = !s; $("#move-code").disabled = !s;
   }
   $("#mode-login").onclick = () => setMode(false);
   $("#mode-new").onclick = () => setMode(true);
@@ -133,6 +153,18 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     m.className = "msg ok"; m.textContent = `ようこそ、${r.nick} さん！`;
     $("#pin").value = ""; paint();
   });
+  const APPN = { kakomon: "過去問クイズ", prep: "対策問題集" };
+  $("#move-go").onclick = async () => {
+    const t = $("#move-code").value, m = $("#move-msg"), b = $("#move-go");
+    if (!t.trim()) { m.className = "msg ng"; m.textContent = "コードを貼りつけてください"; return; }
+    b.disabled = true; m.className = "msg"; m.textContent = "引っ越し中…";
+    const r = await KQ.migrate(t);
+    b.disabled = false;
+    if (!r.ok) { m.className = "msg ng"; m.textContent = r.msg; return; }
+    m.className = "msg ok";
+    m.textContent = "引っ越し完了！ " + r.res.map(x => `${APPN[x.app]}：${x.total}問ぶんの記録`).join("、") + " がこのニックネームに入りました";
+    $("#move-code").value = "";
+  };
   $("#logout").onclick = () => { KQ.logout(); paint(); setMode(false); };
   paint();
 })();
