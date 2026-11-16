@@ -7,7 +7,7 @@
     const c = cfg();
     const r = await fetch(c.url.replace(/\/$/, "") + "/rest/v1/rpc/" + fn, {
       method: "POST",
-      headers: { "Content-Type": "application/json", apikey: c.anonKey, Authorization: "Bearer " + c.anonKey },
+      headers: Object.assign({ "Content-Type": "application/json", apikey: c.anonKey }, /^eyJ/.test(c.anonKey) ? { Authorization: "Bearer " + c.anonKey } : {}),
       body: JSON.stringify(args)
     });
     if (!r.ok) throw new Error("http " + r.status);
