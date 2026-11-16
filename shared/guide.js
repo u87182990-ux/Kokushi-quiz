@@ -155,7 +155,7 @@
     v.outfit = valid(OUTFITS, v.outfit, DEF.outfit); v.acc = valid(ACCS, v.acc, DEF.acc);
     v.goal = GOALS.includes(+v.goal) ? +v.goal : DEF.goal;
     v.name = String(v.name || DEF.name).slice(0, 10);
-    v.off = !!v.off;
+    v.off = !(a && a.on === true); // 最初はオフ。トップページの「オンにする」で出てくる
     v.isNew = !a;
     return v;
   }
@@ -393,8 +393,8 @@
     const ok = document.createElement("button"); ok.type = "button"; ok.className = "kqg-btn pri"; ok.textContent = "これにする";
     ok.onclick = async () => {
       draft.name = (ni.value || "").trim().slice(0, 10) || DEF.name;
-      const { isNew, ...keep } = draft; // eslint-disable-line no-unused-vars
-      KQ.avatar.set(keep); av = getAv();
+      const { isNew, off, ...keep } = draft; // eslint-disable-line no-unused-vars
+      KQ.avatar.set(Object.assign(keep, { on: true })); av = getAv();
       ok.disabled = true; msg.textContent = S() ? "保存中…" : "";
       const r = await pushCloud();
       ok.disabled = false;
@@ -423,7 +423,7 @@
       say("オフにするね。トップページの「案内キャラ」から、いつでももどせるよ。またね！", { mood: "cheer", ms: 2600 });
       await new Promise(r => setTimeout(r, 2400));
     }
-    KQ.avatar.set(Object.assign(keep, { off: !!on })); av = getAv(); applyOff();
+    delete keep.off; KQ.avatar.set(Object.assign(keep, { on: !on })); av = getAv(); applyOff();
     if (!on) { setMin(false); paint("happy"); say(`ただいま！${av.name}だよ。またいっしょにがんばろう！`, { mood: "happy", anim: "kqg-jump" }); }
     pushCloud();
   }
