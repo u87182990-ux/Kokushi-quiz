@@ -1,5 +1,5 @@
-// Supabase の設定（anon キーは公開してOKなキーです。service_role キーは絶対にここに書かないでください）
+// Supabase の設定（Publishable key は公開してOKなキーです。Secret key / service_role は絶対にここに書かないでください）
 window.KQ_CONFIG = {
-  url: "",      // 例: https://xxxxxxxx.supabase.co
-  anonKey: ""   // 例: eyJhbGciOi... または sb_publishable_...
+  url: "https://foegookzzwrwyvxcucgw.supabase.co",
+  anonKey: "sb_publishable_CLwFHhntazYec1DpLtduYw_Syu0Zvml"
 };
