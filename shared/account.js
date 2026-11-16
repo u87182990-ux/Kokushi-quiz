@@ -70,14 +70,26 @@
   // 前のアプリ（Claudeのページ）で書き出したコードを読む。2つのアプリのコードをまとめて貼ってもOK
   const unb64 = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
   async function gunzip(u8){ return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer()); }
+  async function decodeOne(b64, gz){
+    let u8 = unb64(b64);
+    if (gz) { if (!window.DecompressionStream) throw new Error("old"); u8 = await gunzip(u8); }
+    const d = JSON.parse(new TextDecoder().decode(u8));
+    return d && (d.app === "kakomon" || d.app === "prep") && d.rec ? d : null;
+  }
   async function decode(text){
-    const out = [];
-    for (const part of String(text || "").split(/(?=KOKUSHI-)/)) {
-      const m = /^KOKUSHI-([A-Z]+)1([GJ]):([A-Za-z0-9+/=\s]+)/.exec(part); if (!m) continue;
-      let u8 = unb64(m[3].replace(/\s+/g, ""));
-      if (m[2] === "G") { if (!window.DecompressionStream) throw new Error("old"); u8 = await gunzip(u8); }
-      const d = JSON.parse(new TextDecoder().decode(u8));
-      if (d && (d.app === "kakomon" || d.app === "prep") && d.rec) out.push(d);
+    // 見えない文字・全角文字・改行をならしてから探す
+    const t = String(text || "").normalize("NFKC").replace(/[​-‍﻿]/g, "");
+    const out = [], seen = new Set();
+    const push = d => { if (d) { const k = d.app + ":" + d.at; if (!seen.has(k)) { seen.add(k); out.push(d); } } };
+    for (const part of t.split(/(?=K\s*O\s*K\s*U\s*S\s*H\s*I)/i)) {
+      const m = /^KOKUSHI\s*-?\s*([A-Za-z]+)\s*1\s*([GJgj])\s*:\s*([A-Za-z0-9+\/=\s]+)/i.exec(part); if (!m) continue;
+      try { push(await decodeOne(m[3].replace(/\s+/g, ""), m[2].toUpperCase() === "G")); } catch (e) { if (e.message === "old") throw e; }
+    }
+    if (!out.length) {
+      // 先頭の「KOKUSHI-…:」が欠けていても、中身だけで読んでみる
+      const flat = t.replace(/\s+/g, "");
+      for (const mm of flat.matchAll(/H4sI[A-Za-z0-9+\/=]{20,}/g)) { try { push(await decodeOne(mm[0], true)); } catch (e) { if (e.message === "old") throw e; } }
+      for (const mm of flat.matchAll(/eyJ[A-Za-z0-9+\/=]{20,}/g)) { try { push(await decodeOne(mm[0], false)); } catch {} }
     }
     return out;
   }
