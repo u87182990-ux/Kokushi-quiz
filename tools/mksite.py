@@ -6,7 +6,7 @@ HEAD = ('<!doctype html><html lang="ja"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
         '<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}'
         'body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style>'
-        '<script src="../shared/config.js?v=1794798366"></script><script src="../shared/account.js?v=1794798366"></script></head><body>\n')
+        '<script src="../shared/config.js?v=1794812000"></script><script src="../shared/account.js?v=1794812000"></script><script src="../shared/guide.js?v=1794812000" defer></script></head><body>\n')
 def sub1(s, a, b):
     assert s.count(a) == 1, a[:60]
     return s.replace(a, b, 1)
@@ -61,6 +61,7 @@ async function connectCloud(){
     s = sub1(s, "記録はこのブラウザだけに保存しています。消えないように、ときどき「記録のバックアップ」をしてください", "ログインしていないので、記録はこのブラウザだけに保存しています。右上の「ログインして保存」から、ニックネームで保存できます")
     s = re.sub(r'<p class="bk-note">記録はこのブラウザに保存されます。.*?</p>',
                '<p class="bk-note">ニックネームでログインしていれば、記録は自動でクラウドに保存されます。ここでは、記録を文字やファイルにして、手元にとっておくこともできます。</p>', s, count=1, flags=re.S)
+    s = sub1(s, "connectCloud();\n})();", '// 案内キャラ（shared/guide.js）が記録を読むための窓口\nwindow.KQPage = { app: APP, get rec(){ return rec; }, get Q(){ return Q; }, isWeak, get quiz(){ return quiz; }, get view(){ return view; }, get cloud(){ return cloud; }, doSave };\nconnectCloud();\n})();')
     assert "connectCloud();" in s and "claude.use(\"db\")" not in s
     open(os.path.join(out, app, "index.html"), "w", encoding="utf-8").write(HEAD + s + "\n</body></html>\n")
     print("ok", app)

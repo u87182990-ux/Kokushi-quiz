@@ -7,8 +7,9 @@
 <meta name="description" content="診療放射線技師国家試験の過去問と対策問題。ニックネームで記録を保存できます。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
-<script src="shared/config.js?v=1794798366"></script>
-<script src="shared/account.js?v=1794798366"></script>
+<script src="shared/config.js?v=1794812000"></script>
+<script src="shared/account.js?v=1794812000"></script>
+<script src="shared/guide.js?v=1794812000" defer></script>
 <style>
 :root{
   --paper:#eef2f6; --sheet:#ffffff; --ink:#152033; --sub:#5d6a7e; --line:#dbe2ea; --line2:#c9d3de;
@@ -58,6 +59,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
 .steps{margin:0 0 12px;padding-left:1.4em;font-size:14px}
 .steps li{margin-bottom:4px}
 .code{width:100%;min-height:90px;font:12px ui-monospace,monospace;color:var(--ink);background:var(--paper);border:1px solid var(--line2);border-radius:12px;padding:8px 10px;word-break:break-all}
+.row-btns{display:flex;flex-wrap:wrap;gap:8px}
 .warn{background:var(--ng-soft);border-radius:12px;padding:10px 14px;font-size:13.5px}
 </style>
 </head>
@@ -114,6 +116,15 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     <div class="msg" id="move-msg" role="status"></div>
   </div>
 
+  <div class="panel" id="guide-box">
+    <h2>案内キャラ</h2>
+    <p class="note" id="guide-note">画面の右下にいるキャラが、あいさつしたり、正解をいっしょに喜んだりします。自分だけの見た目・名前にできます。</p>
+    <div class="row-btns">
+      <button class="btn" id="guide-edit" type="button">着せかえ</button>
+      <button class="btn" id="guide-off" type="button">オフにする</button>
+    </div>
+  </div>
+
   <div class="panel">
     <h2>問題をえらぶ</h2>
     <div class="apps">
@@ -151,7 +162,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     b.disabled = false;
     if (!r.ok) { m.className = "msg ng"; m.textContent = r.msg; return; }
     m.className = "msg ok"; m.textContent = `ようこそ、${r.nick} さん！`;
-    $("#pin").value = ""; paint();
+    $("#pin").value = ""; paint(); if (window.KQGuide) KQGuide.refresh();
   });
   const APPN = { kakomon: "過去問クイズ", prep: "対策問題集" };
   $("#move-go").onclick = async () => {
@@ -165,7 +176,16 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     m.textContent = "引っ越し完了！ " + r.res.map(x => `${APPN[x.app]}：${x.total}問ぶんの記録`).join("、") + " がこのニックネームに入りました";
     $("#move-code").value = "";
   };
-  $("#logout").onclick = () => { KQ.logout(); paint(); setMode(false); };
+  function paintGuide(){
+    if (!window.KQGuide) return;
+    const off = KQGuide.isOff();
+    $("#guide-off").textContent = off ? "オンにする（キャラを出す）" : "オフにする";
+    $("#guide-note").textContent = off ? "案内キャラはいまオフです。「オンにする」でまた出てきます。" : "画面の右下にいるキャラが、あいさつしたり、正解をいっしょに喜んだりします。自分だけの見た目・名前にできます。";
+  }
+  $("#guide-edit").onclick = () => window.KQGuide && KQGuide.open();
+  $("#guide-off").onclick = () => { if (window.KQGuide) KQGuide.setOff(!KQGuide.isOff()); };
+  window.addEventListener("kq-guide", paintGuide);
+  $("#logout").onclick = () => { KQ.logout(); paint(); setMode(false); if (window.KQGuide) KQGuide.refresh(); };
   paint();
 })();
 </script>
