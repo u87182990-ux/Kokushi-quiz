@@ -201,7 +201,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
   const EXTRA = [
     { id: "kisoi", subj: "基礎医学大要", name: "基礎医 暗記カード", sub: "基礎医学大要の304枚・忘れたころに出し直し" },
     { id: "ikougaku", subj: "医用工学", name: "医用工学 計算ドリル", sub: "国試の計算問題＋類題 95問・図と解説つき" },
-    { id: "chiryo", subj: "下郷先生（放射線治療技術学）", name: "放射線治療 下郷先生ドリル", sub: "授業の国試・模試 330問・MU計算つき・解説多め" }
+    { id: "chiryo", subj: "下郷先生（放射線治療技術学）", name: "放射線治療 下郷先生ドリル", sub: "授業の国試・模試 329問・MU計算つき・解説多め" }
   ];
   const exKey = () => "kq-extra-v2" + (KQ.session() ? "@" + KQ.session().nick.toLowerCase() : "");
   const exGet = () => { try { const v = JSON.parse(localStorage.getItem(exKey()) || "[]"); return Array.isArray(v) ? v : []; } catch { return []; } };
