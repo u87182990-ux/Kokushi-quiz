@@ -50,6 +50,10 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
 .msg{margin-top:10px;font-size:13.5px;font-weight:700;min-height:1.5em}
 .msg.ng{color:var(--ng)} .msg.ok{color:var(--ok)}
 .apps{display:grid;gap:12px}
+.apps[hidden]{display:none}
+.pick{display:grid;gap:8px}.pick[hidden]{display:none}
+.pk{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid #d3dbe0;border-radius:10px;cursor:pointer}
+.pk input{width:20px;height:20px;margin:2px 0 0;flex:none}.subj{margin:6px 0 0;font-size:.85rem;opacity:.75}.pk b{display:block}.pk small{display:block;opacity:.7}
 .app{display:grid;gap:2px;padding:16px 18px;border:1px solid var(--line);border-radius:14px;text-decoration:none;color:var(--ink);background:var(--sheet)}
 .app:hover{border-color:var(--accent)}
 .app b{font-family:var(--f-disp);font-size:18px}
@@ -130,8 +134,15 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     <div class="apps">
       <a class="app" href="kakomon/"><b>過去問クイズ</b><span>第67〜78回 全2,400問・解説つき</span></a>
       <a class="app" href="prep/"><b>対策問題集</b><span>よく出るポイントのオリジナル270問・22テーマ</span></a>
-      <a class="app" href="ikougaku/"><b>医用工学 計算ドリル</b><span>国試の計算問題＋類題 95問・図と解説つき</span></a>
     </div>
+  </div>
+
+  <div class="panel">
+    <h2>追加ドリル</h2>
+    <p class="note" id="extra-note">科目ごとのドリルです。「えらぶ」で、使いたいものだけ自分のメニューに出せます。</p>
+    <div class="apps" id="extra-list" hidden></div>
+    <div class="row-btns"><button class="btn" id="extra-tog" type="button">えらぶ</button></div>
+    <div id="extra-pick" class="pick" hidden></div>
   </div>
 </div>
 <script>
@@ -187,6 +198,28 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
   $("#guide-off").onclick = () => { if (window.KQGuide) KQGuide.setOff(!KQGuide.isOff()); };
   window.addEventListener("kq-guide", paintGuide);
   $("#logout").onclick = () => { KQ.logout(); paint(); setMode(false); if (window.KQGuide) KQGuide.refresh(); };
+  const EXTRA = [
+    { id: "kisoi", subj: "基礎医学大要", name: "基礎医 暗記カード", sub: "基礎医学大要の304枚・忘れたころに出し直し" },
+    { id: "ikougaku", subj: "医用工学", name: "医用工学 計算ドリル", sub: "国試の計算問題＋類題 95問・図と解説つき" }
+  ];
+  const exKey = () => "kq-extra-v2" + (KQ.session() ? "@" + KQ.session().nick.toLowerCase() : "");
+  const exGet = () => { try { const v = JSON.parse(localStorage.getItem(exKey()) || "[]"); return Array.isArray(v) ? v : []; } catch { return []; } };
+  const exSet = v => { try { localStorage.setItem(exKey(), JSON.stringify(v)); } catch {} };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  function paintExtra(){
+    const on = exGet(), list = EXTRA.filter(x => on.includes(x.id));
+    $("#extra-list").innerHTML = list.map(x => `<a class="app" href="${x.id}/"><b>${esc(x.name)}</b><span>${esc(x.sub)}</span></a>`).join("");
+    $("#extra-list").hidden = !list.length;
+    $("#extra-note").textContent = list.length ? "自分で選んだドリルです。「えらぶ」で入れかえられます。" : "科目ごとのドリルです。「えらぶ」で、使いたいものだけ自分のメニューに出せます。";
+    const subs = [...new Set(EXTRA.map(x => x.subj))];
+    $("#extra-pick").innerHTML = `<p class="note">いろんな科目から選べます。チェックしたものが上のメニューに出ます。</p>` + subs.map(s => `<h3 class="subj">${esc(s)}</h3>` + EXTRA.filter(x => x.subj === s).map(x => `<label class="pk"><input type="checkbox" value="${x.id}"${on.includes(x.id) ? " checked" : ""}><span><b>${esc(x.name)}</b><small>${esc(x.sub)}</small></span></label>`).join("")).join("");
+  }
+  $("#extra-pick").addEventListener("change", e => {
+    const v = [...$("#extra-pick").querySelectorAll("input:checked")].map(i => i.value);
+    exSet(v); paintExtra();
+  });
+  $("#extra-tog").onclick = () => { const p = $("#extra-pick"); p.hidden = !p.hidden; $("#extra-tog").textContent = p.hidden ? "えらぶ" : "とじる"; };
+  const _paint = paint; paint = function(){ _paint(); paintExtra(); };
   paint();
 })();
 </script>
