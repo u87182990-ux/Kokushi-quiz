@@ -51,17 +51,39 @@
       return { ok: true, nick: r.nick || nick };
     } catch { return { ok: false, msg: MSG.net }; }
   }
+  // 案内キャラの設定（ニックネームごと）。記録といっしょにクラウドへ保存する
+  const memAv = {};
+  const avKey = () => { const s = session(); return "kq-avatar-v1" + (s ? "@" + s.nick.toLowerCase() : ""); };
+  function getAvatar(){
+    const k = avKey();
+    try { const v = JSON.parse(localStorage.getItem(k) || "null"); if (v && typeof v === "object") return v; } catch {}
+    return memAv[k] || null;
+  }
+  function putAvatar(v){
+    const k = avKey(); memAv[k] = v;
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch {}
+  }
+  function takeAvatar(d){
+    const v = d && d.avatar;
+    if (v && typeof v === "object" && (v.t || 0) > ((getAvatar() || {}).t || 0)) {
+      putAvatar(v);
+      try { window.dispatchEvent(new CustomEvent("kq-avatar")); } catch {}
+    }
+  }
   async function load(app){
     const s = session(); if (!s || !ready()) return { ok: false };
     try {
       const r = await rpc("kq_load", { p_nick: s.nick, p_pin: s.pin, p_app: app });
       if (r.status === "wrong" || r.status === "none") setSession(null);
+      if (r.status === "ok") takeAvatar(r.data);
       return r.status === "ok" ? { ok: true, data: r.data } : { ok: false, msg: MSG[r.status] || r.status, status: r.status };
     } catch { return { ok: false, msg: MSG.net, status: "net" }; }
   }
   async function save(app, data){
     const s = session(); if (!s || !ready()) return { ok: false };
     try {
+      const av = getAvatar();
+      if (av && data && typeof data === "object") data = Object.assign({}, data, { avatar: av });
       const r = await rpc("kq_save", { p_nick: s.nick, p_pin: s.pin, p_app: app, p_data: data });
       return r.status === "ok" ? { ok: true } : { ok: false, msg: MSG[r.status] || r.status };
     } catch { return { ok: false, msg: MSG.net }; }
@@ -115,5 +137,6 @@
     }
     return { ok: true, res };
   }
-  window.KQ = { ready, session, login, load, save, logout: () => setSession(null), decode, migrate };
+  window.KQ = { ready, session, login, load, save, logout: () => setSession(null), decode, migrate,
+    avatar: { get: getAvatar, set: v => { v = Object.assign({}, v, { t: Date.now() }); putAvatar(v); return v; } } };
 })();

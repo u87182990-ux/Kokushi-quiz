@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style><script src="../shared/config.js?v=1794798366"></script><script src="../shared/account.js?v=1794798366"></script></head><body>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style><script src="../shared/config.js?v=1794812000"></script><script src="../shared/account.js?v=1794812000"></script><script src="../shared/guide.js?v=1794812000" defer></script></head><body>
 <title>国試 対策問題集</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -837,6 +837,8 @@ function load(data){
 fetch("questions.json").then(r => r.ok ? r.json() : Promise.reject())
   .then(load)
   .catch(() => { setSync("問題データを読み込めませんでした。ページを開き直してください。"); });
+// 案内キャラ（shared/guide.js）が記録を読むための窓口
+window.KQPage = { app: APP, get rec(){ return rec; }, get Q(){ return Q; }, isWeak, get quiz(){ return quiz; }, get view(){ return view; }, get cloud(){ return cloud; }, doSave };
 connectCloud();
 })();
 </script>
