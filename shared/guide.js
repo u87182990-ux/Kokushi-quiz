@@ -13,6 +13,7 @@
     { id: "hiyoko", name: "ひよこ" },
     { id: "robo", name: "ロボ" },
     { id: "hito", name: "ひと" },
+    { id: "nui", name: "ぬいぐるみ" },
     { id: "mofu", name: "もふもふ" }
     // 絵（画像）のキャラは、shared/chara/<名前>-normal.png（と -happy / -cheer / -think）を置いて、下のように1行足す
     // { id: "xxx", name: "なまえ", img: "xxx", moods: ["happy", "cheer", "think"] },
@@ -120,12 +121,12 @@
   }
   function acc(a, t){
     switch (a) {
-      case "megane": if (t === "mofu") return `<circle cx="42" cy="53" r="6.5" fill="#fff" fill-opacity=".15" stroke="${L}" stroke-width="1.8"/><circle cx="58" cy="53" r="6.5" fill="#fff" fill-opacity=".15" stroke="${L}" stroke-width="1.8"/><path d="M48.5 52.5 Q50 51.5 51.5 52.5" fill="none" stroke="${L}" stroke-width="1.8"/>`;
+      case "megane": if (t === "mofu" || t === "nui") return `<circle cx="42" cy="53" r="6.5" fill="#fff" fill-opacity=".15" stroke="${L}" stroke-width="1.8"/><circle cx="58" cy="53" r="6.5" fill="#fff" fill-opacity=".15" stroke="${L}" stroke-width="1.8"/><path d="M48.5 52.5 Q50 51.5 51.5 52.5" fill="none" stroke="${L}" stroke-width="1.8"/>`;
         return `<circle cx="39" cy="53" r="8" fill="#fff" fill-opacity=".18" stroke="${L}" stroke-width="2.2"/><circle cx="61" cy="53" r="8" fill="#fff" fill-opacity=".18" stroke="${L}" stroke-width="2.2"/><path d="M47 52 Q50 50 53 52" fill="none" stroke="${L}" stroke-width="2.2"/>`;
       case "stetho": return `<path d="M38 82 C34 92 40 102 50 102 C60 102 66 92 62 82" fill="none" stroke="#56606e" stroke-width="2.6" stroke-linecap="round"/><path d="M62 92 C70 96 70 104 66 106" fill="none" stroke="#56606e" stroke-width="2.4" stroke-linecap="round"/><circle cx="65" cy="107" r="4" fill="#c9d3de" stroke="#56606e" stroke-width="2"/>`;
-      case "ribbon": { const y = t === "usagi" ? 30 : t === "mofu" ? 20 : 24, x = t === "robo" ? 70 : 72;
+      case "ribbon": { const y = t === "usagi" ? 30 : t === "mofu" ? 20 : t === "nui" ? 30 : 24, x = t === "robo" ? 70 : t === "nui" ? 70 : 72;
         return `<g transform="translate(${x} ${y}) rotate(18)"><path d="M0 0 L-12 -7 L-12 7 Z M0 0 L12 -7 L12 7 Z" fill="#ff6b9a" ${sw} stroke-width="1.8"/><circle r="3.4" fill="#ff4f86" ${sw} stroke-width="1.6"/></g>`; }
-      case "crown": { const y = t === "robo" ? 6 : t === "usagi" ? 8 : t === "mofu" ? 2 : 10;
+      case "crown": { const y = t === "robo" ? 6 : t === "usagi" ? 8 : t === "mofu" ? 2 : t === "nui" ? 6 : 10;
         return `<path d="M37 ${y + 14} L35 ${y} L43 ${y + 7} L50 ${y - 3} L57 ${y + 7} L65 ${y} L63 ${y + 14} Z" fill="#ffd23f" ${sw} stroke-width="1.8"/><circle cx="50" cy="${y + 9}" r="2" fill="#e5576b"/>`; }
       case "phones": return `<path d="M20 52 C18 22 82 22 80 52" fill="none" stroke="#4a4f5c" stroke-width="4.5" stroke-linecap="round"/><rect x="13" y="44" width="11" height="18" rx="5" fill="#6c63ff" ${sw}/><rect x="76" y="44" width="11" height="18" rx="5" fill="#6c63ff" ${sw}/>`;
       case "badge": if (t === "mofu") return `<rect x="56" y="82" width="16" height="10" rx="2" fill="#fff" ${sw} stroke-width="1.4"/><line x1="59" y1="86" x2="69" y2="86" stroke="#1d6fd8" stroke-width="1.6"/><line x1="59" y1="89" x2="66" y2="89" stroke="#8fa6c2" stroke-width="1.4"/>`;
@@ -134,16 +135,14 @@
     }
   }
   let uid = 0;
-  function drawMofu(av, mood){ // ふわふわの毛玉キャラ（毛のふち・やわらかい影つき）
-    const c = av.color, id = "kqm" + (++uid), skin = "#f7e3d3";
-    const defs = `<defs>
+  function softDefs(c, id){ const skin = "#f7e3d3"; return `<defs>
       <filter id="${id}f" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter>
       <filter id="${id}t" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.8 .9" numOctaves="3" seed="2"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 -.18"/><feComposite in2="SourceAlpha" operator="in"/></filter>
       <filter id="${id}b"><feGaussianBlur stdDeviation="1.6"/></filter>
       <radialGradient id="${id}g" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="${shade(c, 1.16)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${shade(c, .74)}"/></radialGradient>
       <radialGradient id="${id}s" cx=".45" cy=".35" r=".75"><stop offset="0" stop-color="#fff6ee"/><stop offset=".7" stop-color="${skin}"/><stop offset="1" stop-color="#e8c6b0"/></radialGradient>
-    </defs>`;
-    const blob = "M50 7 C79 7 92 33 91 62 C90 93 75 111 50 111 C25 111 10 93 9 62 C8 33 21 7 50 7 Z";
+    </defs>`; }
+  function softFace(mood){
     const ink = "#2b2230";
     let eyes, mouth;
     if (mood === "happy") {
@@ -157,6 +156,13 @@
       eyes = `<g class="kqg-eyes"><circle cx="42" cy="53" r="3" fill="${ink}"/><circle cx="58" cy="52" r="3" fill="${ink}"/><circle cx="43.1" cy="51.9" r="1" fill="#fff"/><circle cx="59.1" cy="50.9" r="1" fill="#fff"/></g>`;
       mouth = mood === "think" ? `<path d="M47 60 L53 59.5" stroke="${ink}" stroke-width="1.7" stroke-linecap="round"/>` : `<path d="M46.5 59 Q50 62.5 53.5 59" fill="none" stroke="${ink}" stroke-width="1.7" stroke-linecap="round"/>`;
     }
+    return eyes + mouth;
+  }
+  function drawMofu(av, mood){ // ふわふわの毛玉キャラ（毛のふち・やわらかい影つき）
+    const c = av.color, id = "kqm" + (++uid);
+    const defs = softDefs(c, id);
+    const blob = "M50 7 C79 7 92 33 91 62 C90 93 75 111 50 111 C25 111 10 93 9 62 C8 33 21 7 50 7 Z";
+    const eyes = softFace(mood), mouth = "";
     const top = (av.acc === "crown" || av.acc === "ribbon") ? acc(av.acc, "mofu") : "";
     const other = (av.acc !== "crown" && av.acc !== "ribbon") ? acc(av.acc, "mofu") : "";
     return `<svg viewBox="0 -2 100 116" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}
@@ -168,6 +174,32 @@
       <ellipse cx="36.5" cy="58.5" rx="4.6" ry="3.2" fill="#ff9aa8" opacity=".6" filter="url(#${id}b)"/><ellipse cx="63.5" cy="58.5" rx="4.6" ry="3.2" fill="#ff9aa8" opacity=".6" filter="url(#${id}b)"/>
       ${eyes}${mouth}${other}${top}</svg>`;
   }
+  function drawNui(av, mood){ // たて長のぬいぐるみ体型（3頭身・小さな手足・おなかの縫い目）
+    const c = av.color, id = "kqn" + (++uid), defs = softDefs(c, id), lite = shade(c, 1.14), dark = shade(c, .86);
+    const body = "M50 6 C69 6 79 21 79 40 C79 50 77 56 78 64 C81 80 82 98 67 105 C59 109 41 109 33 105 C18 98 19 80 22 64 C23 56 21 50 21 40 C21 21 31 6 50 6 Z";
+    const fur = d => `<g filter="url(#${id}f)"><path d="${d}" fill="url(#${id}g)"/><path d="${d}" fill="#fff" filter="url(#${id}t)"/></g>`;
+    // 手のポーズ：ふつう＝下、よろこぶ＝ばんざい、はげます＝片手でガッツポーズ
+    const armL = mood === "happy" ? "rotate(125 27 64)" : mood === "cheer" ? "rotate(0 27 64)" : "rotate(18 27 64)";
+    const armR = mood === "happy" ? "rotate(-125 73 64)" : mood === "cheer" ? "rotate(-150 73 64)" : "rotate(-18 73 64)";
+    const arm = (x, tr) => `<g transform="${tr}"><g filter="url(#${id}f)"><ellipse cx="${x}" cy="76" rx="6.5" ry="11" fill="${dark}"/><ellipse cx="${x}" cy="76" rx="6.5" ry="11" fill="#fff" filter="url(#${id}t)"/></g></g>`;
+    const top = (av.acc === "crown" || av.acc === "ribbon") ? acc(av.acc, "nui") : "";
+    const other = (av.acc !== "crown" && av.acc !== "ribbon") ? acc(av.acc, "nui") : "";
+    return `<svg viewBox="0 -10 100 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}
+      <ellipse cx="50" cy="110" rx="26" ry="3.6" fill="#000" opacity=".13" filter="url(#${id}b)"/>
+      ${fur("M30 13 m-7 0 a7 7 0 1 0 14 0 a7 7 0 1 0 -14 0")}${fur("M70 13 m-7 0 a7 7 0 1 0 14 0 a7 7 0 1 0 -14 0")}
+      <circle cx="30" cy="13" r="3.4" fill="${dark}" opacity=".7"/><circle cx="70" cy="13" r="3.4" fill="${dark}" opacity=".7"/>
+      ${fur("M30 104 m-10 0 a10 6 0 1 0 20 0 a10 6 0 1 0 -20 0")}${fur("M70 104 m-10 0 a10 6 0 1 0 20 0 a10 6 0 1 0 -20 0")}
+      ${fur(body)}
+      <ellipse cx="50" cy="84" rx="15" ry="13" fill="${lite}" opacity=".85" filter="url(#${id}b)"/>
+      <ellipse cx="50" cy="84" rx="13" ry="11" fill="none" stroke="${dark}" stroke-width="1" stroke-dasharray="2.2 2" opacity=".8"/>
+      ${arm(27, armL)}${arm(73, armR)}
+      <ellipse cx="50" cy="42" rx="17" ry="12" fill="${lite}" opacity=".7" filter="url(#${id}b)"/>
+      <g transform="translate(0 -14)">
+        <ellipse cx="36.5" cy="58.5" rx="4.6" ry="3.2" fill="#ff9aa8" opacity=".65" filter="url(#${id}b)"/><ellipse cx="63.5" cy="58.5" rx="4.6" ry="3.2" fill="#ff9aa8" opacity=".65" filter="url(#${id}b)"/>
+        ${softFace(mood)}
+      </g>
+      <g transform="translate(0 -14)">${other}${top}</g></svg>`;
+  }
   function drawImg(t, mood){
     const m = (t.moods || []).includes(mood) ? mood : "normal";
     return `<svg viewBox="0 -2 100 116" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><image href="${BASE}chara/${t.img}-${m}.png" x="0" y="-2" width="100" height="116" preserveAspectRatio="xMidYMax meet"/></svg>`;
@@ -176,6 +208,7 @@
     const ti = TYPES.find(x => x.id === av.type);
     if (ti && ti.img) return drawImg(ti, mood);
     if (av.type === "mofu") return drawMofu(av, mood);
+    if (av.type === "nui") return drawNui(av, mood);
     const t = av.type, c = av.color;
     const wings = t === "hiyoko" ? `<ellipse cx="23" cy="96" rx="6" ry="10" fill="${c}" ${sw} transform="rotate(25 23 96)"/><ellipse cx="77" cy="96" rx="6" ry="10" fill="${c}" ${sw} transform="rotate(-25 77 96)"/>` : "";
     const top = (av.acc === "crown" || av.acc === "ribbon") ? acc(av.acc, t) : "";
@@ -454,7 +487,7 @@
     offB.textContent = "キャラをオフにする（画面から消す）"; offB.onclick = () => { closeEditor(); setOff(true); };
     foot.append(cancel, ok);
     p.append(h, note, pv, nameRow, chipRow("種類", TYPES, "type"), chipRow(draft.type === "hito" ? "かみの色" : "色", COLORS, "color", true),
-      chipRow("服（もふもふは服なし）", OUTFITS, "outfit"), chipRow("小物", ACCS, "acc"), goalRow, msg, foot, offB);
+      chipRow("服（もふもふ・ぬいぐるみは服なし）", OUTFITS, "outfit"), chipRow("小物", ACCS, "acc"), goalRow, msg, foot, offB);
     // 「ひと」を選ぶと色の見出しを「かみの色」にする
     p.querySelector('[aria-label="種類"]').addEventListener("click", () => { p.querySelectorAll(".kqg-row>span")[2].textContent = draft.type === "hito" ? "かみの色" : "色"; });
     prev();
