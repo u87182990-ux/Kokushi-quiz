@@ -93,6 +93,7 @@ begin
   return json_build_object('status', 'ok');
 end $$;
 
+grant usage on schema public to anon;
 grant execute on function public.kq_register(text, text) to anon;
 grant execute on function public.kq_login(text, text) to anon;
 grant execute on function public.kq_load(text, text, text) to anon;
