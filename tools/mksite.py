@@ -6,7 +6,7 @@ HEAD = ('<!doctype html><html lang="ja"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
         '<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}'
         'body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style>'
-        '<script src="../shared/config.js"></script><script src="../shared/account.js"></script></head><body>\n')
+        '<script src="../shared/config.js?v=1794798151"></script><script src="../shared/account.js?v=1794798151"></script></head><body>\n')
 def sub1(s, a, b):
     assert s.count(a) == 1, a[:60]
     return s.replace(a, b, 1)
