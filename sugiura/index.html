@@ -116,6 +116,7 @@ figure img{display:block;margin:0 auto;max-width:100%;height:auto}
   <p class="foot">杉浦先生の授業プリント（画像情報）の問題をまとめたものです。プリントで選択肢や問題が図になっている2問（F03・G05）は、図の特徴を文章に置きかえています。記録はこの端末のブラウザに、ニックネームごとに保存されます（クラウド保存はまだです）。</p>
 </div>
 
+<script src="../shared/memo.js?v=1794990000"></script>
 <script src="data.js?v=1794900000"></script>
 <script>
 (()=>{
@@ -130,6 +131,7 @@ let st = Object.assign({cat:"all",shuffle:false,wrong:false,pos:0}, store.get("s
 let order = [];
 
 const $ = id=>document.getElementById(id);
+const memo = KQMemo.mount($("card"));   // 手書きの計算メモ
 function chips(row, items, key){
   row.innerHTML="";
   items.forEach(([val,label])=>{
@@ -170,6 +172,7 @@ function render(){
   const c=$("card");
   if(!order.length){c.innerHTML=`<p class="empty">${st.wrong?"間違えた問題はありません。":"条件に合う問題がありません。"}</p>`;return}
   const q=order[st.pos], r=res[q.id];
+  memo.sync(q.id);
   const nums="12345";
   c.innerHTML=`
     <div class="meta"><span class="no">${st.pos+1} / ${order.length}</span>
