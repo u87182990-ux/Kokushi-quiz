@@ -1,0 +1,840 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style><script src="../shared/config.js"></script><script src="../shared/account.js"></script></head><body>
+<title>放射線技師 国試ドリル</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Kaku+Gothic+New:wght@700;900&family=IBM+Plex+Mono:wght@500&family=Outfit:wght@600&display=swap">
+<style>
+/* Layout: ライトボックス（シャウカステン）。上に暗い読影パネルのヘッダー、下は明るい答案用紙。選択肢はマークシートの楕円 */
+:root{
+  --paper:#eef2f6; --sheet:#ffffff; --ink:#152033; --sub:#5d6a7e; --line:#dbe2ea; --line2:#c9d3de;
+  --box:#0f1b2d; --box-ink:#e8f1fb; --box-sub:#8fa6c2; --glow:#7fd3ff;   /* 読影パネル */
+  --accent:#1d6fd8; --accent-ink:#ffffff; --accent-soft:#e5effc;
+  --mark:#1d6fd8; --mark-soft:#eef4fd;
+  --ok:#14885a; --ok-soft:#e2f4ec; --ng:#d23c3c; --ng-soft:#fcebea;
+  --shadow:0 1px 2px rgba(21,32,51,.05),0 8px 24px -12px rgba(21,32,51,.18);
+  --f-disp:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;
+  --f-body:"BIZ UDPGothic","Hiragino Sans","Noto Sans JP",sans-serif;
+  --f-num:"Outfit","Zen Kaku Gothic New",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0b111a; --sheet:#131b27; --ink:#e6ecf4; --sub:#93a1b5; --line:#233044; --line2:#2e3d54;
+  --box:#0a1422; --box-ink:#e8f1fb; --box-sub:#8fa6c2; --glow:#7fd3ff;
+  --accent:#5aa2ff; --accent-ink:#06121f; --accent-soft:#16263d; --mark:#6aaeff; --mark-soft:#152235;
+  --ok:#4cc790; --ok-soft:#12301f; --ng:#ff7b73; --ng-soft:#3a1a1a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0b111a; --sheet:#131b27; --ink:#e6ecf4; --sub:#93a1b5; --line:#233044; --line2:#2e3d54;
+  --box:#0a1422; --box-ink:#e8f1fb; --box-sub:#8fa6c2; --glow:#7fd3ff;
+  --accent:#5aa2ff; --accent-ink:#06121f; --accent-soft:#16263d; --mark:#6aaeff; --mark-soft:#152235;
+  --ok:#4cc790; --ok-soft:#12301f; --ng:#ff7b73; --ng-soft:#3a1a1a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.6); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75}
+.wrap{max-width:880px;margin:0 auto;padding-block:16px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-disp);text-wrap:balance;margin:0;line-height:1.35}
+h1{font-size:26px;font-weight:900;letter-spacing:.02em}
+h2{font-size:17px;font-weight:700}
+h3{font-size:15px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ヘッダー：読影パネル */
+header.top{position:relative;overflow:hidden;display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 16px;justify-content:space-between;
+  background:var(--box);color:var(--box-ink);border-radius:18px;padding:22px 20px 18px;
+  background-image:radial-gradient(120% 140% at 100% 0%,rgba(127,211,255,.22),transparent 55%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 22px),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,transparent 1px 22px)}
+.brand small{display:flex;align-items:center;gap:8px;color:var(--box-sub);font-size:11.5px;letter-spacing:.12em;margin-bottom:4px}
+.brand small::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--glow);box-shadow:0 0 10px var(--glow)}
+.brand h1{color:var(--box-ink)}
+nav.tabs{display:flex;gap:2px;flex-wrap:wrap;padding:3px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+nav.tabs button{border:0;background:none;color:var(--box-sub);padding:6px 14px;border-radius:999px;font-size:13.5px;font-weight:700;transition:background .2s,color .2s}
+nav.tabs button:hover{color:var(--box-ink)}
+nav.tabs button[aria-current="page"]{background:var(--box-ink);color:var(--box)}
+.badge{display:inline-block;min-width:1.6em;padding:0 6px;border-radius:999px;background:var(--ng);color:#fff;font-size:11.5px;text-align:center;margin-left:5px;line-height:1.6;font-family:var(--f-mono)}
+
+.notice{margin-top:12px;padding:10px 14px;border:1px solid var(--line2);background:var(--mark-soft);border-radius:12px;font-size:13.5px}
+.sync{font-size:12px;color:var(--sub);margin-top:10px;padding-left:4px}
+
+section.view{margin-top:18px;display:grid;gap:16px}
+.panel{background:var(--sheet);border:1px solid var(--line);border-radius:16px;padding:20px}
+.panel>h2{margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.panel>h2::before{content:"";width:4px;height:1.05em;border-radius:2px;background:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{padding:12px 14px;border-radius:12px;background:var(--paper)}
+.stat b{display:block;font-family:var(--f-num);font-weight:600;font-size:30px;line-height:1.15;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.stat b small{font-size:.55em;margin-left:2px;color:var(--sub)}
+.stat span{font-size:12px;color:var(--sub)}
+.stat.warn{background:var(--ng-soft)} .stat.warn b{color:var(--ng)}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1px solid var(--line2);background:var(--sheet);padding:9px 16px;border-radius:999px;font-weight:700;font-size:14px;transition:border-color .15s,background .15s,transform .1s}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover:not(:disabled){filter:brightness(1.08)}
+.btn.danger{color:var(--ng);border-color:var(--ng)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+label.opt{display:flex;gap:6px;align-items:center;font-size:14px}
+input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
+select,input[type=search]{border:1px solid var(--line2);background:var(--sheet);border-radius:10px;padding:7px 10px;max-width:100%}
+
+.grid-kai{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.tile{display:grid;gap:4px;text-align:left;border:1px solid var(--line);background:var(--sheet);border-radius:12px;padding:12px 13px;transition:border-color .15s,box-shadow .15s,transform .15s}
+.tile:hover{border-color:var(--accent);box-shadow:var(--shadow);transform:translateY(-1px)}
+.tile .t{font-family:var(--f-disp);font-weight:700;line-height:1.4}
+.tile .s{font-size:11.5px;color:var(--sub)}
+.meter{height:4px;background:var(--line);border-radius:2px;overflow:hidden;display:flex;margin-top:2px}
+.meter i{display:block;height:100%}
+.meter .o{background:var(--ok)} .meter .x{background:var(--ng)}
+
+.list{display:grid;gap:0}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:4px 14px;align-items:start;padding:12px 8px;border-top:1px solid var(--line);text-align:left;background:none;border-left:0;border-right:0;border-bottom:0;width:100%;border-radius:0}
+.item:hover{background:var(--accent-soft)}
+.item .meta{font-size:12px;color:var(--sub);white-space:nowrap}
+.item .q{min-width:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.chip{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:999px;background:var(--paper);color:var(--sub);white-space:nowrap;border:1px solid transparent}
+.chip.ok{color:var(--ok);background:var(--ok-soft)}
+.chip.ng{color:var(--ng);background:var(--ng-soft)}
+.empty{color:var(--sub);padding:16px 4px}
+
+/* 答案カード */
+.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:18px;padding:22px 22px 22px;position:relative;box-shadow:var(--shadow)}
+@media (max-width:480px){.sheet{padding:18px 16px}.panel{padding:16px}}
+.qhead{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between}
+.qno{font-family:var(--f-disp);font-weight:900;font-size:18px}
+.prog{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:12px 0 18px}
+.prog i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--glow));transition:width .3s}
+.qtext{font-size:16.5px;white-space:pre-wrap}
+.qimg{margin-top:14px;display:grid;gap:10px}
+.qimg img{border:1px solid var(--line);border-radius:10px;background:#fff}
+.howmany{display:inline-block;margin-top:8px;font-weight:700;font-size:13.5px;color:var(--accent);background:var(--accent-soft);padding:2px 10px;border-radius:999px}
+.choices{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:8px}
+.choice{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:11px 12px;transition:border-color .15s,background .15s}
+.choice:hover:not(:disabled){border-color:var(--mark);background:var(--mark-soft)}
+.bubble{flex:none;width:30px;height:20px;border:1.5px solid var(--mark);border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-size:12px;color:var(--mark);margin-top:3px;transition:background .15s,color .15s}
+.choice[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.choice[aria-pressed="true"] .bubble{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.choice.correct{border-color:var(--ok);background:var(--ok-soft)}
+.choice.correct .bubble{border-color:var(--ok);color:var(--ok)}
+.choice.correct[aria-pressed="true"] .bubble{background:var(--ok);color:var(--sheet)}
+.choice.wrongpick{border-color:var(--ng);background:var(--ng-soft)}
+.choice.wrongpick .bubble{background:var(--ng);border-color:var(--ng);color:var(--sheet)}
+.choice:disabled{cursor:default}
+.verdict{margin-top:18px;padding:14px 16px;border-radius:12px;display:grid;gap:4px}
+.verdict.ok{background:var(--ok-soft)} .verdict.ng{background:var(--ng-soft)}
+.verdict .big{font-family:var(--f-disp);font-weight:900;font-size:21px}
+.verdict.ok .big{color:var(--ok)} .verdict.ng .big{color:var(--ng)}
+.qfoot{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+
+.result-big{font-family:var(--f-num);font-weight:600;font-size:56px;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.filters label{display:grid;gap:3px;font-size:12px;color:var(--sub)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* 解説 */
+.exp{margin-top:12px;padding:16px 18px;border-radius:12px;background:var(--paper);font-size:15px;line-height:1.8}
+.exp-h{display:inline-block;font-family:var(--f-disp);font-weight:900;font-size:13px;letter-spacing:.08em;color:var(--accent);margin-bottom:6px}
+.exp p{margin:0 0 12px;white-space:pre-line}
+.exp ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.exp li{display:grid;grid-template-columns:3.4em 1fr;gap:8px;padding-top:8px;border-top:1px solid var(--line)}
+.exp li>span{min-width:0}
+.exp .mk{white-space:nowrap;font-family:var(--f-mono)}
+.exp .mk.ok{color:var(--ok)}.exp .mk.ng{color:var(--ng)}
+/* 苦手リスト */
+.streak{display:inline-flex;gap:4px;align-items:center;font-size:11.5px;color:var(--sub);white-space:nowrap}
+.streak i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--ok)}
+.streak i.on{background:var(--ok)}
+.wk-note{font-size:13.5px;font-weight:700}
+.panel.weak{border-color:var(--ng);box-shadow:inset 4px 0 0 var(--ng)}
+/* 手書きメモ */
+.memo{background:var(--sheet);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.memo-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line)}
+.memo-bar h3{flex:1 1 auto;min-width:0;font-size:14px;line-height:1.4}
+.memo-bar h3 small{display:block}
+.memo-bar #memo-toggle{order:-1}
+.memo-br{order:-1;flex-basis:100%;height:0}
+.memo.off .memo-br{display:none}
+.memo-bar h3{order:-2}
+.memo-bar h3 small{font-family:var(--f-body);font-weight:400;font-size:11.5px;color:var(--sub)}
+.mt{min-width:38px;height:40px;padding:0 9px;border:1px solid var(--line2);background:var(--sheet);border-radius:10px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:5px;touch-action:manipulation}
+.mt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.mt:disabled{opacity:.4;cursor:not-allowed}
+.mt .dot{width:14px;height:14px;border-radius:50%;background:currentColor}
+.mt[data-tool="ink"] .dot{background:var(--ink)} .mt[data-tool="red"] .dot{background:var(--ng)} .mt[data-tool="blue"] .dot{background:var(--accent)}
+.memo-pad{position:relative;flex:1;min-height:340px;touch-action:none;cursor:crosshair;
+  background-color:var(--sheet);background-image:radial-gradient(circle,var(--line2) 1px,transparent 1.2px);background-size:24px 24px;background-position:12px 12px}
+.memo-pad canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+.memo-hint{position:absolute;left:0;right:0;top:40%;text-align:center;color:var(--sub);font-size:13px;pointer-events:none;padding:0 16px}
+.memo.off .memo-pad,.memo.off .mt.tool{display:none}
+.memo.off .memo-bar{border-bottom:0}
+@media (min-width:760px){
+  body.in-quiz.memo-open .wrap{max-width:1280px}
+  body.memo-open #view-quiz{grid-template-columns:minmax(0,1fr) clamp(300px,40%,480px);align-items:start}
+  body.memo-open .memo{position:sticky;top:12px;height:calc(100vh - 24px);height:calc(100dvh - 24px);max-height:900px}
+}
+@media (max-width:759px){.memo-pad{min-height:360px}}
+/* 記録のバックアップ */
+.bk-note{margin:0 0 10px;color:var(--sub);font-size:13.5px}
+.bk-area{width:100%;min-height:90px;margin-top:10px;border:1px solid var(--line2);background:var(--paper);border-radius:10px;padding:8px 10px;font-family:var(--f-mono);font-size:11.5px;line-height:1.5;word-break:break-all;resize:vertical}
+.bk-msg{margin-top:8px;font-size:13.5px;font-weight:700}
+.bk-msg.ok{color:var(--ok)} .bk-msg.ng{color:var(--ng)}
+.sync.warn{color:var(--ng);font-weight:700}
+.acct{color:var(--box-ink);font-size:12.5px;font-weight:700;text-decoration:none;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.acct:hover{background:rgba(255,255,255,.1)}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <small>診療放射線技師国家試験 過去問</small>
+      <h1>国試ドリル</h1>
+    </div>
+    <a class="acct" id="acct" href="../">ログインして保存</a>
+    <nav class="tabs" aria-label="ページ">
+      <button id="tab-home" data-view="home">ホーム</button>
+      <button id="tab-list" data-view="list">問題一覧</button>
+      <button id="tab-review" data-view="review">復習<span class="badge" id="badge-review" hidden>0</span></button>
+    </nav>
+  </header>
+  <div class="notice" id="sample-note" hidden>いまは<b>サンプル問題</b>が入っています。過去問の写真から問題を入れたら、ここに全部の問題が出ます。</div>
+  <div class="sync" id="sync">記録はこの端末に保存中…</div>
+
+  <!-- ホーム -->
+  <section class="view" id="view-home">
+    <div class="panel">
+      <h2>あなたの成績</h2>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div class="panel">
+      <h2>回ごとに解く</h2>
+      <div class="row" style="margin-bottom:10px">
+        <label class="opt"><input type="checkbox" id="opt-shuffle"> 問題の順番をシャッフル</label>
+        <label class="opt"><input type="checkbox" id="opt-unsolved"> まだ解いていない問題だけ</label>
+      </div>
+      <div class="grid-kai" id="grid-kai"></div>
+    </div>
+    <div class="panel">
+      <h2>分野ごとに解く</h2>
+      <div class="grid-kai" id="grid-field"></div>
+    </div>
+    <div class="panel">
+      <h2>そのほか</h2>
+      <div class="row">
+        <button class="btn primary" id="go-weak">苦手な問題だけ解く</button>
+        <button class="btn" id="go-review">間違えた問題を解き直す</button>
+        <button class="btn" id="go-random">ランダム10問</button>
+      </div>
+    </div>
+    <div class="panel" id="bk-panel">
+      <h2>記録のバックアップ</h2>
+      <p class="bk-note">ニックネームでログインしていれば、記録は自動でクラウドに保存されます。ここでは、記録を文字やファイルにして、手元にとっておくこともできます。</p>
+      <div class="row">
+        <button class="btn primary" id="bk-copy">記録を書き出す（コピー）</button>
+        <button class="btn" id="bk-file">ファイルに保存</button>
+        <button class="btn" id="bk-open">記録を読み込む</button>
+      </div>
+      <div id="bk-out" hidden>
+        <textarea class="bk-area" id="bk-code" readonly aria-label="記録のコード"></textarea>
+        <p class="bk-note" style="margin:6px 0 0">この文字をぜんぶコピーして、メモ帳や自分あてのLINEなどに貼っておいてください。</p>
+      </div>
+      <div id="bk-in" hidden>
+        <textarea class="bk-area" id="bk-paste" placeholder="ここに、書き出したコードを貼りつけてください" aria-label="読み込むコード"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="btn primary" id="bk-apply">この記録を読み込む</button>
+          <label class="btn" style="display:inline-flex;align-items:center">ファイルから読み込む<input type="file" id="bk-pick" accept=".txt,.json,text/plain,application/json" hidden></label>
+        </div>
+        <p class="bk-note" style="margin:6px 0 0">今ある記録は消えません。読み込んだ記録とあわせて、新しいほうが残ります。</p>
+      </div>
+      <div class="bk-msg" id="bk-msg" role="status"></div>
+    </div>
+  </section>
+
+  <!-- 一覧 -->
+  <section class="view" id="view-list" hidden>
+    <div class="panel">
+      <h2>問題一覧</h2>
+      <div class="filters">
+        <label>分野<select id="f-field"></select></label>
+        <label>回<select id="f-kai"></select></label>
+        <label>状態<select id="f-state">
+          <option value="all">すべて</option><option value="new">まだ解いてない</option>
+          <option value="ng">前回まちがえた</option><option value="everng">1回でもまちがえた</option><option value="ok">前回正解</option>
+        </select></label>
+        <label>並べ替え<select id="f-sort">
+          <option value="kai">回・番号順</option><option value="field">分野順</option>
+          <option value="rate">正答率が低い順</option><option value="wrong">まちがえた回数が多い順</option>
+        </select></label>
+        <label>キーワード<input type="search" id="f-q" placeholder="例：CT、半減期"></label>
+      </div>
+      <div class="row" style="justify-content:space-between;margin-bottom:6px">
+        <span id="list-count" class="num" style="font-size:13px;color:var(--sub)"></span>
+        <button class="btn primary" id="list-start">この条件で出題する</button>
+      </div>
+      <div class="list" id="list"></div>
+    </div>
+  </section>
+
+  <!-- 復習 -->
+  <section class="view" id="view-review" hidden>
+    <div class="panel weak">
+      <h2>苦手な問題</h2>
+      <p style="margin:0 0 10px;color:var(--sub);font-size:13.5px">まちがえた問題はここにも入ります。ここから解いて<b>2回続けて正解</b>するとリストから外れ、本当に苦手な問題だけが残ります。またまちがえたら、もう一度リストに入ります。（下の「間違えた問題」の記録とは別です）</p>
+      <div class="row" style="margin-bottom:8px">
+        <button class="btn primary" id="weak-start">苦手な問題を解く</button>
+        <select id="weak-field" aria-label="分野でしぼる"></select>
+      </div>
+      <div class="list" id="weak-list"></div>
+      <details id="grad-box" style="margin-top:12px">
+        <summary style="cursor:pointer;font-weight:700">卒業した問題（<span class="num" id="grad-n">0</span>問）</summary>
+        <p style="margin:6px 0;color:var(--sub);font-size:13px">一度まちがえて、2回続けて正解した問題です。記録はずっと残ります。</p>
+        <div class="row" style="margin-bottom:6px"><button class="btn" id="grad-start">卒業した問題をもう一度解く</button></div>
+        <div class="list" id="grad-list"></div>
+      </details>
+    </div>
+    <div class="panel">
+      <h2>間違えた問題</h2>
+      <p style="margin:0 0 10px;color:var(--sub);font-size:13.5px">前回まちがえた問題がここに集まります。解き直して正解すると、リストから消えます。</p>
+      <div class="row" style="margin-bottom:8px">
+        <button class="btn primary" id="review-start">全部解き直す</button>
+        <select id="review-field" aria-label="分野でしぼる"></select>
+      </div>
+      <div class="list" id="review-list"></div>
+    </div>
+  </section>
+
+  <!-- 出題 -->
+  <section class="view" id="view-quiz" hidden>
+    <div class="sheet" id="sheet"></div>
+    <div class="memo" id="memo">
+      <div class="memo-bar">
+        <h3>計算メモ <small>次の問題で自動で消えます</small></h3>
+        <button class="mt tool" data-tool="ink" aria-pressed="true" aria-label="黒ペン"><span class="dot"></span></button>
+        <button class="mt tool" data-tool="red" aria-pressed="false" aria-label="赤ペン"><span class="dot"></span></button>
+        <button class="mt tool" data-tool="blue" aria-pressed="false" aria-label="青ペン"><span class="dot"></span></button>
+        <button class="mt tool" data-tool="eraser" aria-pressed="false">消しゴム</button>
+        <button class="mt tool" id="memo-undo">戻す</button>
+        <button class="mt tool" id="memo-clear">全部消す</button>
+        <button class="mt" id="memo-toggle" aria-expanded="true">しまう</button>
+        <span class="memo-br"></span>
+      </div>
+      <div class="memo-pad" id="memo-pad"><canvas id="memo-cv"></canvas><div class="memo-hint" id="memo-hint">Apple Pencil や指で、ここに書けます</div></div>
+    </div>
+  </section>
+
+  <!-- 結果 -->
+  <section class="view" id="view-result" hidden>
+    <div class="panel" id="result"></div>
+  </section>
+</div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const CIRC = "①②③④⑤⑥⑦⑧⑨";
+const fmt = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<u><b>$1</b></u>");
+
+let Q = [], byId = {}, KAIS = [], FIELDS = [];
+let rec = {};               // qid -> {c: 正解数, w: 不正解数, r: 前回 1/0, t: 時刻}
+let quiz = null;            // {title, ids, i, picked:Set, done:bool, results:[]}
+let view = "home";
+
+/* ---------- 記録の保存 ---------- */
+const KQS = window.KQ && KQ.session();
+const LS = "kokushi-rec-v1" + (KQS ? "@" + KQS.nick.toLowerCase() : "");
+try { rec = JSON.parse(localStorage.getItem(LS) || "{}") || {}; } catch { rec = {}; }
+let cloud = null, uid = null;
+const dirty = new Set(); let flushing = false;
+const kaiOf = id => String(byId[id]?.kai ?? String(id).split("-")[0]);
+
+function saveLocal(){ try { localStorage.setItem(LS, JSON.stringify(rec)); } catch {} }
+
+/* 苦手リスト：まちがえると入る。苦手モードで2回続けて正解すると外れる（out=1）。記録 rec とは別に保存 */
+const WLS = LS + "-weak", WEAK_N = 2;
+let weak = null, weakDirty = false, weakSeeded = false;
+try { weak = JSON.parse(localStorage.getItem(WLS) || "null"); } catch {}
+if (!weak || typeof weak !== "object") {
+  weak = {}; weakSeeded = true;
+  for (const [id, r] of Object.entries(rec)) if (r && r.w > 0) weak[id] = { s: 0, t: r.t || 0 };
+}
+function saveWeak(){ try { localStorage.setItem(WLS, JSON.stringify(weak)); } catch {} }
+saveWeak();
+const isWeak = id => !!weak[id] && !weak[id].out;
+function weakRecord(id, ok, mode){
+  const now = Date.now();
+  if (!ok) weak[id] = { s: 0, t: now };
+  else if (mode && isWeak(id)) { const w = weak[id]; w.s++; w.t = now; if (w.s >= WEAK_N) w.out = 1; }
+  else return null;
+  saveWeak(); weakDirty = true; flush();
+  return { ...weak[id] };
+}
+const APP = "kakomon";
+let saveTimer = null;
+function flush(){
+  if (!cloud || (!dirty.size && !weakDirty)) return;
+  clearTimeout(saveTimer); saveTimer = setTimeout(doSave, 1200);
+}
+async function doSave(){
+  if (flushing) { saveTimer = setTimeout(doSave, 1000); return; }
+  flushing = true; dirty.clear(); weakDirty = false;
+  const r = await KQ.save(APP, { v: 1, at: Date.now(), rec, weak });
+  flushing = false;
+  if (r.ok) setSync(`☁ ${KQS.nick} さんの記録として保存しました（どの端末でも続きから）`);
+  else { setSync("クラウド保存に失敗しました（この端末には保存されています）" + (r.msg ? "：" + r.msg : "")); weakDirty = true; clearTimeout(saveTimer); saveTimer = setTimeout(doSave, 15000); }
+}
+function mergeIn(r2, w2){
+  let changed = false;
+  for (const [id, r] of Object.entries(r2 || {})) if (r && (!rec[id] || (r.t || 0) > (rec[id].t || 0))) { rec[id] = r; changed = true; }
+  for (const [id, w] of Object.entries(w2 || {})) if (w && (!weak[id] || (w.t || 0) > (weak[id].t || 0))) { weak[id] = w; changed = true; }
+  return changed;
+}
+function record(id, ok){
+  const r = rec[id] || { c: 0, w: 0, r: null, t: 0 };
+  ok ? r.c++ : r.w++; r.r = ok ? 1 : 0; r.t = Date.now();
+  rec[id] = r; saveLocal(); dirty.add(kaiOf(id)); flush();
+}
+function setSync(t){ $("#sync").textContent = t; }
+
+function showAcct(n){ const a = $("#acct"); a.textContent = n ? "👤 " + n : "ログインして保存"; a.title = n ? "ログイン中（タップで切りかえ）" : "ニックネームで記録を保存"; }
+async function connectCloud(){
+  if (!KQS || !window.KQ?.ready()) { showAcct(null); return; }
+  showAcct(KQS.nick); setSync("記録を読みこみ中…");
+  const r = await KQ.load(APP);
+  if (!r.ok) {
+    if (r.status === "wrong" || r.status === "none") { showAcct(null); setSync("ログインが切れました。右上からもう一度ログインしてください"); }
+    else setSync("クラウドにつながりませんでした（この端末の記録で続けます）" + (r.msg ? "：" + r.msg : ""));
+    return;
+  }
+  const d = r.data || {};
+  if (mergeIn(d.rec, d.weak)) { saveLocal(); saveWeak(); render(); }
+  cloud = true;
+  setSync(`☁ ${KQS.nick} さんの記録（どの端末でも続きから）`);
+  dirty.add("all"); flush();
+}
+
+/* ---------- 記録のバックアップ（書き出し・読み込み） ---------- */
+const BK_APP = "kakomon", BK_HEAD = "KOKUSHI-" + BK_APP.toUpperCase() + "1";
+let lsOk = true;
+try { const k = LS + "-test"; localStorage.setItem(k, "1"); lsOk = localStorage.getItem(k) === "1"; localStorage.removeItem(k); } catch { lsOk = false; }
+if (!lsOk) { setSync("⚠ このブラウザでは記録が保存されません。閉じる前に下の「記録を書き出す」をしてください"); $("#sync").classList.add("warn"); }
+setTimeout(() => { if (!cloud && lsOk) setSync("ログインしていないので、記録はこのブラウザだけに保存しています。右上の「ログインして保存」から、ニックネームで保存できます"); }, 11000);
+const b64 = u8 => { let t = ""; for (let i = 0; i < u8.length; i += 0x8000) t += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(t); };
+const unb64 = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
+async function pipe(u8, Stream, kind){ return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new Stream(kind))).arrayBuffer()); }
+async function makeCode(){
+  const raw = new TextEncoder().encode(JSON.stringify({ app: BK_APP, v: 1, at: Date.now(), rec, weak }));
+  if (window.CompressionStream) { try { return BK_HEAD + "G:" + b64(await pipe(raw, CompressionStream, "gzip")); } catch {} }
+  return BK_HEAD + "J:" + b64(raw);
+}
+async function readCode(text){
+  text = String(text || "").trim();
+  if (text.startsWith("{")) return JSON.parse(text);
+  const m = /KOKUSHI-([A-Z]+)1([GJ]):([A-Za-z0-9+/=\s]+)/.exec(text);
+  if (!m) throw new Error("form");
+  if (m[1] !== BK_APP.toUpperCase()) throw new Error("app");
+  let u8 = unb64(m[3].replace(/\s+/g, ""));
+  if (m[2] === "G") { if (!window.DecompressionStream) throw new Error("old"); u8 = await pipe(u8, DecompressionStream, "gzip"); }
+  return JSON.parse(new TextDecoder().decode(u8));
+}
+function bkMsg(t, ok){ const m = $("#bk-msg"); m.textContent = t; m.className = "bk-msg " + (ok ? "ok" : "ng"); }
+const solvedN = () => Object.keys(rec).filter(id => byId[id]).length;
+async function bkCopy(){
+  const code = await makeCode();
+  $("#bk-in").hidden = true; $("#bk-out").hidden = false;
+  const ta = $("#bk-code"); ta.value = code;
+  let copied = false;
+  try { await navigator.clipboard.writeText(code); copied = true; } catch {}
+  if (!copied) { try { ta.focus(); ta.select(); copied = document.execCommand("copy"); } catch {} }
+  ta.select();
+  bkMsg(copied ? `コピーしました（解いた問題 ${solvedN()}問ぶん）。メモ帳などに貼って保存してください` : `下の文字をぜんぶ選んでコピーしてください（解いた問題 ${solvedN()}問ぶん）`, true);
+}
+async function bkFile(){
+  const code = await makeCode(), d = new Date();
+  const name = `kokushi-${BK_APP}-kiroku-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}.txt`;
+  try {
+    const dl = window.claude?.use ? await claude.use("downloads") : null;
+    if (dl) { await dl.save({ filename: name, data: code }); bkMsg("ファイルに保存しました。", true); return; }
+  } catch (e) { if (e?.code === "declined") { bkMsg("保存をやめました。", false); return; } }
+  try {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([code], { type: "text/plain" })); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    bkMsg("ファイルを保存しました（保存されないときは「記録を書き出す（コピー）」を使ってください）", true);
+  } catch { bkMsg("この画面ではファイル保存ができません。「記録を書き出す（コピー）」を使ってください", false); }
+}
+async function bkImport(text){
+  let data;
+  try { data = await readCode(text); }
+  catch (e) {
+    return bkMsg(e.message === "app" ? "これは「対策問題集」の記録です。「対策問題集」の画面で読み込んでください"
+      : e.message === "old" ? "このブラウザでは読み込めません。新しいSafariやChromeで開いてください"
+      : "コードが読めませんでした。最初から最後までぜんぶ貼れているか確かめてください", false);
+  }
+  if (!data || data.app !== BK_APP || typeof data.rec !== "object") return bkMsg("この問題集の記録ではないようです。", false);
+  let added = 0;
+  for (const [id, r] of Object.entries(data.rec || {})) {
+    if (!r || typeof r !== "object") continue;
+    if (!rec[id] || (r.t || 0) > (rec[id].t || 0)) { rec[id] = { c: +r.c || 0, w: +r.w || 0, r: r.r === 1 ? 1 : r.r === 0 ? 0 : null, t: +r.t || 0 }; added++; dirty.add(kaiOf(id)); }
+  }
+  for (const [id, w] of Object.entries(data.weak || {})) {
+    if (!w || typeof w !== "object") continue;
+    if (!weak[id] || (w.t || 0) > (weak[id].t || 0)) { weak[id] = { s: +w.s || 0, t: +w.t || 0, ...(w.out ? { out: 1 } : {}) }; weakDirty = true; }
+  }
+  saveLocal(); saveWeak(); flush(); render();
+  $("#bk-paste").value = "";
+  bkMsg(added ? `読み込みました！ ${added}問ぶんの記録が戻りました（いま解いた問題 ${solvedN()}問）` : "読み込みました。新しく戻る記録はありませんでした（もう入っています）", true);
+}
+$("#bk-copy").addEventListener("click", () => bkCopy().catch(() => bkMsg("書き出しに失敗しました。", false)));
+$("#bk-file").addEventListener("click", () => bkFile());
+$("#bk-open").addEventListener("click", () => { $("#bk-out").hidden = true; $("#bk-in").hidden = false; $("#bk-msg").textContent = ""; $("#bk-paste").focus(); });
+$("#bk-apply").addEventListener("click", () => { const t = $("#bk-paste").value; t.trim() ? bkImport(t) : bkMsg("コードを貼りつけてください。", false); });
+$("#bk-pick").addEventListener("change", async e => { const f = e.target.files?.[0]; e.target.value = ""; if (f) bkImport(await f.text()); });
+
+/* ---------- 集計 ---------- */
+const st = id => rec[id];
+const isNg = id => st(id)?.r === 0;
+function summary(ids){
+  let done = 0, ok = 0, ng = 0;
+  for (const id of ids) { const r = st(id); if (r) { done++; r.r ? ok++ : ng++; } }
+  return { n: ids.length, done, ok, ng };
+}
+function meter(s){
+  const o = s.n ? s.ok / s.n * 100 : 0, x = s.n ? s.ng / s.n * 100 : 0;
+  return `<div class="meter" aria-hidden="true"><i class="o" style="width:${o}%"></i><i class="x" style="width:${x}%"></i></div>`;
+}
+const rateOf = id => { const r = st(id); return r ? r.c / (r.c + r.w) : -1; };
+
+/* ---------- 画面 ---------- */
+function show(v){
+  view = v; document.body.classList.toggle("in-quiz", v === "quiz");
+  for (const s of document.querySelectorAll("section.view")) s.hidden = s.id !== "view-" + v;
+  for (const b of document.querySelectorAll("nav.tabs button")) b.toggleAttribute("aria-current", b.dataset.view === v) || b.removeAttribute("aria-current");
+  document.querySelectorAll("nav.tabs button").forEach(b => b.dataset.view === v ? b.setAttribute("aria-current","page") : b.removeAttribute("aria-current"));
+  render(); window.scrollTo(0, 0);
+}
+function render(){
+  const ngIds = Q.filter(q => isNg(q.id)).map(q => q.id);
+  const b = $("#badge-review"); b.hidden = !ngIds.length; b.textContent = ngIds.length;
+  if (view === "home") renderHome(ngIds);
+  if (view === "list") renderList();
+  if (view === "review") renderReview(ngIds);
+  if (view === "review") renderWeak();
+  if (view === "quiz") renderQuiz();
+}
+
+function renderHome(ngIds){
+  const s = summary(Q.map(q => q.id));
+  const att = Object.entries(rec).filter(([id]) => byId[id]);
+  const tc = att.reduce((a, [, r]) => a + r.c, 0), tw = att.reduce((a, [, r]) => a + r.w, 0);
+  $("#stats").innerHTML = `
+    <div class="stat"><b>${s.n}</b><span>問題数</span></div>
+    <div class="stat"><b>${s.done}</b><span>解いた問題</span></div>
+    <div class="stat"><b>${tc + tw ? Math.round(tc / (tc + tw) * 100) : 0}<small>%</small></b><span>正答率（全回答）</span></div>
+    <div class="stat warn"><b>${ngIds.length}</b><span>要復習</span></div>`;
+  $("#grid-kai").innerHTML = KAIS.map(k => {
+    const ids = Q.filter(q => q.kai === k).map(q => q.id), s = summary(ids);
+    return `<button class="tile" data-kai="${k}"><span class="t">第${k}回</span><span class="s num">${s.done}/${s.n}問　正解${s.ok}</span>${meter(s)}</button>`;
+  }).join("");
+  $("#grid-field").innerHTML = FIELDS.map(f => {
+    const ids = Q.filter(q => q.field === f).map(q => q.id), s = summary(ids);
+    return `<button class="tile" data-field="${esc(f)}"><span class="t">${esc(f)}</span><span class="s num">${s.done}/${s.n}問　正解${s.ok}</span>${meter(s)}</button>`;
+  }).join("");
+  $("#go-review").disabled = !ngIds.length;
+  const wn = Q.filter(q => isWeak(q.id)).length;
+  $("#go-weak").disabled = !wn; $("#go-weak").textContent = `苦手な問題だけ解く（${wn}問）`;
+}
+
+function filteredList(){
+  const f = $("#f-field").value, k = $("#f-kai").value, s = $("#f-state").value, sort = $("#f-sort").value;
+  const kw = $("#f-q").value.trim().toLowerCase();
+  let list = Q.filter(q =>
+    (!f || q.field === f) && (!k || String(q.kai) === k) &&
+    (s === "all" || (s === "new" && !st(q.id)) || (s === "ng" && isNg(q.id)) ||
+     (s === "everng" && st(q.id)?.w > 0) || (s === "ok" && st(q.id)?.r === 1)) &&
+    (!kw || (q.question + q.choices.join(" ")).toLowerCase().includes(kw)));
+  const base = (a, b) => b.kai - a.kai || (a.session > b.session ? 1 : a.session < b.session ? -1 : 0) || a.no - b.no;
+  if (sort === "kai") list.sort(base);
+  if (sort === "field") list.sort((a, b) => a.field.localeCompare(b.field, "ja") || base(a, b));
+  if (sort === "rate") list.sort((a, b) => { const ra = rateOf(a.id), rb = rateOf(b.id); return (ra < 0) - (rb < 0) || ra - rb || base(a, b); });
+  if (sort === "wrong") list.sort((a, b) => (st(b.id)?.w || 0) - (st(a.id)?.w || 0) || base(a, b));
+  return list;
+}
+function itemHTML(q){
+  const r = st(q.id);
+  const chip = !r ? `<span class="chip">未回答</span>` : r.r ? `<span class="chip ok">○ 正解</span>` : `<span class="chip ng">✕ まちがい</span>`;
+  const cnt = r ? `<div class="meta num">○${r.c} ✕${r.w}</div>` : "";
+  return `<button class="item" data-q="${esc(q.id)}">
+    <div class="meta">第${q.kai}回 ${esc(q.session || "")}${q.no}<br>${esc(q.field)}</div>
+    <div class="q">${esc(q.question.replace(/\*\*/g, ""))}</div>
+    <div style="text-align:right">${chip}${cnt}</div></button>`;
+}
+function streakHTML(id){
+  const s = weak[id]?.s || 0;
+  return `<span class="streak" title="続けて正解した回数">${Array.from({ length: WEAK_N }, (_, i) => `<i class="${i < s ? "on" : ""}"></i>`).join("")} あと${WEAK_N - s}回</span>`;
+}
+function renderWeak(){
+  const f = $("#weak-field").value;
+  const list = Q.filter(q => isWeak(q.id) && (!f || q.field === f));
+  $("#weak-start").disabled = !list.length;
+  $("#weak-list").innerHTML = list.length ? list.map(q => itemHTML(q).replace('<div style="text-align:right">', `<div style="text-align:right">${streakHTML(q.id)}<br>`)).join("")
+    : `<div class="empty">苦手な問題はありません。まちがえた問題がここに入ります。</div>`;
+  const grad = Q.filter(q => weak[q.id]?.out && (!f || q.field === f));
+  $("#grad-n").textContent = grad.length; $("#grad-start").disabled = !grad.length;
+  $("#grad-list").innerHTML = grad.length ? grad.map(q => itemHTML(q).replace('<div style="text-align:right">', '<div style="text-align:right"><span class="chip ok">卒業</span><br>')).join("")
+    : `<div class="empty">まだありません。</div>`;
+}
+function renderList(){
+  const list = filteredList();
+  $("#list-count").textContent = `${list.length}問`;
+  $("#list-start").disabled = !list.length;
+  $("#list").innerHTML = list.length ? list.slice(0, 300).map(itemHTML).join("") + (list.length > 300 ? `<div class="empty">ほか ${list.length - 300}問（条件をしぼると表示されます）</div>` : "")
+    : `<div class="empty">条件に合う問題がありません。</div>`;
+}
+function renderReview(ngIds){
+  const f = $("#review-field").value;
+  const list = ngIds.map(id => byId[id]).filter(q => !f || q.field === f);
+  $("#review-start").disabled = !list.length;
+  $("#review-list").innerHTML = list.length ? list.map(itemHTML).join("")
+    : `<div class="empty">まちがえた問題はありません。問題を解くと、まちがえた問題がここにたまります。</div>`;
+}
+
+/* ---------- 手書きメモ（Apple Pencil 対応） ---------- */
+const memo = (() => {
+  const box = $("#memo"), pad = $("#memo-pad"), cv = $("#memo-cv"), ctx = cv.getContext("2d"), hint = $("#memo-hint");
+  const MLS = "kokushi-memo-v1";
+  let pref = {}; try { pref = JSON.parse(localStorage.getItem(MLS) || "{}") || {}; } catch {}
+  let tool = pref.tool || "ink", open = pref.open !== false;
+  let strokes = [], cur = null, penSeen = false, W = 0, H = 0, dpr = 1;
+  const savePref = () => { try { localStorage.setItem(MLS, JSON.stringify({ tool, open })); } catch {} };
+  const color = c => getComputedStyle(document.documentElement).getPropertyValue(c === "red" ? "--ng" : c === "blue" ? "--accent" : "--ink").trim() || "#000";
+  const widthOf = (s, p) => s.mode === "erase" ? 26 : 2.4 * (0.35 + p * 1.3);
+  function seg(s, a, b){
+    ctx.globalCompositeOperation = s.mode === "erase" ? "destination-out" : "source-over";
+    ctx.strokeStyle = ctx.fillStyle = s.mode === "erase" ? "#000" : color(s.color);
+    ctx.lineWidth = widthOf(s, (a[2] + b[2]) / 2);
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+  }
+  function dot(s, a){
+    ctx.globalCompositeOperation = s.mode === "erase" ? "destination-out" : "source-over";
+    ctx.fillStyle = s.mode === "erase" ? "#000" : color(s.color);
+    ctx.beginPath(); ctx.arc(a[0], a[1], widthOf(s, a[2]) / 2, 0, Math.PI * 2); ctx.fill();
+  }
+  function redraw(){
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalCompositeOperation = "source-over"; ctx.clearRect(0, 0, W, H);
+    ctx.lineCap = ctx.lineJoin = "round";
+    for (const s of strokes) { dot(s, s.pts[0]); for (let i = 1; i < s.pts.length; i++) seg(s, s.pts[i - 1], s.pts[i]); }
+    ctx.globalCompositeOperation = "source-over";
+    hint.hidden = strokes.length > 0;
+    $("#memo-undo").disabled = $("#memo-clear").disabled = !strokes.length;
+  }
+  function resize(){
+    const r = pad.getBoundingClientRect(); if (!r.width || !r.height) return;
+    dpr = Math.min(window.devicePixelRatio || 1, 3); W = r.width; H = r.height;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); redraw();
+  }
+  new ResizeObserver(resize).observe(pad);
+  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", redraw);
+  const pt = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top, e.pointerType === "pen" ? (e.pressure || 0.5) : 0.5]; };
+  cv.addEventListener("pointerdown", e => {
+    if (e.pointerType === "pen") penSeen = true;
+    else if (e.pointerType === "touch" && penSeen) return;   // ペンを使ったあとは、手のひらや指は無視
+    if (cur || e.button > 0) return;
+    e.preventDefault();
+    try { cv.setPointerCapture(e.pointerId); } catch {}
+    cur = { id: e.pointerId, mode: tool === "eraser" ? "erase" : "pen", color: tool, pts: [pt(e)] };
+    strokes.push(cur);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.lineCap = ctx.lineJoin = "round";
+    dot(cur, cur.pts[0]); hint.hidden = true;
+  });
+  cv.addEventListener("pointermove", e => {
+    if (!cur || e.pointerId !== cur.id) return;
+    e.preventDefault();
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+    for (const ev of evs.length ? evs : [e]) { const p = pt(ev), a = cur.pts[cur.pts.length - 1]; cur.pts.push(p); seg(cur, a, p); }
+    ctx.globalCompositeOperation = "source-over";
+  });
+  const end = e => { if (cur && e.pointerId === cur.id) { cur = null; redraw(); } };
+  cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
+  cv.addEventListener("touchstart", e => { if (e.cancelable) e.preventDefault(); }, { passive: false });
+  cv.addEventListener("contextmenu", e => e.preventDefault());
+  function setTool(t){ tool = t; box.querySelectorAll("[data-tool]").forEach(b => b.setAttribute("aria-pressed", b.dataset.tool === t)); savePref(); }
+  function setOpen(o){
+    open = o; box.classList.toggle("off", !o); document.body.classList.toggle("memo-open", o);
+    const b = $("#memo-toggle"); b.textContent = o ? "しまう" : "メモを開く"; b.setAttribute("aria-expanded", o); savePref();
+  }
+  box.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    e.stopPropagation();
+    if (b.dataset.tool) return setTool(b.dataset.tool);
+    if (b.id === "memo-undo") { strokes.pop(); redraw(); }
+    if (b.id === "memo-clear") { strokes = []; redraw(); }
+    if (b.id === "memo-toggle") setOpen(!open);
+  });
+  setTool(tool); setOpen(open);
+  let key = null;
+  return {
+    // 問題がかわったら自動で白紙にもどす
+    sync(k){ if (k !== key) { key = k; strokes = []; cur = null; redraw(); } }
+  };
+})();
+
+/* ---------- 出題 ---------- */
+const needOf = q => q.answer.length || (/([2-3])つ選べ/.exec(q.question) || [0, 1])[1] * 1;
+function shuffle(a){ a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function startQuiz(title, ids, opts = {}){
+  if (opts.unsolved) ids = ids.filter(id => !st(id));
+  if (opts.shuffle) ids = shuffle(ids);
+  if (!ids.length) { alertBox("出題できる問題がありません。"); return; }
+  quiz = { seq: (quiz?.seq || 0) + 1, title, ids, i: 0, picked: new Set(), done: false, results: [], weak: !!opts.weak, wk: [] };
+  show("quiz");
+}
+function alertBox(msg){ setSync(msg); }
+
+function renderQuiz(){
+  if (!quiz) return show("home");
+  const q = byId[quiz.ids[quiz.i]], need = needOf(q), done = quiz.done;
+  const ok = done && quiz.results[quiz.i];
+  memo.sync(quiz.seq + ":" + quiz.i);
+  const choices = q.choices.map((c, i) => {
+    const n = i + 1, picked = quiz.picked.has(n), isAns = q.answer.includes(n) || (q.alt || []).some(a => a.includes(n));
+    const cls = done ? (isAns ? "correct" : picked ? "wrongpick" : "") : "";
+    return `<li><button class="choice ${cls}" data-n="${n}" aria-pressed="${picked}" ${done ? "disabled" : ""}>
+      <span class="bubble">${n}</span><span>${esc(c)}</span></button></li>`;
+  }).join("");
+  const imgs = (q.images || []).map(src => `<img src="${esc(src)}" alt="問題の画像" loading="lazy">`).join("");
+  $("#sheet").innerHTML = `
+    <div class="qhead">
+      <span class="qno">第${q.kai}回 ${esc(q.session || "")} ${q.session ? "" : "問"}${q.no}</span>
+      <span class="chip">${esc(q.field)}</span>
+      <span class="num" style="color:var(--sub);font-size:13px">${esc(quiz.title)}　${quiz.i + 1} / ${quiz.ids.length}</span>
+    </div>
+    <div class="prog"><i style="width:${(quiz.i + (done ? 1 : 0)) / quiz.ids.length * 100}%"></i></div>
+    <div class="qtext">${fmt(q.question)}</div>
+    ${need > 1 ? `<span class="howmany">※ ${need}つ選ぶ問題です</span>` : ""}
+    ${imgs ? `<div class="qimg">${imgs}</div>` : ""}
+    <ol class="choices">${choices}</ol>
+    ${done ? `<div class="verdict ${ok ? "ok" : "ng"}">
+        <span class="big">${ok ? "○ 正解！" : "✕ まちがい"}</span>
+        ${q.answer.length ? `<span>正解は <b>${[q.answer, ...(q.alt || [])].map(a => a.join("・")).join(" または ")}</b>（${q.answer.map(n => esc(q.choices[n - 1])).join("、")}${q.alt ? " など" : ""}）</span>` : ""}
+        ${q.note ? `<span style="font-size:13px">※ ${esc(q.note)}</span>` : q.alt ? `<span style="font-size:13px">※ 厚生労働省が複数の答えを正解と発表した問題です</span>` : ""}
+        ${quiz.weak ? weakNote(quiz.wk[quiz.i], ok) : ""}
+      </div>${expHtml(q)}` : ""}
+    <div class="qfoot">
+      <button class="btn" id="q-quit">やめる</button>
+      ${done ? `<button class="btn primary" id="q-next">${quiz.i + 1 < quiz.ids.length ? "次の問題へ" : "結果を見る"}</button>`
+             : `<button class="btn primary" id="q-answer" ${quiz.picked.size === need ? "" : "disabled"}>答え合わせ</button>`}
+    </div>`;
+}
+function weakNote(w, ok){
+  if (!w) return "";
+  if (!ok) return `<span class="wk-note">連続正解は0回にもどりました。苦手リストに残ります</span>`;
+  if (w.out) return `<span class="wk-note">🎉 ${WEAK_N}回続けて正解！苦手リストから外れました</span>`;
+  return `<span class="wk-note">あと${WEAK_N - w.s}回続けて正解すると、苦手リストから外れます</span>`;
+}
+function expHtml(q){
+  const e = q.exp; if (!e) return "";
+  const right = new Set(q.answer);
+  const rows = e.c.map((t, i) => `<li><b class="${right.has(i + 1) ? "mk ok" : "mk ng"}">${right.has(i + 1) ? "○" : "✕"} ${i + 1}</b><span>${fmt(t)}</span></li>`).join("");
+  return `<div class="exp"><div class="exp-h">解説</div><p>${fmt(e.p)}</p><ul>${rows}</ul></div>`;
+}
+function pick(n){
+  const q = byId[quiz.ids[quiz.i]], need = needOf(q);
+  if (quiz.picked.has(n)) quiz.picked.delete(n);
+  else { if (need === 1) quiz.picked.clear(); else if (quiz.picked.size >= need) return; quiz.picked.add(n); }
+  renderQuiz();
+}
+function answer(){
+  const q = byId[quiz.ids[quiz.i]];
+  const same = a => a.length === quiz.picked.size && a.every(n => quiz.picked.has(n));
+  const ok = !q.answer.length || [q.answer, ...(q.alt || [])].some(same);
+  quiz.results[quiz.i] = ok; quiz.done = true; record(q.id, ok); quiz.wk[quiz.i] = weakRecord(q.id, ok, quiz.weak); render();
+}
+function next(){
+  if (quiz.i + 1 < quiz.ids.length) { quiz.i++; quiz.picked = new Set(); quiz.done = false; render(); window.scrollTo(0, 0); }
+  else finish();
+}
+function finish(){
+  const n = quiz.results.filter(r => r !== undefined).length, ok = quiz.results.filter(Boolean).length;
+  const wrong = quiz.ids.filter((id, i) => quiz.results[i] === false);
+  $("#result").innerHTML = `
+    <h2>${esc(quiz.title)} の結果</h2>
+    <p style="margin:12px 0"><span class="result-big">${ok}</span> <span class="num">/ ${n}問 正解（${n ? Math.round(ok / n * 100) : 0}%）</span></p>
+    ${quiz.weak ? `<p class="wk-note" style="margin:0 0 12px">苦手リストから外れた問題：<span class="num">${quiz.wk.filter(w => w?.out).length}</span>問　／　のこりの苦手：<span class="num">${Q.filter(q => isWeak(q.id)).length}</span>問</p>` : ""}
+    <div class="row" style="margin-bottom:12px">
+      ${wrong.length ? `<button class="btn primary" id="r-retry">まちがえた${wrong.length}問をもう一度</button>` : ""}
+      <button class="btn" id="r-home">ホームへ</button>
+    </div>
+    ${wrong.length ? `<h3 style="margin-bottom:4px">まちがえた問題</h3><div class="list">${wrong.map(id => itemHTML(byId[id])).join("")}</div>` : ""}`;
+  quiz.wrong = wrong;
+  show("result");
+}
+
+/* ---------- 操作 ---------- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.view) return show(t.dataset.view);
+  const shuffleOpt = { shuffle: $("#opt-shuffle").checked, unsolved: $("#opt-unsolved").checked };
+  if (t.dataset.kai) return startQuiz(`第${t.dataset.kai}回`, Q.filter(q => String(q.kai) === t.dataset.kai).sort((a, b) => (a.session > b.session) - (a.session < b.session) || a.no - b.no).map(q => q.id), shuffleOpt);
+  if (t.dataset.field) return startQuiz(t.dataset.field, Q.filter(q => q.field === t.dataset.field).map(q => q.id), shuffleOpt);
+  if (t.dataset.q) return startQuiz("1問だけ", [t.dataset.q]);
+  if (t.dataset.n && quiz && !quiz.done) return pick(+t.dataset.n);
+  switch (t.id) {
+    case "go-review": case "review-start": {
+      const f = $("#review-field").value;
+      return startQuiz("復習", Q.filter(q => isNg(q.id) && (t.id === "go-review" || !f || q.field === f)).map(q => q.id), { shuffle: true });
+    }
+    case "go-weak": case "weak-start": {
+      const f = $("#weak-field").value;
+      return startQuiz("苦手な問題", Q.filter(q => isWeak(q.id) && (t.id === "go-weak" || !f || q.field === f)).map(q => q.id), { shuffle: true, weak: true });
+    }
+    case "grad-start": {
+      const f = $("#weak-field").value;
+      return startQuiz("卒業した問題", Q.filter(q => weak[q.id]?.out && (!f || q.field === f)).map(q => q.id), { shuffle: true });
+    }
+    case "go-random": return startQuiz("ランダム10問", shuffle(Q.map(q => q.id)).slice(0, 10));
+    case "list-start": return startQuiz("一覧から出題", filteredList().map(q => q.id));
+    case "q-answer": return answer();
+    case "q-next": return next();
+    case "q-quit": return quiz.results.some(r => r !== undefined) ? finish() : show("home");
+    case "r-retry": return quiz.weak ? startQuiz("苦手な問題", quiz.wrong.filter(isWeak), { shuffle: true, weak: true }) : startQuiz("まちがえた問題", quiz.wrong);
+    case "r-home": return show("home");
+  }
+});
+["#f-field", "#f-kai", "#f-state", "#f-sort"].forEach(s => $(s).addEventListener("change", renderList));
+$("#f-q").addEventListener("input", renderList);
+$("#review-field").addEventListener("change", render);
+$("#weak-field").addEventListener("change", render);
+document.addEventListener("keydown", e => {
+  if (view !== "quiz" || !quiz || e.target.matches("input,select")) return;
+  if (/^[1-9]$/.test(e.key) && !quiz.done && +e.key <= byId[quiz.ids[quiz.i]].choices.length) pick(+e.key);
+  if (e.key === "Enter") { const b = $("#q-answer:not(:disabled)") || $("#q-next"); if (b) { e.preventDefault(); b.click(); } }
+});
+
+/* ---------- 読み込み ---------- */
+function load(data){
+  Q = data.questions || [];
+  byId = Object.fromEntries(Q.map(q => [q.id, q]));
+  KAIS = [...new Set(Q.map(q => q.kai))].sort((a, b) => b - a);
+  FIELDS = [...new Set(Q.map(q => q.field))].sort((a, b) => a.localeCompare(b, "ja"));
+  $("#sample-note").hidden = !data.sample && !data.notice;
+  if (data.notice) $("#sample-note").textContent = data.notice;
+  const opts = (all, xs, f = x => x) => `<option value="">${all}</option>` + xs.map(x => `<option value="${esc(x)}">${esc(f(x))}</option>`).join("");
+  $("#f-field").innerHTML = opts("すべての分野", FIELDS);
+  $("#f-kai").innerHTML = opts("すべての回", KAIS, k => `第${k}回`);
+  $("#review-field").innerHTML = opts("すべての分野", FIELDS);
+  $("#weak-field").innerHTML = opts("すべての分野", FIELDS);
+  show("home");
+}
+fetch("questions.json").then(r => r.ok ? r.json() : Promise.reject())
+  .then(load)
+  .catch(() => { setSync("問題データを読み込めませんでした。ページを開き直してください。"); });
+connectCloud();
+})();
+</script>
+
+</body></html>
