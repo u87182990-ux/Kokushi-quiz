@@ -2,6 +2,7 @@
 // 見た目のパーツは下の TYPES / COLORS / OUTFITS / ACCS に1行足すだけで選べるようになります
 (() => {
   if (window.KQGuide) return;
+  const BASE = (document.currentScript && document.currentScript.src || location.href).replace(/[^/]*$/, "");
 
   /* ---------- 見た目のパーツ ---------- */
   const TYPES = [
@@ -13,6 +14,8 @@
     { id: "robo", name: "ロボ" },
     { id: "hito", name: "ひと" },
     { id: "mofu", name: "もふもふ" }
+    // 絵（画像）のキャラは、shared/chara/<名前>-normal.png（と -happy / -cheer / -think）を置いて、下のように1行足す
+    // { id: "xxx", name: "なまえ", img: "xxx", moods: ["happy", "cheer", "think"] },
   ];
   const COLORS = [
     { id: "#ffc48a", name: "オレンジ" }, { id: "#ffb3c7", name: "ピンク" }, { id: "#ffe27a", name: "きいろ" },
@@ -165,7 +168,13 @@
       <ellipse cx="36.5" cy="58.5" rx="4.6" ry="3.2" fill="#ff9aa8" opacity=".6" filter="url(#${id}b)"/><ellipse cx="63.5" cy="58.5" rx="4.6" ry="3.2" fill="#ff9aa8" opacity=".6" filter="url(#${id}b)"/>
       ${eyes}${mouth}${other}${top}</svg>`;
   }
+  function drawImg(t, mood){
+    const m = (t.moods || []).includes(mood) ? mood : "normal";
+    return `<svg viewBox="0 -2 100 116" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><image href="${BASE}chara/${t.img}-${m}.png" x="0" y="-2" width="100" height="116" preserveAspectRatio="xMidYMax meet"/></svg>`;
+  }
   function draw(av, mood){
+    const ti = TYPES.find(x => x.id === av.type);
+    if (ti && ti.img) return drawImg(ti, mood);
     if (av.type === "mofu") return drawMofu(av, mood);
     const t = av.type, c = av.color;
     const wings = t === "hiyoko" ? `<ellipse cx="23" cy="96" rx="6" ry="10" fill="${c}" ${sw} transform="rotate(25 23 96)"/><ellipse cx="77" cy="96" rx="6" ry="10" fill="${c}" ${sw} transform="rotate(-25 77 96)"/>` : "";
