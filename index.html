@@ -239,7 +239,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
 window.addEventListener("DOMContentLoaded", () => {
   const box = document.getElementById("icon-pick");
   if (!box || !window.KQIcon) { const p = document.getElementById("icon-box"); if (p) p.hidden = true; return; }
-  const names = { a: "ボード", b: "ねこ", c: "Q", d: "ピンク" };
+  const names = { a: "ボード", b: "ねこ", c: "Q", d: "ピンク", e: "しんぞう", f: "のう", g: "い", h: "ちょう", i: "赤血球", j: "白血球", k: "幹細胞", l: "ニューロン" };
   const draw = () => {
     const cur = KQIcon.get();
     box.innerHTML = "";
