@@ -1,98 +1,104 @@
-// 内臓・細胞キャラのホーム画面アイコン（オリジナル絵）を作るスクリプト
-// 使い方: node tools/organ-icons.js  → icons/e〜l に PNG ができる
+// 内臓・細胞キャラのホーム画面アイコン（オリジナル絵・ぬいぐるみ風）を作るスクリプト
+// 使い方: node tools/organ-icons.js  → icons/e〜n に PNG ができる
 const fs = require("fs");
 const path = require("path");
-const O = "#3b2740";   // 線の色
-const SW = 12;         // 線の太さ
+const INK = "#4a3540"; // 目・口の色
 
-function face(x, y, s = 1, opt = {}) {
-  s *= 1.3;
-  const ex = 38 * s, ey = 17 * s;
-  const eye = (cx) => `<ellipse cx="${cx}" cy="${y}" rx="${13 * s}" ry="${ey}" fill="${opt.eye || O}"/>` +
-    `<circle cx="${cx - 4 * s}" cy="${y - 6 * s}" r="${5 * s}" fill="#fff"/>` +
-    `<circle cx="${cx + 5 * s}" cy="${y + 7 * s}" r="${2.4 * s}" fill="#fff"/>`;
-  const blush = (cx) => `<ellipse cx="${cx}" cy="${y + 26 * s}" rx="${17 * s}" ry="${9 * s}" fill="${opt.blush || "#ff6f91"}" opacity=".55"/>`;
-  const mouth = `<path d="M${x - 13 * s} ${y + 22 * s} Q${x} ${y + 42 * s} ${x + 13 * s} ${y + 22 * s} Z" fill="${opt.mouth || "#7a2238"}" stroke="${opt.eye || O}" stroke-width="${5 * s}" stroke-linejoin="round"/>`;
-  return blush(x - 66 * s) + blush(x + 66 * s) + eye(x - ex) + eye(x + ex) + mouth;
+// 小さい点の目＋ちょこんとした口（mouth: smile / open / cat / flat）
+function face(x, y, s = 1, mouth = "smile", blush = "#ff8fa3") {
+  s *= 1.15;
+  const ex = 30 * s;
+  const eye = (cx) => `<ellipse cx="${cx}" cy="${y}" rx="${9 * s}" ry="${11 * s}" fill="${INK}"/>`;
+  const b = (cx) => `<ellipse cx="${cx}" cy="${y + 16 * s}" rx="${15 * s}" ry="${8 * s}" fill="${blush}" opacity=".5"/>`;
+  const st = `fill="none" stroke="${INK}" stroke-width="${5.5 * s}" stroke-linecap="round" stroke-linejoin="round"`;
+  const m = {
+    smile: `<path d="M${x - 10 * s} ${y + 6 * s} Q${x} ${y + 17 * s} ${x + 10 * s} ${y + 6 * s}" ${st}/>`,
+    cat: `<path d="M${x - 14 * s} ${y + 6 * s} Q${x - 7 * s} ${y + 15 * s} ${x} ${y + 7 * s} Q${x + 7 * s} ${y + 15 * s} ${x + 14 * s} ${y + 6 * s}" ${st}/>`,
+    open: `<path d="M${x - 9 * s} ${y + 5 * s} Q${x} ${y + 22 * s} ${x + 9 * s} ${y + 5 * s} Z" fill="${INK}" stroke="${INK}" stroke-width="${3 * s}" stroke-linejoin="round"/>`,
+    tri: `<path d="M${x} ${y + 3 * s} L${x - 8 * s} ${y + 15 * s} L${x + 8 * s} ${y + 15 * s} Z" fill="none" stroke="${INK}" stroke-width="${4.5 * s}" stroke-linejoin="round"/>`,
+  }[mouth];
+  return b(x - 58 * s) + b(x + 58 * s) + eye(x - ex) + eye(x + ex) + m;
 }
-// 丸をたくさん重ねて「もこもこ」の形にする（外側だけ線が出る）
-function blob(circles, fill) {
-  const c = (w) => circles.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"${w}/>`).join("");
-  return `<g fill="${O}" stroke="${O}" stroke-width="${SW * 2}">${c("")}</g><g fill="${fill}">${c("")}</g>`;
-}
-// 太い管（線つき）
-function tube(d, color, w) {
-  return `<path d="${d}" fill="none" stroke="${O}" stroke-width="${w + SW * 2}" stroke-linecap="round" stroke-linejoin="round"/>` +
-    `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
-}
-const arm = (x, y, r, fill) => `<ellipse cx="${x}" cy="${y}" rx="22" ry="17" transform="rotate(${r} ${x} ${y})" fill="${fill}" stroke="${O}" stroke-width="${SW - 2}"/>`;
-const sp = (x, y, s, c) => `<path d="M${x} ${y - s} Q${x} ${y} ${x + s} ${y} Q${x} ${y} ${x} ${y + s} Q${x} ${y} ${x - s} ${y} Q${x} ${y} ${x} ${y - s}Z" fill="${c}"/>`;
+const circles = (list, fill) => list.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`).join("");
+const tube = (d, color, w) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const star = (x, y, s, c) => `<path d="M${x} ${y - s} Q${x} ${y} ${x + s} ${y} Q${x} ${y} ${x} ${y + s} Q${x} ${y} ${x - s} ${y} Q${x} ${y} ${x} ${y - s}Z" fill="${c}"/>`;
 
+// body: ぬいぐるみの体（ふわっと立体にする）／ deco: 体の上の模様／ face: 顔
 const ICONS = {
-  e: { name: "しんぞう", bg: ["#fff3c4", "#ffd88a"], body: () =>
-    tube("M300 190 C300 120 370 105 382 160", "#ee4b5f", 40) +
-    tube("M216 190 L216 118", "#6fa3ec", 38) +
-    arm(104, 300, -30, "#ee4b5f") + arm(408, 300, 30, "#ee4b5f") +
-    `<path d="M256 432 C150 365 104 305 112 236 C120 176 178 146 222 170 C240 180 251 194 256 204 C262 192 276 176 296 169 C346 152 400 184 400 244 C401 308 352 366 256 432 Z" fill="#ff5d6e" stroke="${O}" stroke-width="${SW}" stroke-linejoin="round"/>` +
-    `<path d="M150 230 C155 200 180 188 200 192" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity=".7"/>` +
-    face(256, 290, 1, { blush: "#ffd1d7" }) },
-  f: { name: "のう", bg: ["#d9fbe9", "#9fe8c4"], body: () =>
-    tube("M256 360 L256 420", "#f58aa6", 46) +
-    blob([[256, 250, 140], [150, 250, 85], [362, 250, 85], [190, 170, 75], [322, 170, 75], [256, 150, 80], [170, 320, 70], [342, 320, 70], [256, 340, 80]], "#ffa9c0") +
-    `<g fill="none" stroke="#e0718f" stroke-width="9" stroke-linecap="round">` +
-    `<path d="M256 120 C246 150 266 175 256 205"/><path d="M175 180 C200 170 205 205 230 200"/><path d="M337 180 C312 170 307 205 282 200"/>` +
-    `<path d="M128 255 C150 235 165 262 185 248"/><path d="M384 255 C362 235 347 262 327 248"/></g>` +
-    face(256, 290) },
-  g: { name: "い", bg: ["#dff1ff", "#a8d5ff"], body: () =>
-    tube("M196 70 L196 170", "#ffb27a", 44) +
-    tube("M392 330 C430 350 440 400 410 425", "#ffb27a", 34) +
-    arm(132, 300, -35, "#ffb27a") +
-    `<path d="M172 150 C168 230 150 300 190 365 C232 432 352 440 398 368 C436 306 410 222 348 220 C298 218 282 255 260 226 C240 200 246 160 222 150 Z" fill="#ffc08c" stroke="${O}" stroke-width="${SW}" stroke-linejoin="round"/>` +
-    `<path d="M196 200 C192 240 186 280 200 320" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity=".6"/>` +
-    face(296, 320, 0.95) },
-  h: { name: "ちょう", bg: ["#fff8d6", "#ffe58f"], body: () => {
-    const d = "M150 150 H362 C418 150 418 250 362 250 H150 C94 250 94 350 150 350 H330";
-    return tube(d, "#ff9f86", 84) +
-      `<path d="${d}" fill="none" stroke="#ffc3b0" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 26"/>` +
-      `<path d="M330 350 C370 350 392 360 400 392" fill="none" stroke="${O}" stroke-width="${SW}" stroke-linecap="round"/>` +
-      `<path d="M150 128 H250" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".7"/>` +
-      face(256, 234, 0.8);
-  } },
-  i: { name: "せっけっきゅう", bg: ["#e2f0ff", "#b6d6ff"], body: () =>
-    `<ellipse cx="256" cy="270" rx="172" ry="160" fill="#e8394f" stroke="${O}" stroke-width="${SW}"/>` +
-    `<ellipse cx="256" cy="275" rx="105" ry="92" fill="#c92740"/>` +
-    `<path d="M140 210 C160 160 205 135 250 132" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" opacity=".55"/>` +
-    face(256, 262, 1, { blush: "#ff9fb0", mouth: "#5c0f20" }) },
-  j: { name: "はっけっきゅう", bg: ["#efe6ff", "#c9b2ff"], body: () =>
-    blob([[256, 262, 140], [256, 118, 42], [360, 152, 44], [398, 258, 42], [360, 366, 44], [256, 404, 42], [152, 366, 44], [114, 258, 42], [152, 152, 44]], "#ffffff") +
-    `<path d="M200 380 C190 360 210 350 222 360 C230 340 255 345 255 365" fill="none" stroke="#c7b8e8" stroke-width="9" stroke-linecap="round"/>` +
-    `<path d="M300 170 C320 160 345 175 340 195" fill="none" stroke="#c7b8e8" stroke-width="9" stroke-linecap="round"/>` +
-    face(256, 262, 1, { blush: "#ffb0c8" }) },
-  k: { name: "かんさいぼう", bg: ["#e9fff3", "#b4f0d0"], body: () =>
-    tube("M256 140 C256 110 250 95 256 76", "#4fbf6a", 14) +
-    `<path d="M256 96 C220 60 180 70 172 92 C200 110 236 112 256 96 Z M258 92 C290 50 336 56 344 80 C316 104 280 106 258 92 Z" fill="#7ad98e" stroke="${O}" stroke-width="9" stroke-linejoin="round"/>` +
-    `<circle cx="256" cy="285" r="150" fill="#c4f5d2" stroke="${O}" stroke-width="${SW}"/>` +
-    `<circle cx="345" cy="350" r="34" fill="#9b7bea" stroke="${O}" stroke-width="8"/><circle cx="335" cy="340" r="9" fill="#fff" opacity=".7"/>` +
-    `<circle cx="168" cy="350" r="12" fill="#8fe0a8"/><circle cx="196" cy="384" r="8" fill="#8fe0a8"/>` +
-    face(250, 270) },
-  l: { name: "ニューロン", bg: ["#2b3d78", "#16204a"], body: () =>
-    sp(110, 120, 18, "#ffe680") + sp(410, 410, 14, "#9fe8ff") + sp(420, 120, 12, "#ffe680") + sp(96, 420, 10, "#9fe8ff") +
-    tube("M200 210 L130 160 M130 160 L100 175 M130 160 L120 125", "#ffd34d", 22) +
-    tube("M312 210 L382 160 M382 160 L412 175 M382 160 L392 125", "#ffd34d", 22) +
-    tube("M256 180 L256 112 M256 112 L230 90 M256 112 L282 90", "#ffd34d", 22) +
-    tube("M180 310 L120 340", "#ffd34d", 22) +
-    tube("M330 320 C360 360 360 400 400 430", "#ffd34d", 18) +
-    `<g fill="#7fd6ff" stroke="${O}" stroke-width="7"><rect x="336" y="340" width="34" height="26" rx="12" transform="rotate(58 353 353)"/><rect x="360" y="392" width="34" height="26" rx="12" transform="rotate(35 377 405)"/></g>` +
-    `<path d="M256 172 C330 172 352 222 350 268 C348 330 302 352 256 352 C204 352 160 326 160 266 C160 214 190 172 256 172 Z" fill="#ffd34d" stroke="${O}" stroke-width="${SW}" stroke-linejoin="round"/>` +
-    face(256, 262, 0.95, { blush: "#ff8a6e" }) },
+  e: { name: "しんぞう", bg: "#ffe9b8", dot: "#ffd98a",
+    body: () => tube("M206 205 L206 128", "#8cc4f0", 44) + tube("M300 200 C300 130 352 118 368 160", "#ff8ea4", 44) +
+      `<ellipse cx="118" cy="300" rx="30" ry="22" transform="rotate(-25 118 300)" fill="#ff9fb3"/><ellipse cx="394" cy="300" rx="30" ry="22" transform="rotate(25 394 300)" fill="#ff9fb3"/>` +
+      `<path d="M256 430 C160 380 112 320 116 250 C120 190 170 160 214 180 C236 190 250 204 256 214 C264 202 280 186 302 180 C352 166 398 200 396 258 C394 324 348 382 256 430 Z" fill="#ff9fb3"/>`,
+    deco: () => "", face: () => face(256, 290, 1.15, "tri") },
+  f: { name: "のう", bg: "#d7f5e6", dot: "#b5ebd0",
+    body: () => tube("M262 350 L272 418", "#f2a6bd", 48) +
+      circles([[256, 250, 140], [150, 255, 88], [362, 255, 88], [190, 175, 78], [322, 175, 78], [256, 160, 82], [180, 320, 72], [332, 320, 72], [256, 335, 80]], "#ffc6d6"),
+    deco: () => `<g fill="none" stroke="#f08aa8" stroke-width="9" stroke-linecap="round"><path d="M256 118 C244 150 268 172 256 200"/><path d="M168 178 C190 160 214 196 236 180"/><path d="M344 178 C322 160 298 196 276 180"/><path d="M118 232 C140 214 160 246 182 228"/><path d="M394 232 C372 214 352 246 330 228"/><path d="M150 330 C170 350 192 330 200 350"/><path d="M362 330 C342 350 320 330 312 350"/></g>`,
+    face: () => face(256, 270, 1.15, "smile") },
+  g: { name: "い", bg: "#dcecff", dot: "#c2dcfb",
+    body: () => tube("M196 78 L196 170", "#ffc59a", 46) + tube("M396 332 C432 356 436 404 404 424", "#ffc59a", 38) +
+      `<path d="M170 150 C166 230 150 300 190 365 C232 432 352 440 398 368 C436 306 410 222 348 220 C298 218 282 255 260 226 C240 200 246 160 222 150 Z" fill="#ffcfa6"/>`,
+    deco: () => "", face: () => face(298, 318, 1.1, "smile") },
+  h: { name: "ちょう", bg: "#efe4ff", dot: "#dccbff",
+    body: () => circles([[150, 380, 52], [130, 310, 56], [134, 236, 56], [168, 172, 56], [232, 140, 56], [300, 140, 56], [356, 172, 56], [382, 236, 56], [384, 310, 56], [364, 380, 52]], "#ffb7a3") +
+      `<rect x="186" y="210" width="140" height="140" rx="56" fill="#ffd3c4"/>`,
+    deco: () => `<path d="M206 238 C230 222 246 250 270 236 C292 224 306 246 306 260 M206 300 C226 290 244 316 266 302 C290 290 302 312 306 324" fill="none" stroke="#f6a993" stroke-width="9" stroke-linecap="round"/>`,
+    face: () => face(256, 160, 0.95, "cat") },
+  i: { name: "せっけっきゅう", bg: "#dcecff", dot: "#c2dcfb",
+    body: () => `<ellipse cx="256" cy="272" rx="168" ry="158" fill="#ff7f8f"/>`,
+    deco: () => `<ellipse cx="256" cy="276" rx="96" ry="80" fill="#f26b7a" opacity=".6"/>`,
+    face: () => face(256, 262, 1.05, "smile", "#ffc0ca") },
+  j: { name: "はっけっきゅう", bg: "#efe4ff", dot: "#dccbff",
+    body: () => circles([[256, 262, 138], [256, 124, 50], [352, 154, 52], [394, 254, 50], [356, 358, 52], [256, 398, 50], [156, 358, 52], [118, 254, 50], [160, 154, 52], [306, 120, 40], [206, 120, 40], [400, 310, 40], [112, 310, 40]], "#fffaf0"),
+    deco: () => "", face: () => face(256, 262, 1.15, "smile", "#ffb6c8") },
+  k: { name: "かんさいぼう", bg: "#ddf7e8", dot: "#c0efd5",
+    body: () => tube("M256 140 C256 112 252 98 256 80", "#6fcf86", 16) +
+      `<path d="M256 98 C222 62 182 72 174 94 C202 112 236 114 256 98 Z M258 94 C290 54 334 60 342 84 C314 106 280 108 258 94 Z" fill="#8fe0a2"/>` +
+      `<circle cx="256" cy="285" r="150" fill="#cdf5d9"/>`,
+    deco: () => `<circle cx="345" cy="352" r="34" fill="#b49af0"/><circle cx="170" cy="352" r="12" fill="#a8e8bb"/><circle cx="198" cy="386" r="8" fill="#a8e8bb"/>`,
+    face: () => face(250, 268, 1.15, "open") },
+  l: { name: "ニューロン", bg: "#2e3f7a", dot: "#3a4c8c",
+    body: () => tube("M210 220 L136 166 M136 166 L104 180 M136 166 L126 128", "#ffe27a", 26) +
+      tube("M302 220 L376 166 M376 166 L408 180 M376 166 L386 128", "#ffe27a", 26) +
+      tube("M256 190 L256 116 M256 116 L230 92 M256 116 L282 92", "#ffe27a", 26) +
+      tube("M186 316 L124 346", "#ffe27a", 26) + tube("M326 322 C356 362 360 400 398 428", "#ffe27a", 20) +
+      `<path d="M256 180 C326 180 350 224 348 270 C346 330 302 352 256 352 C206 352 164 328 164 268 C164 218 194 180 256 180 Z" fill="#ffe27a"/>`,
+    deco: () => `<g fill="#9fdcff"><rect x="334" y="340" width="34" height="24" rx="12" transform="rotate(58 351 352)"/><rect x="358" y="392" width="34" height="24" rx="12" transform="rotate(35 375 404)"/></g>` +
+      star(110, 110, 18, "#fff1a8") + star(420, 112, 12, "#fff1a8") + star(96, 420, 11, "#bfe8ff") + star(426, 300, 9, "#bfe8ff"),
+    face: () => face(256, 264, 1.1, "smile", "#ffab8a") },
+  m: { name: "はい", bg: "#e4f3ff", dot: "#cbe6fb",
+    body: () => tube("M256 86 L256 196 M256 196 L222 224 M256 196 L290 224", "#9edf8e", 30) +
+      `<path d="M232 210 C232 170 208 150 180 152 C126 156 104 240 106 316 C108 380 140 418 186 416 C232 414 240 380 236 330 Z" fill="#b8dcf7"/>` +
+      `<path d="M280 210 C280 170 304 150 332 152 C386 156 408 240 406 316 C404 380 372 418 326 416 C280 414 272 380 276 330 Z" fill="#b8dcf7"/>`,
+    deco: () => "", face: () => face(172, 312, 0.85, "smile") + face(340, 312, 0.85, "cat") },
+  n: { name: "かんぞう", bg: "#fff1d9", dot: "#ffe3b0",
+    body: () => `<path d="M104 236 C104 186 160 170 230 172 C320 174 400 168 414 200 C426 230 392 268 340 300 C284 336 220 372 170 368 C124 364 104 300 104 236 Z" fill="#ffc96b"/>`,
+    deco: () => `<path d="M292 182 C300 226 296 280 280 326" fill="none" stroke="#f0a64a" stroke-width="9" stroke-linecap="round"/>`,
+    face: () => face(196, 262, 1.1, "smile") },
 };
+
+const DEFS = `<filter id="puff" x="-10%" y="-10%" width="120%" height="120%">
+  <feGaussianBlur in="SourceAlpha" stdDeviation="16" result="b"/>
+  <feSpecularLighting in="b" surfaceScale="7" specularConstant=".55" specularExponent="16" lighting-color="#ffffff" result="s"><fePointLight x="170" y="90" z="260"/></feSpecularLighting>
+  <feComposite in="s" in2="SourceAlpha" operator="in" result="hi"/>
+  <feOffset in="b" dy="-12" result="o"/>
+  <feComposite in="SourceAlpha" in2="o" operator="out" result="edge"/>
+  <feFlood flood-color="#7a3a50" flood-opacity=".16"/><feComposite in2="edge" operator="in" result="sh"/>
+  <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3" result="n"/>
+  <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .22 0" result="nw"/>
+  <feComposite in="nw" in2="SourceAlpha" operator="in" result="fuzz"/>
+  <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="fuzz"/><feMergeNode in="sh"/><feMergeNode in="hi"/></feMerge>
+</filter>
+<filter id="soft"><feGaussianBlur stdDeviation="14"/></filter>`;
 
 function svg(k) {
   const ic = ICONS[k];
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">` +
-    `<defs><radialGradient id="bg${k}" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="${ic.bg[0]}"/><stop offset="1" stop-color="${ic.bg[1]}"/></radialGradient></defs>` +
-    `<rect width="512" height="512" fill="url(#bg${k})"/>` +
-    `<g transform="translate(256 262) scale(0.9) translate(-256 -262)">${ic.body()}</g></svg>`;
+    `<defs>${DEFS}<pattern id="dots${k}" width="64" height="64" patternUnits="userSpaceOnUse"><circle cx="16" cy="16" r="7" fill="${ic.dot}"/><circle cx="48" cy="48" r="7" fill="${ic.dot}"/></pattern></defs>` +
+    `<rect width="512" height="512" fill="${ic.bg}"/><rect width="512" height="512" fill="url(#dots${k})" opacity=".55"/>` +
+    `<g transform="translate(256 262) scale(0.88) translate(-256 -262)">` +
+    `<ellipse cx="256" cy="452" rx="150" ry="22" fill="#000" opacity=".10" filter="url(#soft)"/>` +
+    `<g filter="url(#puff)">${ic.body()}</g>${ic.deco()}${ic.face()}</g></svg>`;
 }
 
 module.exports = { ICONS, svg };
@@ -109,7 +115,7 @@ if (require.main === module) {
       for (const [file, size] of [["icon-512.png", 512], ["icon-192.png", 192], ["apple-touch-icon.png", 180]]) {
         await p.setViewportSize({ width: size, height: size });
         await p.setContent(`<html><body style="margin:0">${svg(k).replace('width="512" height="512"', `width="${size}" height="${size}"`)}</body></html>`);
-        await p.screenshot({ path: path.join(dir, file), omitBackground: false });
+        await p.screenshot({ path: path.join(dir, file) });
       }
       console.log(k, ICONS[k].name);
     }

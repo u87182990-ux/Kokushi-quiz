@@ -9,8 +9,8 @@
   var me = document.currentScript;
   var root = new URL("../", me ? me.src : location.href); // サイトのいちばん上（/Kokushi-quiz/）
 
-  // ホーム画面のアイコン（トップページで選べる。e〜l は内臓・細胞キャラ。はじめは C）
-  var ICONS = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"];
+  // ホーム画面のアイコン（トップページで選べる。e〜n は内臓・細胞キャラ。はじめは C）
+  var ICONS = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"];
   function applyIcon(k) {
     if (ICONS.indexOf(k) < 0) k = "c";
     var t = document.querySelector('link[rel="apple-touch-icon"]');
