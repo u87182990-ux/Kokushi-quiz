@@ -50,13 +50,14 @@ const ICONS = {
     `<path d="M172 150 C168 230 150 300 190 365 C232 432 352 440 398 368 C436 306 410 222 348 220 C298 218 282 255 260 226 C240 200 246 160 222 150 Z" fill="#ffc08c" stroke="${O}" stroke-width="${SW}" stroke-linejoin="round"/>` +
     `<path d="M196 200 C192 240 186 280 200 320" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity=".6"/>` +
     face(296, 320, 0.95) },
-  h: { name: "ちょう", bg: ["#fff8d6", "#ffe58f"], body: () =>
-    arm(98, 300, -30, "#f39a74") + arm(414, 300, 30, "#f39a74") +
-    `<rect x="104" y="116" width="304" height="304" rx="96" fill="#f39a74" stroke="${O}" stroke-width="${SW}"/>` +
-    `<g fill="none" stroke="#d9714f" stroke-width="8" stroke-linecap="round"><path d="M120 200 h12 M120 260 h12 M120 320 h12 M380 200 h12 M380 260 h12 M380 320 h12 M200 130 v12 M256 130 v12 M312 130 v12"/></g>` +
-    `<rect x="156" y="168" width="200" height="200" rx="70" fill="#ffd2b8" stroke="${O}" stroke-width="8"/>` +
-    `<path d="M180 205 C210 180 230 225 256 200 C282 175 302 220 332 196 M180 345 C210 320 230 365 256 340 C282 315 302 360 332 336" fill="none" stroke="#f2a585" stroke-width="9" stroke-linecap="round"/>` +
-    face(256, 262, 0.9) },
+  h: { name: "ちょう", bg: ["#fff8d6", "#ffe58f"], body: () => {
+    const d = "M150 150 H362 C418 150 418 250 362 250 H150 C94 250 94 350 150 350 H330";
+    return tube(d, "#ff9f86", 84) +
+      `<path d="${d}" fill="none" stroke="#ffc3b0" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 26"/>` +
+      `<path d="M330 350 C370 350 392 360 400 392" fill="none" stroke="${O}" stroke-width="${SW}" stroke-linecap="round"/>` +
+      `<path d="M150 128 H250" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".7"/>` +
+      face(256, 234, 0.8);
+  } },
   i: { name: "せっけっきゅう", bg: ["#e2f0ff", "#b6d6ff"], body: () =>
     `<ellipse cx="256" cy="270" rx="172" ry="160" fill="#e8394f" stroke="${O}" stroke-width="${SW}"/>` +
     `<ellipse cx="256" cy="275" rx="105" ry="92" fill="#c92740"/>` +
