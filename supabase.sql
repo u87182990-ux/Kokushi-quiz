@@ -16,7 +16,7 @@ create table if not exists public.kq_users (
 -- 記録（アプリごとに1行）
 create table if not exists public.kq_progress (
   nick_key   text not null references public.kq_users(nick_key) on delete cascade,
-  app        text not null check (app in ('kakomon','prep')),
+  app        text not null check (app in ('kakomon','prep','chiryo','chiryoq')),
   data       jsonb not null,
   updated_at timestamptz not null default now(),
   primary key (nick_key, app)
@@ -86,7 +86,7 @@ returns json language plpgsql security definer set search_path = public, extensi
 declare r text := public.kq_check(p_nick, p_pin);
 begin
   if r <> 'ok' then return json_build_object('status', r); end if;
-  if p_app not in ('kakomon','prep') then return json_build_object('status', 'bad_app'); end if;
+  if p_app not in ('kakomon','prep','chiryo','chiryoq') then return json_build_object('status', 'bad_app'); end if;
   if octet_length(p_data::text) > 3000000 then return json_build_object('status', 'too_big'); end if;
   insert into public.kq_progress(nick_key, app, data, updated_at) values (lower(btrim(p_nick)), p_app, p_data, now())
   on conflict (nick_key, app) do update set data = excluded.data, updated_at = now();
