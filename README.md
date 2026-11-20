@@ -19,3 +19,9 @@
 - `manifest.webmanifest`・`icons/` … ホーム画面に追加した時の名前とアイコン（全画面のアプリ表示）。
 - 新しいページを足す時は、`<head>` にほかのページと同じ manifest／apple-touch-icon／`shared/update.js` の行を入れる。
 - ホーム画面のアイコンは4種類（`icons/a`〜`icons/d`、はじめは c）。トップの「ホーム画面のアイコン」で選ぶと、`shared/update.js` がそのページの apple-touch-icon と manifest（`manifest-<a|b|d>.webmanifest`）を差しかえる。選んだものは端末の localStorage `kq-icon` に保存。
+
+## アプリ風の画面（下のタブ）
+- トップ `index.html` は下のタブで「ホーム／成績／ブックマーク／マイページ」を切りかえる（`#stats` `#bm` `#me`）。
+- `shared/stats.js` … 日ごとの解答数（成績・連続日数・学習カレンダー用）とブックマークを記録。`account.js` がクラウド保存の時にいっしょに送る。
+- 問題ページの「☆ 保存」ボタン・`?start=bm|weak|random|unsolved`・`?q=問題id`・`?field=分野` は `tools/addbm.py` でつけている。`tools/mksite.py` で作り直した時は、そのあとに `python3 tools/addbm.py` を実行する。
+- 新しいドリルを足す時は、`index.html` の `DRILLS`（成績用）と `EXTRA`（メニュー用）に1行ずつ足す。

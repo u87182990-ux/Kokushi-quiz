@@ -75,7 +75,7 @@
     try {
       const r = await rpc("kq_load", { p_nick: s.nick, p_pin: s.pin, p_app: app });
       if (r.status === "wrong" || r.status === "none") setSession(null);
-      if (r.status === "ok") takeAvatar(r.data);
+      if (r.status === "ok") { takeAvatar(r.data); if (window.KQStats) KQStats.fromLoad(r.data); }
       return r.status === "ok" ? { ok: true, data: r.data } : { ok: false, msg: MSG[r.status] || r.status, status: r.status };
     } catch { return { ok: false, msg: MSG.net, status: "net" }; }
   }
@@ -84,6 +84,7 @@
     try {
       const av = getAvatar();
       if (av && data && typeof data === "object") data = Object.assign({}, data, { avatar: av });
+      if (window.KQStats && data && typeof data === "object") data = KQStats.forSave(data);
       const r = await rpc("kq_save", { p_nick: s.nick, p_pin: s.pin, p_app: app, p_data: data });
       return r.status === "ok" ? { ok: true } : { ok: false, msg: MSG[r.status] || r.status };
     } catch { return { ok: false, msg: MSG.net }; }
