@@ -7,37 +7,155 @@
 <meta name="description" content="診療放射線技師国家試験の過去問と対策問題。ニックネームで記録を保存できます。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
-<script src="shared/config.js?v=1794816000"></script>
-<script src="shared/account.js?v=1794816000"></script>
-<script src="shared/guide.js?v=1794816000" defer></script>
+<script src="shared/config.js?v=1795000100"></script>
+<script src="shared/account.js?v=1795000100"></script>
+<script src="shared/stats.js?v=1795000100"></script>
+<script src="shared/guide.js?v=1795000100" defer></script>
 <style>
 :root{
   --paper:#eef2f6; --sheet:#ffffff; --ink:#152033; --sub:#5d6a7e; --line:#dbe2ea; --line2:#c9d3de;
   --box:#0f1b2d; --box-ink:#e8f1fb; --box-sub:#8fa6c2; --glow:#7fd3ff;
   --accent:#1d6fd8; --accent-ink:#ffffff; --accent-soft:#e5effc;
-  --ok:#14885a; --ng:#d23c3c; --ng-soft:#fcebea;
+  --ok:#14885a; --ng:#d23c3c; --ng-soft:#fcebea; --warm:#e0892b;
+  --h0:#e3e9f0; --h1:#b9d4f5; --h2:#79aeee; --h3:#3f86e0; --h4:#1d5fbf;
+  --bar:rgba(255,255,255,.86);
   --f-disp:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;
   --f-body:"BIZ UDPGothic","Hiragino Sans","Noto Sans JP",sans-serif;
 }
 @media (prefers-color-scheme:dark){:root{
   --paper:#0b111a; --sheet:#131b27; --ink:#e6ecf4; --sub:#93a1b5; --line:#233044; --line2:#2e3d54;
-  --box:#0a1422; --accent:#5aa2ff; --accent-ink:#06121f; --accent-soft:#16263d;
-  --ok:#4cc790; --ng:#ff7b73; --ng-soft:#3a1a1a; color-scheme:dark}}
+  --box:#0a1422; --accent:#4fa8ff; --accent-ink:#06121f; --accent-soft:#16263d;
+  --ok:#4cc790; --ng:#ff7b73; --ng-soft:#3a1a1a; --warm:#ffa94d;
+  --h0:#1c2636; --h1:#17497d; --h2:#195a99; --h3:#2a7fd0; --h4:#4fa8ff;
+  --bar:rgba(15,22,33,.88); color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75}
-.wrap{max-width:640px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right)) calc(56px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left))}
-h1,h2{font-family:var(--f-disp);margin:0;line-height:1.35}
-header{background:var(--box);color:var(--box-ink);border-radius:18px;padding:24px 20px 20px;
-  background-image:radial-gradient(120% 140% at 100% 0%,rgba(127,211,255,.22),transparent 55%),
-    repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 22px),
-    repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,transparent 1px 22px)}
-header small{display:flex;align-items:center;gap:8px;color:var(--box-sub);font-size:11.5px;letter-spacing:.12em;margin-bottom:4px}
-header small::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--glow);box-shadow:0 0 10px var(--glow)}
-header h1{font-size:28px;font-weight:900}
-.panel{background:var(--sheet);border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:16px}
-.panel h2{font-size:17px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:640px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left))}
+h1,h2,h3{font-family:var(--f-disp);margin:0;line-height:1.35}
+.num{font-variant-numeric:tabular-nums}
+
+/* 上のバー（ページ名） */
+.topbar{position:sticky;top:0;z-index:50;background:var(--bar);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;text-align:center;
+  font-family:var(--f-disp);font-weight:700;font-size:16px;color:var(--accent)}
+.topbar .logo{display:inline-flex;align-items:center;gap:8px}
+.topbar .logo i{width:20px;height:20px;border-radius:6px;background:var(--box);display:inline-grid;place-items:center}
+.topbar .logo i[hidden]{display:none}
+.topbar .logo i::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--glow);box-shadow:0 0 8px var(--glow)}
+
+/* 下のタブ */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--bar);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px max(8px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left))}
+.tabbar .in{display:flex;width:100%;max-width:640px}
+.tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;text-decoration:none;color:var(--sub);font-size:11px;font-weight:700}
+.tabbar svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tabbar a[aria-current="page"]{color:var(--accent)}
+.tabbar a[aria-current="page"] svg{fill:var(--accent-soft)}
+.view[hidden]{display:none}
+/* 案内キャラはタブの上に */
+.kqg{bottom:calc(74px + env(safe-area-inset-bottom,0px))!important}
+
+/* ホームの見出し */
+.hero{text-align:center;padding:26px 4px 6px}
+.hero h1{font-size:32px;font-weight:900;color:var(--accent);letter-spacing:.02em}
+.hero p{margin:6px 0 0;color:var(--sub);font-size:13.5px}
+.hero-nums{display:flex;justify-content:center;gap:34px;margin:18px 0 4px}
+.hero-nums div{display:grid;justify-items:center}
+.hero-nums b{font-family:var(--f-disp);font-size:30px;font-weight:900;line-height:1.15;color:var(--accent)}
+.hero-nums b.warm{color:var(--warm)}
+.hero-nums span{font-size:12px;color:var(--sub)}
+
+.sec{display:flex;align-items:center;gap:10px;font-size:15.5px;margin:26px 0 12px;font-family:var(--f-disp);font-weight:700}
+.sec::before{content:"";width:4px;height:1.1em;border-radius:2px;background:var(--accent)}
+.sec small{margin-left:auto;font-family:var(--f-body);font-weight:400;font-size:12px;color:var(--sub)}
+
+.panel{background:var(--sheet);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:14px}
+.panel h2{font-size:16.5px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
 .panel h2::before{content:"";width:4px;height:1.05em;border-radius:2px;background:var(--accent)}
 .note{color:var(--sub);font-size:13.5px;margin:0 0 12px}
+
+/* 演習モード 2×2 */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mode{display:grid;justify-items:center;align-content:center;gap:2px;text-align:center;min-height:118px;padding:16px 10px;
+  background:var(--sheet);border:1px solid var(--line);border-radius:16px;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .1s}
+.mode:hover{border-color:var(--accent)} .mode:active{transform:scale(.98)}
+.mode .ic{font-size:28px;line-height:1.2}
+.mode b{font-family:var(--f-disp);font-size:16px;margin-top:4px}
+.mode span{font-size:12px;color:var(--sub);line-height:1.45}
+.mode.wide{grid-column:1/-1;min-height:0;grid-template-columns:auto 1fr auto;justify-items:start;text-align:left;gap:2px 14px;padding:14px 16px}
+.mode.wide .ic{grid-row:1/3}
+.mode.wide::after{content:"›";grid-row:1/3;grid-column:3;align-self:center;font-size:24px;color:var(--sub)}
+
+/* カテゴリー（分野）チップ */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--line2);border-radius:999px;background:var(--sheet);
+  color:var(--ink);text-decoration:none;font-size:13.5px;font-weight:700}
+.chip:hover{border-color:var(--accent)}
+.chip small{color:var(--sub);font-weight:400}
+.chip i{font-style:normal;font-size:11px;font-weight:700;color:var(--accent)}
+
+.nudge{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-top:16px;border-radius:14px;background:var(--accent-soft);color:var(--ink);text-decoration:none;font-size:13.5px}
+.nudge b{display:block;font-size:14.5px}
+.nudge::after{content:"›";margin-left:auto;font-size:22px;color:var(--accent)}
+
+/* 成績 */
+.big-card{background:var(--sheet);border:1px solid var(--line);border-radius:18px;padding:20px}
+.big-card .lab{font-size:13.5px;color:var(--sub);font-weight:700}
+.big-card .pct{display:flex;align-items:baseline;gap:10px;margin:4px 0 6px}
+.big-card .pct b{font-family:var(--f-disp);font-size:52px;font-weight:900;line-height:1.1;color:var(--accent)}
+.big-card .pct span{color:var(--sub);font-size:14px}
+.big-card .line{font-size:13.5px;color:var(--sub)}
+.meter{height:6px;border-radius:3px;background:var(--h0);overflow:hidden;margin-top:12px}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--sheet);border:1px solid var(--line);border-radius:18px;padding:12px}
+.tile{display:grid;justify-items:center;gap:0;padding:14px 6px;border-radius:12px;background:var(--paper)}
+.tile .ic{font-size:22px;line-height:1.3}
+.tile b{font-family:var(--f-disp);font-size:28px;font-weight:900;color:var(--accent);line-height:1.25}
+.tile span{font-size:12px;color:var(--sub)}
+.cal{background:var(--sheet);border:1px solid var(--line);border-radius:18px;padding:16px 14px 12px}
+.cal-grid{display:grid;grid-template-columns:18px 1fr;gap:4px 6px}
+.cal-mon{position:relative;height:16px;font-size:11px;color:var(--sub)}
+.cal-mon span{position:absolute;top:0;white-space:nowrap}
+.cal-days{display:grid;grid-template-rows:repeat(7,1fr);font-size:10.5px;color:var(--sub);line-height:1}
+.cal-days span{display:flex;align-items:center}
+.cells{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:3px}
+.cells button{aspect-ratio:1;border:0;padding:0;border-radius:3px;background:var(--h0);cursor:pointer}
+.cells button.l1{background:var(--h1)} .cells button.l2{background:var(--h2)} .cells button.l3{background:var(--h3)} .cells button.l4{background:var(--h4)}
+.cells button.today{outline:2px solid var(--accent);outline-offset:-1px}
+.cells button.fut{visibility:hidden}
+.cal-foot{display:flex;align-items:center;gap:4px;justify-content:space-between;margin-top:10px;font-size:11.5px;color:var(--sub)}
+.cal-foot .lg{display:flex;align-items:center;gap:3px}
+.cal-foot .lg i{width:11px;height:11px;border-radius:2px;display:inline-block}
+.cal-pick{font-weight:700;color:var(--ink)}
+.cats{display:grid;gap:10px}
+.cat{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.cat-top{display:flex;align-items:baseline;gap:8px}
+.cat-top b{font-family:var(--f-disp);font-size:15px}
+.cat-top .pc{margin-left:auto;font-family:var(--f-disp);font-weight:900;font-size:18px;color:var(--accent)}
+.cat-sub{font-size:12.5px;color:var(--sub)}
+.cat-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.mini{display:inline-flex;align-items:center;border:1px solid var(--line2);background:var(--sheet);color:var(--ink);padding:5px 12px;border-radius:999px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;text-decoration:none}
+.mini.ng{border-color:var(--ng);color:var(--ng)}
+.fields{display:grid;gap:8px;margin-top:12px}
+.fld{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:13px;text-decoration:none;color:var(--ink)}
+.fld .meter{grid-column:1/-1;margin-top:0;height:5px}
+.fld em{font-style:normal;color:var(--sub);font-size:12px}
+.sync{font-size:12px;color:var(--sub);text-align:center;margin-top:10px;min-height:1.4em}
+
+/* ブックマーク */
+.bm-app{display:flex;align-items:center;gap:10px;margin:22px 0 10px}
+.bm-app h3{font-size:15px}
+.bm-app .mini{margin-left:auto}
+.bm-list{display:grid;gap:8px}
+.bm{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:start;background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--ink);text-decoration:none}
+.bm small{color:var(--accent);font-weight:700;font-size:12px}
+.bm span{font-size:13.5px;line-height:1.6;grid-column:1}
+.bm button{grid-row:1/3;grid-column:2;border:0;background:none;color:#d99a00;font-size:20px;cursor:pointer;padding:0 2px}
+.empty{text-align:center;padding:36px 16px;color:var(--sub);font-size:14px}
+.empty b{display:block;font-size:40px;line-height:1.3;margin-bottom:6px}
+
+/* マイページ（もとのトップにあったもの） */
 .tabs{display:flex;gap:4px;padding:3px;border-radius:999px;background:var(--paper);margin-bottom:14px}
 .tabs button{flex:1;border:0;background:none;padding:8px;border-radius:999px;font:inherit;font-weight:700;color:var(--sub);cursor:pointer}
 .tabs button[aria-pressed="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
@@ -56,12 +174,8 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
 .apps{display:grid;gap:12px}
 .apps[hidden]{display:none}
 .pick{display:grid;gap:8px}.pick[hidden]{display:none}
-.pk{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid #d3dbe0;border-radius:10px;cursor:pointer}
+.pk{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line2);border-radius:10px;cursor:pointer}
 .pk input{width:20px;height:20px;margin:2px 0 0;flex:none}.subj{margin:6px 0 0;font-size:.85rem;opacity:.75}.pk b{display:block}.pk small{display:block;opacity:.7}
-.app{display:grid;gap:2px;padding:16px 18px;border:1px solid var(--line);border-radius:14px;text-decoration:none;color:var(--ink);background:var(--sheet)}
-.app:hover{border-color:var(--accent)}
-.app b{font-family:var(--f-disp);font-size:18px}
-.app span{font-size:13px;color:var(--sub)}
 .me{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
 .me b{font-size:18px}
 .steps{margin:0 0 12px;padding-left:1.4em;font-size:14px}
@@ -73,92 +187,382 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><script src="shared/update.js" defer></script>
 </head>
 <body>
+<div class="topbar" id="topbar"><span class="logo"><i></i><span id="top-title">国試ドリル</span></span></div>
+
 <div class="wrap">
-  <header>
-    <small>診療放射線技師国家試験</small>
-    <h1>国試ドリル</h1>
-  </header>
-
-  <div class="panel" id="setup-warn" hidden>
-    <p class="warn">いまは記録の保存先の準備中です。ログインしなくても問題は解けます（記録はこの端末だけに保存されます）。</p>
-  </div>
-
-  <!-- ログイン前 -->
-  <div class="panel" id="login-box">
-    <h2>ニックネームで記録を保存</h2>
-    <p class="note">ニックネームと、自分で決めた<b>4ケタの数字</b>でログインすると、記録がクラウドに保存されます。スマホでもPCでも、LINEの中で開いても、続きから使えます。</p>
-    <div class="tabs" role="group" aria-label="ログインか新規登録か">
-      <button type="button" id="mode-login" aria-pressed="true">ログイン</button>
-      <button type="button" id="mode-new" aria-pressed="false">はじめて使う</button>
+  <!-- ============ ホーム ============ -->
+  <section class="view" id="v-home">
+    <div class="hero">
+      <h1>国試ドリル</h1>
+      <p>診療放射線技師国家試験の過去問と、よく出るポイントの対策問題</p>
+      <div class="hero-nums">
+        <div><b class="num" id="h-total">2,670</b><span>問題数</span></div>
+        <div><b class="num warm" id="h-streak">0</b><span>🔥 連続日数</span></div>
+        <div><b class="num" id="h-today">0</b><span>今日の解答</span></div>
+      </div>
     </div>
-    <form id="form" autocomplete="on">
-      <label>ニックネーム（20文字まで）<input id="nick" name="username" autocomplete="username" maxlength="20" required placeholder="例：りょう"></label>
-      <label>4ケタの数字<input id="pin" name="password" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="current-password" required placeholder="例：1234"></label>
-      <p class="note" id="new-note" hidden>数字はわすれないようにメモしてください。わすれると、記録を取り出せなくなります。ほかの人と同じニックネームは使えません。</p>
-      <button class="btn primary" id="go" type="submit">ログイン</button>
-      <div class="msg" id="msg" role="status"></div>
-    </form>
-  </div>
 
-  <!-- ログイン後 -->
-  <div class="panel" id="me-box" hidden>
-    <div class="me">
-      <span>ログイン中：<b id="me-nick"></b> さん</span>
-      <button class="btn" id="logout" type="button">ログアウト</button>
+    <a class="nudge" id="h-login" href="#me" hidden><span><b>ニックネームでログイン</b>記録がクラウドに残って、どの端末でも続きから使えます</span></a>
+
+    <h2 class="sec">演習モード</h2>
+    <div class="modes">
+      <a class="mode" href="kakomon/"><span class="ic">📚</span><b>過去問クイズ</b><span>第67〜78回<br>全2,400問・解説つき</span></a>
+      <a class="mode" href="kakomon/?start=random"><span class="ic">🎲</span><b>ランダム10問</b><span>過去問から<br>サクッと10問</span></a>
+      <a class="mode" href="kakomon/?start=weak"><span class="ic">🔁</span><b>苦手を復習</b><span id="h-weak">まちがえた問題を<br>2回続けて正解で卒業</span></a>
+      <a class="mode" href="kakomon/?start=unsolved"><span class="ic">✨</span><b>まだ解いてない</b><span id="h-unsolved">はじめての問題から<br>20問</span></a>
+      <a class="mode wide" href="prep/"><span class="ic">🎯</span><b>対策問題集</b><span>よく出るポイントのオリジナル270問・22テーマ</span></a>
     </div>
-    <p class="note" style="margin:8px 0 0">記録は自動でクラウドに保存されます。ほかの端末では、同じニックネームと数字でログインしてください。</p>
-  </div>
 
+    <h2 class="sec">カテゴリー別<small>過去問の分野</small></h2>
+    <div class="chips" id="h-fields"></div>
 
-  <!-- 引っ越し -->
-  <div class="panel" id="move-box">
-    <h2>前のアプリから記録を引っ越す</h2>
-    <p class="note">前に使っていたクイズ（Claudeのページ）の記録を、このサイトに移せます。</p>
-    <ol class="steps">
-      <li>前のクイズを開いて、ホームのいちばん下の<b>「記録を書き出す（コピー）」</b>を押す</li>
-      <li>下の欄に<b>貼りつけ</b>て「引っ越す」を押す</li>
-      <li>過去問クイズと対策問題集の両方を使っていた人は、もう片方でも同じことをする（2つまとめて貼ってもOK）</li>
-    </ol>
-    <p class="warn" id="move-login" style="margin:0 0 10px">先に上でニックネーム登録（ログイン）をしてください。記録はそのニックネームに入ります。</p>
-    <textarea id="move-code" class="code" placeholder="KOKUSHI-… で始まるコードをここに貼る" aria-label="引っ越しコード"></textarea>
-    <button class="btn primary" id="move-go" type="button" style="margin-top:10px">引っ越す</button>
-    <div class="msg" id="move-msg" role="status"></div>
-  </div>
-
-  <div class="panel" id="icon-box">
-    <h2>ホーム画面のアイコン</h2>
-    <p class="note">はじめは「Q」です。好きなアイコンをえらんでから、Safari の共有ボタン →「ホーム画面に追加」をしてね。すでに追加している人は、いまのアイコンを消してから追加し直すと変わります（ログインしていれば記録はそのままです）。</p>
-    <div class="icon-pick" id="icon-pick"></div>
-  </div>
-
-  <div class="panel" id="guide-box">
-    <h2>案内キャラ</h2>
-    <p class="note" id="guide-note">案内キャラはいまオフです。「オンにする」で、画面の右下にキャラが出てきます。</p>
-    <div class="row-btns">
-      <button class="btn" id="guide-edit" type="button">着せかえ</button>
-      <button class="btn" id="guide-off" type="button">オフにする</button>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h2>問題をえらぶ</h2>
-    <div class="apps">
-      <a class="app" href="kakomon/"><b>過去問クイズ</b><span>第67〜78回 全2,400問・解説つき</span></a>
-      <a class="app" href="prep/"><b>対策問題集</b><span>よく出るポイントのオリジナル270問・22テーマ</span></a>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h2>追加ドリル</h2>
+    <h2 class="sec">追加ドリル</h2>
     <p class="note" id="extra-note">科目ごとのドリルです。「えらぶ」で、使いたいものだけ自分のメニューに出せます。</p>
-    <div class="apps" id="extra-list" hidden></div>
-    <div class="row-btns"><button class="btn" id="extra-tog" type="button">えらぶ</button></div>
-    <div id="extra-pick" class="pick" hidden></div>
-  </div>
+    <div class="modes" id="extra-list" hidden></div>
+    <div class="row-btns" style="margin-top:12px"><button class="btn" id="extra-tog" type="button">えらぶ</button></div>
+    <div id="extra-pick" class="pick" hidden style="margin-top:12px"></div>
+  </section>
+
+  <!-- ============ 成績 ============ -->
+  <section class="view" id="v-stats" hidden>
+    <div class="big-card" style="margin-top:16px">
+      <div class="lab">全体成績</div>
+      <div class="pct"><b class="num" id="s-pct">0%</b><span>正答率</span></div>
+      <div class="line num" id="s-line">まだ記録がありません</div>
+      <div class="meter"><i id="s-meter" style="width:0"></i></div>
+    </div>
+
+    <h2 class="sec">学習サマリー</h2>
+    <div class="tiles">
+      <div class="tile"><span class="ic">🔥</span><b class="num" id="s-streak">0</b><span>連続学習日数</span></div>
+      <div class="tile"><span class="ic">📅</span><b class="num" id="s-days">0</b><span>累計学習日数</span></div>
+      <div class="tile"><span class="ic">📊</span><b class="num" id="s-wn">0</b><span>今週の解答数</span></div>
+      <div class="tile"><span class="ic">✅</span><b class="num" id="s-wp">–</b><span>今週の正答率</span></div>
+    </div>
+
+    <h2 class="sec">学習カレンダー<small>直近18週</small></h2>
+    <div class="cal">
+      <div class="cal-grid">
+        <span></span><div class="cal-mon" id="cal-mon"></div>
+        <div class="cal-days"><span></span><span>月</span><span></span><span>水</span><span></span><span>金</span><span></span></div>
+        <div class="cells" id="cal-cells"></div>
+      </div>
+      <div class="cal-foot">
+        <span class="cal-pick num" id="cal-pick">マスをタップで日ごとの数</span>
+        <span class="lg">少<i style="background:var(--h0)"></i><i style="background:var(--h1)"></i><i style="background:var(--h2)"></i><i style="background:var(--h3)"></i><i style="background:var(--h4)"></i>多</span>
+      </div>
+    </div>
+
+    <h2 class="sec">カテゴリー別成績<small>タップで分野ごと</small></h2>
+    <div class="cats" id="s-cats"></div>
+    <div class="sync" id="s-sync"></div>
+  </section>
+
+  <!-- ============ ブックマーク ============ -->
+  <section class="view" id="v-bm" hidden>
+    <div id="bm-body"></div>
+  </section>
+
+  <!-- ============ マイページ ============ -->
+  <section class="view" id="v-me" hidden>
+    <div class="panel" id="setup-warn" hidden>
+      <p class="warn">いまは記録の保存先の準備中です。ログインしなくても問題は解けます（記録はこの端末だけに保存されます）。</p>
+    </div>
+
+    <!-- ログイン前 -->
+    <div class="panel" id="login-box">
+      <h2>ニックネームで記録を保存</h2>
+      <p class="note">ニックネームと、自分で決めた<b>4ケタの数字</b>でログインすると、記録がクラウドに保存されます。スマホでもPCでも、LINEの中で開いても、続きから使えます。</p>
+      <div class="tabs" role="group" aria-label="ログインか新規登録か">
+        <button type="button" id="mode-login" aria-pressed="true">ログイン</button>
+        <button type="button" id="mode-new" aria-pressed="false">はじめて使う</button>
+      </div>
+      <form id="form" autocomplete="on">
+        <label>ニックネーム（20文字まで）<input id="nick" name="username" autocomplete="username" maxlength="20" required placeholder="例：りょう"></label>
+        <label>4ケタの数字<input id="pin" name="password" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="current-password" required placeholder="例：1234"></label>
+        <p class="note" id="new-note" hidden>数字はわすれないようにメモしてください。わすれると、記録を取り出せなくなります。ほかの人と同じニックネームは使えません。</p>
+        <button class="btn primary" id="go" type="submit">ログイン</button>
+        <div class="msg" id="msg" role="status"></div>
+      </form>
+    </div>
+
+    <!-- ログイン後 -->
+    <div class="panel" id="me-box" hidden>
+      <div class="me">
+        <span>ログイン中：<b id="me-nick"></b> さん</span>
+        <button class="btn" id="logout" type="button">ログアウト</button>
+      </div>
+      <p class="note" style="margin:8px 0 0">記録は自動でクラウドに保存されます。ほかの端末では、同じニックネームと数字でログインしてください。</p>
+    </div>
+
+    <div class="panel" id="guide-box">
+      <h2>案内キャラ</h2>
+      <p class="note" id="guide-note">案内キャラはいまオフです。「オンにする」で、画面の右下にキャラが出てきます。</p>
+      <div class="row-btns">
+        <button class="btn" id="guide-edit" type="button">着せかえ</button>
+        <button class="btn" id="guide-off" type="button">オフにする</button>
+      </div>
+    </div>
+
+    <div class="panel" id="icon-box">
+      <h2>ホーム画面のアイコン</h2>
+      <p class="note">はじめは「Q」です。好きなアイコンをえらんでから、Safari の共有ボタン →「ホーム画面に追加」をしてね。すでに追加している人は、いまのアイコンを消してから追加し直すと変わります（ログインしていれば記録はそのままです）。</p>
+      <div class="icon-pick" id="icon-pick"></div>
+    </div>
+
+    <!-- 引っ越し -->
+    <div class="panel" id="move-box">
+      <h2>前のアプリから記録を引っ越す</h2>
+      <p class="note">前に使っていたクイズ（Claudeのページ）の記録を、このサイトに移せます。</p>
+      <ol class="steps">
+        <li>前のクイズを開いて、ホームのいちばん下の<b>「記録を書き出す（コピー）」</b>を押す</li>
+        <li>下の欄に<b>貼りつけ</b>て「引っ越す」を押す</li>
+        <li>過去問クイズと対策問題集の両方を使っていた人は、もう片方でも同じことをする（2つまとめて貼ってもOK）</li>
+      </ol>
+      <p class="warn" id="move-login" style="margin:0 0 10px">先に上でニックネーム登録（ログイン）をしてください。記録はそのニックネームに入ります。</p>
+      <textarea id="move-code" class="code" placeholder="KOKUSHI-… で始まるコードをここに貼る" aria-label="引っ越しコード"></textarea>
+      <button class="btn primary" id="move-go" type="button" style="margin-top:10px">引っ越す</button>
+      <div class="msg" id="move-msg" role="status"></div>
+    </div>
+  </section>
 </div>
+
+<nav class="tabbar" aria-label="メニュー"><div class="in">
+  <a href="#" data-v="home"><svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.5l8.5 7V20a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z"/></svg>ホーム</a>
+  <a href="#stats" data-v="stats"><svg viewBox="0 0 24 24"><rect x="3.5" y="12" width="4" height="8.5" rx="1"/><rect x="10" y="7" width="4" height="13.5" rx="1"/><rect x="16.5" y="3.5" width="4" height="17" rx="1"/></svg>成績</a>
+  <a href="#bm" data-v="bm"><svg viewBox="0 0 24 24"><path d="M6 3.5h12a1 1 0 0 1 1 1v16l-7-4.5-7 4.5v-16a1 1 0 0 1 1-1z"/></svg>ブックマーク</a>
+  <a href="#me" data-v="me"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4"/><path d="M4 20.5c.8-4 4-6 8-6s7.2 2 8 6"/></svg>マイページ</a>
+</div></nav>
+
 <script>
 (() => {
   const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const fmtN = n => n.toLocaleString("ja-JP");
+  const sfx = () => KQ.session() ? "@" + KQ.session().nick.toLowerCase() : "";
+  const lsGet = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k) || "null"); return v && typeof v === "object" ? v : d; } catch { return d; } };
+
+  /* ---------- ドリルの一覧 ---------- */
+  // kind: rec = 過去問型（クラウド保存）、res = 計算ドリル型、card = 暗記カード
+  const DRILLS = [
+    { id: "kakomon", app: "kakomon", kind: "rec", ls: "kokushi-rec-v1", name: "過去問クイズ", n: 2400, ic: "📚" },
+    { id: "prep", app: "prep", kind: "rec", ls: "kokushi-prep-rec-v1", name: "対策問題集", n: 270, ic: "🎯" },
+    { id: "chiryo", app: "chiryo", kind: "rec", ls: "kokushi-chiryo-rec-v1", name: "放射線治療 下郷先生ドリル（授業）", n: 329, ic: "☢️", extra: true },
+    { id: "chiryo-quiz", app: "chiryoq", kind: "rec", ls: "kokushi-chiryoq-rec-v1", name: "治療クイズ（随時更新）", n: 316, ic: "📝", extra: true },
+    { id: "ikougaku", kind: "res", ls: "ime-res", name: "医用工学 計算ドリル", n: 95, ic: "🔌", extra: true },
+    { id: "sugiura", kind: "res", ls: "sug-res", name: "画像情報 杉浦先生ドリル", n: 128, ic: "🖼️", extra: true },
+    { id: "kisoi", kind: "card", ls: "kc_state", name: "基礎医 暗記カード", n: 304, ic: "🧠", extra: true }
+  ];
+  const EXTRA = [
+    { id: "kisoi", subj: "基礎医学大要", name: "基礎医 暗記カード", sub: "基礎医学大要の304枚・忘れたころに出し直し", ic: "🧠" },
+    { id: "ikougaku", subj: "医用工学", name: "医用工学 計算ドリル", sub: "国試の計算問題＋類題 95問・図と解説つき", ic: "🔌" },
+    { id: "chiryo", subj: "下郷先生（放射線治療技術学）", name: "放射線治療 下郷先生ドリル（授業）", sub: "授業の国試・模試 329問・MU計算つき・解説多め", ic: "☢️" },
+    { id: "chiryo-quiz", subj: "下郷先生（放射線治療技術学）", name: "治療クイズ（随時更新）", sub: "今日の治療クイズ 316問・選択肢ごとの解説つき", ic: "📝" },
+    { id: "sugiura", subj: "杉浦先生（医用画像情報学）", name: "画像情報 杉浦先生ドリル", sub: "授業プリントの128問・選択肢ごとの解説つき", ic: "🖼️" }
+  ];
+  const FIELDS = [["診療画像検査学",240],["診療画像機器学",240],["X線撮影技術学",240],["核医学検査技術学",234],["放射線治療技術学",240],["基礎医学大要",360],["放射線物理学",120],["放射線計測学",120],["放射線生物学",120],["放射線安全管理学",120],["医用画像情報学",120],["放射化学",86],["医用工学",82],["画像工学",62],["医療安全学",16]];
+
+  /* ---------- 記録を集める（端末＋クラウド） ---------- */
+  const cloud = {};      // app -> {rec, weak}（このページを開いてから1回だけ読む）
+  let cloudTried = false;
+  async function loadCloud(){
+    if (cloudTried || !KQ.session() || !KQ.ready()) return false;
+    cloudTried = true; $("#s-sync").textContent = "クラウドの記録を読みこみ中…";
+    let ok = 0;
+    await Promise.all(DRILLS.filter(d => d.kind === "rec").map(async d => {
+      const r = await KQ.load(d.app);
+      if (r.ok && r.data) { cloud[d.app] = r.data; ok++; }
+    }));
+    $("#s-sync").textContent = ok ? `☁ ${KQ.session().nick} さんの記録（どの端末の分も入っています）` : "";
+    return true;
+  }
+  function merged(a, b){
+    const out = { ...(a || {}) };
+    for (const [id, r] of Object.entries(b || {})) if (r && (!out[id] || (r.t || 0) > (out[id].t || 0))) out[id] = r;
+    return out;
+  }
+  function drillData(d){
+    if (d.kind === "rec") {
+      const rec = merged(lsGet(d.ls + sfx(), {}), cloud[d.app]?.rec);
+      const weak = merged(lsGet(d.ls + sfx() + "-weak", {}), cloud[d.app]?.weak);
+      const vals = Object.values(rec);
+      return { rec, done: vals.length, ok: vals.filter(r => r.r === 1).length, weak: Object.values(weak).filter(w => w && !w.out).length };
+    }
+    if (d.kind === "res") {
+      const vals = Object.values(lsGet(d.ls + sfx(), {}));
+      return { done: vals.length, ok: vals.filter(r => r && r.ok).length, weak: vals.filter(r => r && !r.ok).length };
+    }
+    const S = lsGet("kc_state" + sfx(), {});
+    return { done: Object.keys(S).length, ok: null, weak: 0, card: true };
+  }
+
+  /* ---------- 日ごとの記録（stats.js の記録＋前の記録の時刻から推定） ---------- */
+  function dayMap(){
+    const ymd = KQStats.ymd, est = {};
+    for (const d of DRILLS.filter(d => d.kind === "rec")) {
+      for (const r of Object.values(drillData(d).rec)) if (r && r.t) {
+        const k = ymd(r.t), v = est[k] || (est[k] = [0, 0]); v[0]++; if (r.r === 1) v[1]++;
+      }
+    }
+    const log = KQStats.days(), out = {};
+    for (const k of new Set([...Object.keys(est), ...Object.keys(log)])) {
+      const a = log[k] || [0, 0], b = est[k] || [0, 0];
+      out[k] = a[0] >= b[0] ? a : b;
+    }
+    return out;
+  }
+  const dayStart = t => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d; };
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  function streakOf(m){
+    const ymd = KQStats.ymd; let d = dayStart(Date.now()), n = 0;
+    if (!(m[ymd(d)]?.[0] > 0)) d = addDays(d, -1);
+    while (m[ymd(d)]?.[0] > 0) { n++; d = addDays(d, -1); }
+    return n;
+  }
+
+  /* ---------- ホーム ---------- */
+  function paintHome(){
+    const m = dayMap();
+    $("#h-streak").textContent = streakOf(m);
+    $("#h-today").textContent = fmtN((m[KQStats.ymd(Date.now())] || [0])[0]);
+    const k = drillData(DRILLS[0]);
+    $("#h-weak").innerHTML = k.weak ? `苦手リスト <b class="num">${k.weak}</b>問<br>2回続けて正解で卒業` : "まちがえた問題を<br>2回続けて正解で卒業";
+    $("#h-unsolved").innerHTML = `まだ解いていない<br><b class="num">${fmtN(2400 - k.done)}</b>問から20問`;
+    $("#h-login").hidden = !!KQ.session();
+    $("#h-fields").innerHTML = FIELDS.map(([f, n]) => `<a class="chip" href="kakomon/?field=${encodeURIComponent(f)}">${esc(f)} <small class="num">(${n})</small></a>`).join("");
+    paintExtra();
+  }
+
+  /* ---------- 成績 ---------- */
+  let calSel = null;
+  function paintStats(){
+    const list = DRILLS.filter(d => !d.extra || exGet().includes(d.id) || drillData(d).done > 0);
+    let done = 0, ok = 0, total = 0;
+    for (const d of list) { const x = drillData(d); if (x.card) continue; done += x.done; ok += x.ok; total += d.n; }
+    $("#s-pct").textContent = done ? Math.round(ok / done * 100) + "%" : "–";
+    $("#s-line").textContent = done ? `${fmtN(done)}問解答 / ${fmtN(total)}問中 ・ 正解 ${fmtN(ok)}問` : `まだ記録がありません（全${fmtN(total)}問）`;
+    $("#s-meter").style.width = (total ? Math.min(100, done / total * 100) : 0) + "%";
+
+    const m = dayMap(), ymd = KQStats.ymd, today = dayStart(Date.now());
+    $("#s-streak").textContent = streakOf(m);
+    $("#s-days").textContent = Object.values(m).filter(v => v[0] > 0).length;
+    const mon = addDays(today, -((today.getDay() + 6) % 7));    // 今週の月曜
+    let wn = 0, wc = 0;
+    for (let d = mon; d <= today; d = addDays(d, 1)) { const v = m[ymd(d)]; if (v) { wn += v[0]; wc += v[1]; } }
+    $("#s-wn").textContent = fmtN(wn);
+    $("#s-wp").textContent = wn ? Math.round(wc / wn * 100) + "%" : "–";
+
+    // カレンダー（日曜はじまり・18週）
+    const W = 18, start = addDays(today, -today.getDay() - (W - 1) * 7);
+    let cells = "", mons = "", lastM = -1;
+    for (let w = 0; w < W; w++) {
+      const top = addDays(start, w * 7);
+      for (let i = 0; i < 7; i++) {
+        const d = addDays(top, i);
+        if (d.getDate() === 1 || (w === 0 && i === 0 && d.getDate() <= 10)) {
+          if (d.getMonth() !== lastM && (w < W - 1)) { mons += `<span style="left:${w / W * 100}%">${d.getMonth() + 1}月</span>`; lastM = d.getMonth(); }
+        }
+        const k = ymd(d), v = m[k] || [0, 0], n = v[0];
+        const lv = n === 0 ? 0 : n < 10 ? 1 : n < 20 ? 2 : n < 40 ? 3 : 4;
+        const fut = d > today;
+        cells += `<button type="button" class="${lv ? "l" + lv : ""}${+d === +today ? " today" : ""}${fut ? " fut" : ""}" data-d="${k}" data-n="${n}" data-c="${v[1]}" aria-label="${d.getMonth() + 1}月${d.getDate()}日 ${n}問"></button>`;
+      }
+    }
+    $("#cal-cells").innerHTML = cells; $("#cal-mon").innerHTML = mons;
+
+    // ドリルごと
+    $("#s-cats").innerHTML = list.map(d => {
+      const x = drillData(d);
+      const pc = x.card ? null : x.done ? Math.round(x.ok / x.done * 100) : null;
+      const sub = x.card ? `学習したカード ${fmtN(x.done)} / ${fmtN(d.n)}枚` : `解いた問題 ${fmtN(x.done)} / ${fmtN(d.n)}問${x.done ? `・正解 ${fmtN(x.ok)}問` : ""}`;
+      const weakBtn = x.weak && d.kind === "rec" ? `<a class="mini ng" href="${d.id}/?start=weak">苦手 ${x.weak}問を解く</a>` : x.weak ? `<span class="mini ng">まちがい ${x.weak}問</span>` : "";
+      return `<div class="cat" data-id="${d.id}">
+        <div class="cat-top"><span>${d.ic}</span><b>${esc(d.name)}</b><span class="pc num">${pc === null ? "" : pc + "%"}</span></div>
+        <div class="cat-sub num">${sub}</div>
+        <div class="meter"><i style="width:${Math.min(100, x.done / d.n * 100)}%"></i></div>
+        <div class="cat-row"><a class="mini" href="${d.id}/">開く</a>${weakBtn}${d.kind === "rec" && x.done ? `<button class="mini" type="button" data-fields="${d.id}">分野ごとを見る</button>` : ""}</div>
+        <div class="fields" hidden></div>
+      </div>`;
+    }).join("");
+  }
+  $("#cal-cells").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    const [y, mo, da] = b.dataset.d.split("-").map(Number), n = +b.dataset.n, c = +b.dataset.c;
+    $("#cal-pick").textContent = `${mo}月${da}日：${n ? `${n}問（正解 ${c}問）` : "おやすみ"}`;
+  });
+  const qCache = {};
+  $("#s-cats").addEventListener("click", async e => {
+    const b = e.target.closest("button[data-fields]"); if (!b) return;
+    const d = DRILLS.find(x => x.id === b.dataset.fields), box = b.closest(".cat").querySelector(".fields");
+    if (!box.hidden) { box.hidden = true; b.textContent = "分野ごとを見る"; return; }
+    b.textContent = "読みこみ中…";
+    try {
+      const Q = qCache[d.id] || (qCache[d.id] = (await (await fetch(d.id + "/questions.json")).json()).questions);
+      const rec = drillData(d).rec, g = new Map();
+      for (const q of Q) {
+        const f = q.field ?? q.topic, v = g.get(f) || { n: 0, done: 0, ok: 0 }; v.n++;
+        const r = rec[q.id]; if (r) { v.done++; if (r.r === 1) v.ok++; }
+        g.set(f, v);
+      }
+      box.innerHTML = [...g].map(([f, v]) => `<a class="fld" href="${d.id}/?field=${encodeURIComponent(f)}"><span>${esc(f)}</span><em class="num">${v.done ? Math.round(v.ok / v.done * 100) + "%" : "–"}　${v.done}/${v.n}</em><span class="meter"><i style="width:${v.done ? v.ok / v.done * 100 : 0}%"></i></span></a>`).join("");
+      box.hidden = false; b.textContent = "とじる";
+    } catch { b.textContent = "読みこめませんでした"; }
+  });
+
+  /* ---------- ブックマーク ---------- */
+  const APPS = { kakomon: ["kakomon", "過去問クイズ"], prep: ["prep", "対策問題集"], chiryo: ["chiryo", "下郷先生ドリル（授業）"], chiryoq: ["chiryo-quiz", "治療クイズ"] };
+  function paintBm(){
+    const all = KQStats.bm.list();
+    if (!all.length) {
+      $("#bm-body").innerHTML = `<div class="empty"><b>🔖</b>まだブックマークはありません。<br>問題を解いている時に、右上の<b style="display:inline;font-size:inherit">「☆ 保存」</b>を押すと、ここに集まります。<br>あとで見直したい問題・まちがえやすい問題に使ってね。</div>`;
+      return;
+    }
+    let html = "";
+    for (const [app, [dir, name]] of Object.entries(APPS)) {
+      const xs = all.filter(e => e.app === app); if (!xs.length) continue;
+      html += `<div class="bm-app"><h3>${esc(name)}</h3><span class="num" style="color:var(--sub);font-size:13px">${xs.length}問</span><a class="mini" href="${dir}/?start=bm">まとめて解く</a></div>
+        <div class="bm-list">${xs.map(e => `<a class="bm" href="${dir}/?q=${encodeURIComponent(e.id)}"><small>${esc(e.l || e.id)}</small><span>${esc(e.s || "")}${(e.s || "").length >= 70 ? "…" : ""}</span><button type="button" data-app="${app}" data-id="${esc(e.id)}" aria-label="ブックマークを外す">★</button></a>`).join("")}</div>`;
+    }
+    $("#bm-body").innerHTML = html;
+  }
+  $("#bm-body").addEventListener("click", e => {
+    const b = e.target.closest("button[data-id]"); if (!b) return;
+    e.preventDefault();
+    KQStats.bm.toggle(b.dataset.app, b.dataset.id);
+    paintBm(); saveBmSoon(b.dataset.app);
+  });
+  // ブックマークを外したらクラウドにも反映（その問題のアプリの記録といっしょに保存）
+  let bmTimer = null; const bmApps = new Set();
+  function saveBmSoon(app){
+    if (!KQ.session() || !KQ.ready()) return;
+    bmApps.add(app); clearTimeout(bmTimer);
+    bmTimer = setTimeout(async () => {
+      await loadCloud();
+      for (const a of bmApps) { const d = cloud[a]; if (d) await KQ.save(a, d); }
+      bmApps.clear();
+    }, 1200);
+  }
+
+  /* ---------- 画面の切りかえ（下のタブ） ---------- */
+  const TITLES = { home: "国試ドリル", stats: "成績", bm: "ブックマーク", me: "マイページ" };
+  function route(){
+    const v = (location.hash.replace("#", "") || "home");
+    const cur = TITLES[v] ? v : "home";
+    for (const k of Object.keys(TITLES)) $("#v-" + k).hidden = k !== cur;
+    document.querySelectorAll(".tabbar a").forEach(a => { if (a.dataset.v === cur) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    $("#top-title").textContent = TITLES[cur];
+    document.querySelector(".topbar .logo i").hidden = cur !== "home";
+    if (cur === "home") paintHome();
+    if (cur === "stats") { paintStats(); loadCloud().then(r => { if (r) paintStats(); }); }
+    if (cur === "bm") { paintBm(); loadCloud().then(r => { if (r) paintBm(); }); }
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", route);
+  window.addEventListener("kq-stats", () => { const v = location.hash.replace("#", ""); if (v === "bm") paintBm(); if (v === "stats") paintStats(); });
+  // ほかのページから戻ってきた時（iPhone の「戻る」はページを作り直さないことがある）
+  window.addEventListener("pageshow", e => { if (e.persisted) route(); });
+
+  /* ---------- マイページ（ログイン・引っ越し・キャラ） ---------- */
   let isNew = false;
   function setMode(n){
     isNew = n;
@@ -168,12 +572,13 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     $("#pin").setAttribute("autocomplete", n ? "new-password" : "current-password");
     $("#msg").textContent = "";
   }
-  function paint(){
+  function paintMe(){
     const s = KQ.session();
     $("#login-box").hidden = !!s; $("#me-box").hidden = !s;
     if (s) $("#me-nick").textContent = s.nick;
     $("#setup-warn").hidden = KQ.ready();
     $("#move-login").hidden = !!s; $("#move-go").disabled = !s; $("#move-code").disabled = !s;
+    $("#h-login").hidden = !!s;
   }
   $("#mode-login").onclick = () => setMode(false);
   $("#mode-new").onclick = () => setMode(true);
@@ -185,7 +590,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     b.disabled = false;
     if (!r.ok) { m.className = "msg ng"; m.textContent = r.msg; return; }
     m.className = "msg ok"; m.textContent = `ようこそ、${r.nick} さん！`;
-    $("#pin").value = ""; paint(); if (window.KQGuide) KQGuide.refresh();
+    $("#pin").value = ""; cloudTried = false; paintMe(); paintExtra(); if (window.KQGuide) KQGuide.refresh();
   });
   const APPN = { kakomon: "過去問クイズ", prep: "対策問題集" };
   $("#move-go").onclick = async () => {
@@ -197,7 +602,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     if (!r.ok) { m.className = "msg ng"; m.textContent = r.msg; return; }
     m.className = "msg ok";
     m.textContent = "引っ越し完了！ " + r.res.map(x => `${APPN[x.app]}：${x.total}問ぶんの記録`).join("、") + " がこのニックネームに入りました";
-    $("#move-code").value = "";
+    $("#move-code").value = ""; cloudTried = false;
   };
   function paintGuide(){
     if (!window.KQGuide) return;
@@ -208,38 +613,31 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
   $("#guide-edit").onclick = () => window.KQGuide && KQGuide.open();
   $("#guide-off").onclick = () => { if (window.KQGuide) KQGuide.setOff(!KQGuide.isOff()); };
   window.addEventListener("kq-guide", paintGuide);
-  $("#logout").onclick = () => { KQ.logout(); paint(); setMode(false); if (window.KQGuide) KQGuide.refresh(); };
-  const EXTRA = [
-    { id: "kisoi", subj: "基礎医学大要", name: "基礎医 暗記カード", sub: "基礎医学大要の304枚・忘れたころに出し直し" },
-    { id: "ikougaku", subj: "医用工学", name: "医用工学 計算ドリル", sub: "国試の計算問題＋類題 95問・図と解説つき" },
-    { id: "chiryo", subj: "下郷先生（放射線治療技術学）", name: "放射線治療 下郷先生ドリル（授業）", sub: "授業の国試・模試 329問・MU計算つき・解説多め" },
-    { id: "chiryo-quiz", subj: "下郷先生（放射線治療技術学）", name: "治療クイズ（随時更新）", sub: "今日の治療クイズ 316問・選択肢ごとの解説つき" },
-    { id: "sugiura", subj: "杉浦先生（医用画像情報学）", name: "画像情報 杉浦先生ドリル", sub: "授業プリントの128問・選択肢ごとの解説つき" }
-  ];
-  const exKey = () => "kq-extra-v2" + (KQ.session() ? "@" + KQ.session().nick.toLowerCase() : "");
-  const exGet = () => { try { const v = JSON.parse(localStorage.getItem(exKey()) || "[]"); return Array.isArray(v) ? v : []; } catch { return []; } };
+  $("#logout").onclick = () => { KQ.logout(); for (const k in cloud) delete cloud[k]; cloudTried = false; paintMe(); setMode(false); paintExtra(); if (window.KQGuide) KQGuide.refresh(); };
+
+  /* ---------- 追加ドリル（自分で選んだものだけ出す） ---------- */
+  const exKey = () => "kq-extra-v2" + sfx();
+  function exGet(){ try { const v = JSON.parse(localStorage.getItem(exKey()) || "[]"); return Array.isArray(v) ? v : []; } catch { return []; } }
   const exSet = v => { try { localStorage.setItem(exKey(), JSON.stringify(v)); } catch {} };
-  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   function paintExtra(){
     const on = exGet(), list = EXTRA.filter(x => on.includes(x.id));
-    $("#extra-list").innerHTML = list.map(x => `<a class="app" href="${x.id}/"><b>${esc(x.name)}</b><span>${esc(x.sub)}</span></a>`).join("");
+    $("#extra-list").innerHTML = list.map(x => `<a class="mode" href="${x.id}/"><span class="ic">${x.ic}</span><b>${esc(x.name)}</b><span>${esc(x.sub)}</span></a>`).join("");
     $("#extra-list").hidden = !list.length;
     $("#extra-note").textContent = list.length ? "自分で選んだドリルです。「えらぶ」で入れかえられます。" : "科目ごとのドリルです。「えらぶ」で、使いたいものだけ自分のメニューに出せます。";
     const subs = [...new Set(EXTRA.map(x => x.subj))];
     $("#extra-pick").innerHTML = `<p class="note">いろんな科目から選べます。チェックしたものが上のメニューに出ます。</p>` + subs.map(s => `<h3 class="subj">${esc(s)}</h3>` + EXTRA.filter(x => x.subj === s).map(x => `<label class="pk"><input type="checkbox" value="${x.id}"${on.includes(x.id) ? " checked" : ""}><span><b>${esc(x.name)}</b><small>${esc(x.sub)}</small></span></label>`).join("")).join("");
   }
-  $("#extra-pick").addEventListener("change", e => {
-    const v = [...$("#extra-pick").querySelectorAll("input:checked")].map(i => i.value);
-    exSet(v); paintExtra();
+  $("#extra-pick").addEventListener("change", () => {
+    exSet([...$("#extra-pick").querySelectorAll("input:checked")].map(i => i.value)); paintExtra();
   });
   $("#extra-tog").onclick = () => { const p = $("#extra-pick"); p.hidden = !p.hidden; $("#extra-tog").textContent = p.hidden ? "えらぶ" : "とじる"; };
-  const _paint = paint; paint = function(){ _paint(); paintExtra(); };
-  paint();
+
+  paintMe(); route();
 })();
 window.addEventListener("DOMContentLoaded", () => {
   const box = document.getElementById("icon-pick");
   if (!box || !window.KQIcon) { const p = document.getElementById("icon-box"); if (p) p.hidden = true; return; }
-  const names = { a: "ボード", b: "ねこ", c: "Q", d: "ピンク" };
+  const names = { a: "ボード", b: "ねこ", c: "Q", d: "ピンク", e: "しんぞう", f: "のう", g: "い", h: "ちょう", i: "赤血球", j: "白血球", k: "幹細胞", l: "ニューロン", m: "肺", n: "肝臓" };
   const draw = () => {
     const cur = KQIcon.get();
     box.innerHTML = "";

@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style><script src="../shared/config.js?v=1794816000"></script><script src="../shared/account.js?v=1794816000"></script><script src="../shared/guide.js?v=1794816000" defer></script><link rel="manifest" href="../manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="../icons/apple-touch-icon.png"><script src="../shared/update.js" defer></script></head><body>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}.bmk{margin-left:auto;flex:none;border:1px solid var(--line);background:var(--sheet);color:var(--sub);border-radius:999px;padding:3px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;line-height:1.6}.bmk[aria-pressed="true"]{color:#d99a00;border-color:#e8b730;background:rgba(232,183,48,.12)}.choice.correct::after,.choice.wrongpick::after{margin-left:auto;flex:none;padding-left:8px;font-size:12.5px;font-weight:700;white-space:nowrap}.choice.correct::after{content:"✓ 正解";color:var(--ok)}.choice.wrongpick::after{content:"× あなたの回答";color:var(--ng)}</style><script src="../shared/config.js?v=1795000100"></script><script src="../shared/account.js?v=1795000100"></script><script src="../shared/stats.js?v=1795000100"></script><script src="../shared/guide.js?v=1795000100" defer></script><link rel="manifest" href="../manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="../icons/apple-touch-icon.png"><script src="../shared/update.js" defer></script></head><body>
 <title>国試 対策問題集</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -398,7 +398,7 @@ function mergeIn(r2, w2){
 function record(id, ok){
   const r = rec[id] || { c: 0, w: 0, r: null, t: 0 };
   ok ? r.c++ : r.w++; r.r = ok ? 1 : 0; r.t = Date.now();
-  rec[id] = r; saveLocal(); dirty.add(kaiOf(id)); flush();
+  rec[id] = r; if (window.KQStats) KQStats.hit(ok); saveLocal(); dirty.add(kaiOf(id)); flush();
 }
 function setSync(t){ $("#sync").textContent = t; }
 
@@ -697,6 +697,15 @@ function startQuiz(title, ids, opts = {}){
 }
 function alertBox(msg){ setSync(msg); }
 
+const isBm = id => !!(window.KQStats && KQStats.bm.has(APP, id));
+function toggleBm(b){
+  if (!window.KQStats) return;
+  const q = byId[b.dataset.id]; if (!q) return;
+  const h = b.closest(".qhead"), lab = h ? [...h.querySelectorAll(".qno,.chip")].map(x => x.textContent.trim()).filter(Boolean).join(" · ") : String(q.id);
+  const on = KQStats.bm.toggle(APP, q.id, { l: lab, s: String(q.question || "").replace(/\*\*/g, "").slice(0, 70) });
+  b.setAttribute("aria-pressed", on); b.textContent = on ? "★ 保存ずみ" : "☆ 保存";
+  dirty.add("bm"); flush();
+}
 function renderQuiz(){
   if (!quiz) return show("home");
   const q = byId[quiz.ids[quiz.i]], need = needOf(q), done = quiz.done;
@@ -714,6 +723,7 @@ function renderQuiz(){
       <span class="qno">No.${q.no}</span>
       <span class="chip">${esc(q.topic)}</span>
       <span class="num" style="color:var(--sub);font-size:13px">${esc(quiz.title)}　${quiz.i + 1} / ${quiz.ids.length}</span>
+      <button class="bmk" id="q-bm" data-id="${esc(q.id)}" aria-pressed="${isBm(q.id)}" aria-label="ブックマーク">${isBm(q.id) ? "★ 保存ずみ" : "☆ 保存"}</button>
     </div>
     <div class="prog"><i style="width:${(quiz.i + (done ? 1 : 0)) / quiz.ids.length * 100}%"></i></div>
     <div class="qtext">${fmt(q.question)}</div>
@@ -779,6 +789,7 @@ function finish(){
 /* ---------- 操作 ---------- */
 document.addEventListener("click", e => {
   const t = e.target.closest("button"); if (!t) return;
+  if (t.id === "q-bm") return toggleBm(t);
   if (t.dataset.view) return show(t.dataset.view);
   const shuffleOpt = { shuffle: $("#opt-shuffle").checked, unsolved: $("#opt-unsolved").checked };
   if (t.dataset.kai) return startQuiz(TOPIC[t.dataset.kai], Q.filter(q => String(q.kai) === t.dataset.kai).sort((a, b) => a.no - b.no).map(q => q.id), shuffleOpt);
@@ -833,6 +844,20 @@ function load(data){
   $("#review-field").innerHTML = opts("すべての分野", FIELDS);
   $("#weak-field").innerHTML = opts("すべての分野", FIELDS);
   show("home");
+  startFromUrl();
+}
+function startFromUrl(){
+  let P; try { P = new URLSearchParams(location.search); } catch { return; }
+  const st = P.get("start"), one = P.get("q"), f = P.get("field");
+  if (!st && !one && !f) return;
+  try { history.replaceState(null, "", location.pathname + location.hash); } catch {}
+  const cat = q => q.field ?? q.topic;
+  if (one && byId[one]) return startQuiz("ブックマーク", [one]);
+  if (st === "bm") return startQuiz("ブックマーク", Q.filter(q => isBm(q.id)).map(q => q.id));
+  if (st === "weak") return startQuiz("苦手な問題", Q.filter(q => isWeak(q.id)).map(q => q.id), { shuffle: true, weak: true });
+  if (st === "random") return startQuiz("ランダム10問", shuffle(Q.map(q => q.id)).slice(0, 10));
+  if (st === "unsolved") return startQuiz("まだ解いていない問題", shuffle(Q.filter(q => !rec[q.id]).map(q => q.id)).slice(0, 20));
+  if (f) return startQuiz(f, Q.filter(q => cat(q) === f).map(q => q.id));
 }
 fetch("questions.json").then(r => r.ok ? r.json() : Promise.reject())
   .then(load)
