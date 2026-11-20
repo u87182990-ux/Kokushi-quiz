@@ -11,7 +11,12 @@
     { id: "inu", name: "いぬ" },
     { id: "hiyoko", name: "ひよこ" },
     { id: "robo", name: "ロボ" },
-    { id: "hito", name: "ひと" }
+    { id: "hito", name: "ひと" },
+    // ここから下は内臓・細胞キャラ（色・服はえらべない。絵は ORGANS）
+    { id: "o-heart", name: "しんぞう" }, { id: "o-brain", name: "のう" }, { id: "o-stomach", name: "い" },
+    { id: "o-gut", name: "ちょう" }, { id: "o-lung", name: "はい" }, { id: "o-liver", name: "かんぞう" },
+    { id: "o-rbc", name: "赤血球" }, { id: "o-wbc", name: "白血球" }, { id: "o-stem", name: "幹細胞" },
+    { id: "o-neuron", name: "ニューロン" }
   ];
   const COLORS = [
     { id: "#ffc48a", name: "オレンジ" }, { id: "#ffb3c7", name: "ピンク" }, { id: "#ffe27a", name: "きいろ" },
@@ -127,6 +132,7 @@
     }
   }
   function draw(av, mood){
+    if (isOrgan(av.type)) return drawOrgan(av, mood);
     const t = av.type, c = av.color;
     const wings = t === "hiyoko" ? `<ellipse cx="23" cy="96" rx="6" ry="10" fill="${c}" ${sw} transform="rotate(25 23 96)"/><ellipse cx="77" cy="96" rx="6" ry="10" fill="${c}" ${sw} transform="rotate(-25 77 96)"/>` : "";
     const top = (av.acc === "crown" || av.acc === "ribbon") ? acc(av.acc, t) : "";
@@ -136,6 +142,97 @@
     const headAcc = neck ? "" : front;
     return `<svg viewBox="0 -2 100 116" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       ${wings}${outfit(av.outfit, c)}${neck}${ears(t, c)}${headShape(t, c)}${floppy(t, c)}${face(t, mood, c)}${headAcc}${top}</svg>`;
+  }
+
+
+  /* ---------- 内臓・細胞キャラ（ぬいぐるみ風。ホーム画面アイコン icons/e〜n と同じ子たち） ---------- */
+  // 512×512 の座標でかいて、キャラの枠（100×116）に縮めて置く。f = 顔の位置 [x, y, 大きさ, ふだんの口]
+  const OINK = "#4a3540";
+  const oc = (list, fill) => list.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`).join("");
+  const ot = (d, color, w) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const ORGANS = {
+    "o-heart": { f: [[256, 290, 1.15, "tri"]],
+      body: ot("M206 205 L206 128", "#8cc4f0", 44) + ot("M300 200 C300 130 352 118 368 160", "#ff8ea4", 44) +
+        `<ellipse cx="118" cy="300" rx="30" ry="22" transform="rotate(-25 118 300)" fill="#ff9fb3"/><ellipse cx="394" cy="300" rx="30" ry="22" transform="rotate(25 394 300)" fill="#ff9fb3"/>` +
+        `<path d="M256 430 C160 380 112 320 116 250 C120 190 170 160 214 180 C236 190 250 204 256 214 C264 202 280 186 302 180 C352 166 398 200 396 258 C394 324 348 382 256 430 Z" fill="#ff9fb3"/>` },
+    "o-brain": { f: [[256, 270, 1.15, "smile"]],
+      body: ot("M262 350 L272 418", "#f2a6bd", 48) +
+        oc([[256, 250, 140], [150, 255, 88], [362, 255, 88], [190, 175, 78], [322, 175, 78], [256, 160, 82], [180, 320, 72], [332, 320, 72], [256, 335, 80]], "#ffc6d6"),
+      deco: `<g fill="none" stroke="#f08aa8" stroke-width="9" stroke-linecap="round"><path d="M256 118 C244 150 268 172 256 200"/><path d="M168 178 C190 160 214 196 236 180"/><path d="M344 178 C322 160 298 196 276 180"/><path d="M118 232 C140 214 160 246 182 228"/><path d="M394 232 C372 214 352 246 330 228"/><path d="M150 330 C170 350 192 330 200 350"/><path d="M362 330 C342 350 320 330 312 350"/></g>` },
+    "o-stomach": { f: [[298, 318, 1.1, "smile"]],
+      body: ot("M196 78 L196 170", "#ffc59a", 46) + ot("M396 332 C432 356 436 404 404 424", "#ffc59a", 38) +
+        `<path d="M170 150 C166 230 150 300 190 365 C232 432 352 440 398 368 C436 306 410 222 348 220 C298 218 282 255 260 226 C240 200 246 160 222 150 Z" fill="#ffcfa6"/>` },
+    "o-gut": { f: [[256, 160, 0.95, "cat"]],
+      body: oc([[150, 380, 52], [130, 310, 56], [134, 236, 56], [168, 172, 56], [232, 140, 56], [300, 140, 56], [356, 172, 56], [382, 236, 56], [384, 310, 56], [364, 380, 52]], "#ffb7a3") +
+        `<rect x="186" y="210" width="140" height="140" rx="56" fill="#ffd3c4"/>`,
+      deco: `<path d="M206 238 C230 222 246 250 270 236 C292 224 306 246 306 260 M206 300 C226 290 244 316 266 302 C290 290 302 312 306 324" fill="none" stroke="#f6a993" stroke-width="9" stroke-linecap="round"/>` },
+    "o-lung": { f: [[172, 312, 0.85, "smile"], [340, 312, 0.85, "cat"]],
+      body: ot("M256 86 L256 196 M256 196 L222 224 M256 196 L290 224", "#9edf8e", 30) +
+        `<path d="M232 210 C232 170 208 150 180 152 C126 156 104 240 106 316 C108 380 140 418 186 416 C232 414 240 380 236 330 Z" fill="#b8dcf7"/>` +
+        `<path d="M280 210 C280 170 304 150 332 152 C386 156 408 240 406 316 C404 380 372 418 326 416 C280 414 272 380 276 330 Z" fill="#b8dcf7"/>` },
+    "o-liver": { f: [[196, 262, 1.1, "smile"]],
+      body: `<path d="M104 236 C104 186 160 170 230 172 C320 174 400 168 414 200 C426 230 392 268 340 300 C284 336 220 372 170 368 C124 364 104 300 104 236 Z" fill="#ffc96b"/>`,
+      deco: `<path d="M292 182 C300 226 296 280 280 326" fill="none" stroke="#f0a64a" stroke-width="9" stroke-linecap="round"/>` },
+    "o-rbc": { f: [[256, 262, 1.05, "smile", "#ffc0ca"]],
+      body: `<ellipse cx="256" cy="272" rx="168" ry="158" fill="#ff7f8f"/>`,
+      deco: `<ellipse cx="256" cy="276" rx="96" ry="80" fill="#f26b7a" opacity=".6"/>` },
+    "o-wbc": { f: [[256, 262, 1.15, "smile", "#ffb6c8"]],
+      body: oc([[256, 262, 138], [256, 124, 50], [352, 154, 52], [394, 254, 50], [356, 358, 52], [256, 398, 50], [156, 358, 52], [118, 254, 50], [160, 154, 52], [306, 120, 40], [206, 120, 40], [400, 310, 40], [112, 310, 40]], "#fffaf0") },
+    "o-stem": { f: [[250, 268, 1.15, "open"]],
+      body: ot("M256 140 C256 112 252 98 256 80", "#6fcf86", 16) +
+        `<path d="M256 98 C222 62 182 72 174 94 C202 112 236 114 256 98 Z M258 94 C290 54 334 60 342 84 C314 106 280 108 258 94 Z" fill="#8fe0a2"/>` +
+        `<circle cx="256" cy="285" r="150" fill="#cdf5d9"/>`,
+      deco: `<circle cx="345" cy="352" r="34" fill="#b49af0"/><circle cx="170" cy="352" r="12" fill="#a8e8bb"/><circle cx="198" cy="386" r="8" fill="#a8e8bb"/>` },
+    "o-neuron": { f: [[256, 264, 1.1, "smile", "#ffab8a"]],
+      body: ot("M210 220 L136 166 M136 166 L104 180 M136 166 L126 128", "#ffe27a", 26) + ot("M302 220 L376 166 M376 166 L408 180 M376 166 L386 128", "#ffe27a", 26) +
+        ot("M256 190 L256 116 M256 116 L230 92 M256 116 L282 92", "#ffe27a", 26) + ot("M186 316 L124 346", "#ffe27a", 26) + ot("M326 322 C356 362 360 400 398 428", "#ffe27a", 20) +
+        `<path d="M256 180 C326 180 350 224 348 270 C346 330 302 352 256 352 C206 352 164 328 164 268 C164 218 194 180 256 180 Z" fill="#ffe27a"/>`,
+      deco: `<g fill="#9fdcff"><rect x="334" y="340" width="34" height="24" rx="12" transform="rotate(58 351 352)"/><rect x="358" y="392" width="34" height="24" rx="12" transform="rotate(35 375 404)"/></g>` }
+  };
+  const isOrgan = t => !!ORGANS[t];
+  const OK = 108 / 512, OX = -4, OY = 0; // 512 の絵 → キャラ枠への縮め方
+  function organFace(x, y, s, mouth, blush, mood){
+    s *= 1.32;
+    const ex = 30 * s, st = `fill="none" stroke="${OINK}" stroke-width="${5.5 * s}" stroke-linecap="round" stroke-linejoin="round"`;
+    const dot = cx => `<ellipse cx="${cx}" cy="${y}" rx="${9 * s}" ry="${11 * s}" fill="${OINK}"/>`;
+    const b = cx => `<ellipse cx="${cx}" cy="${y + 16 * s}" rx="${15 * s}" ry="${8 * s}" fill="${blush || "#ff8fa3"}" opacity=".5"/>`;
+    let eyes = `<g class="kqg-eyes" style="transform-box:fill-box;transform-origin:center">${dot(x - ex) + dot(x + ex)}</g>`, m, extra = "";
+    const M = {
+      smile: `<path d="M${x - 10 * s} ${y + 6 * s} Q${x} ${y + 17 * s} ${x + 10 * s} ${y + 6 * s}" ${st}/>`,
+      cat: `<path d="M${x - 14 * s} ${y + 6 * s} Q${x - 7 * s} ${y + 15 * s} ${x} ${y + 7 * s} Q${x + 7 * s} ${y + 15 * s} ${x + 14 * s} ${y + 6 * s}" ${st}/>`,
+      open: `<path d="M${x - 9 * s} ${y + 5 * s} Q${x} ${y + 22 * s} ${x + 9 * s} ${y + 5 * s} Z" fill="${OINK}" stroke="${OINK}" stroke-width="${3 * s}" stroke-linejoin="round"/>`,
+      tri: `<path d="M${x} ${y + 3 * s} L${x - 8 * s} ${y + 15 * s} L${x + 8 * s} ${y + 15 * s} Z" fill="none" stroke="${OINK}" stroke-width="${4.5 * s}" stroke-linejoin="round"/>`
+    };
+    if (mood === "happy") {
+      const arc = cx => `<path d="M${cx - 11 * s} ${y + 4 * s} Q${cx} ${y - 12 * s} ${cx + 11 * s} ${y + 4 * s}" ${st}/>`;
+      eyes = arc(x - ex) + arc(x + ex);
+      m = `<path d="M${x - 12 * s} ${y + 6 * s} Q${x} ${y + 26 * s} ${x + 12 * s} ${y + 6 * s} Z" fill="#e5576b" stroke="${OINK}" stroke-width="${4 * s}" stroke-linejoin="round"/>`;
+    } else if (mood === "cheer") {
+      m = `<path d="M${x - 8 * s} ${y + 11 * s} Q${x} ${y + 14 * s} ${x + 8 * s} ${y + 11 * s}" ${st}/>`;
+      extra = `<path d="M${x - ex - 14 * s} ${y - 22 * s} L${x - ex + 10 * s} ${y - 17 * s} M${x + ex + 14 * s} ${y - 22 * s} L${x + ex - 10 * s} ${y - 17 * s}" ${st}/>` +
+        `<path d="M${x + ex + 34 * s} ${y - 34 * s} C${x + ex + 26 * s} ${y - 20 * s} ${x + ex + 26 * s} ${y - 12 * s} ${x + ex + 34 * s} ${y - 10 * s} C${x + ex + 42 * s} ${y - 12 * s} ${x + ex + 42 * s} ${y - 20 * s} ${x + ex + 34 * s} ${y - 34 * s} Z" fill="#9fd8f5"/>`;
+    } else if (mood === "think") {
+      m = `<path d="M${x - 8 * s} ${y + 12 * s} L${x + 8 * s} ${y + 10 * s}" ${st}/>`;
+    } else m = M[mouth] || M.smile;
+    return b(x - 58 * s) + b(x + 58 * s) + eyes + m + extra;
+  }
+  let organN = 0;
+  function drawOrgan(av, mood){
+    const o = ORGANS[av.type], id = "kqgp" + (++organN);
+    const faces = o.f.map(([x, y, s, mouth, blush]) => organFace(x, y, s, mouth, blush, mood)).join("");
+    // 小物は、いちばん目の顔の位置に合わせて動かす（服はなし）
+    const [fx, fy] = o.f[0], dx = OX + fx * OK - 50, dy = OY + fy * OK - 53;
+    const a = av.acc !== "none" ? `<g transform="translate(${dx.toFixed(1)} ${dy.toFixed(1)})">${acc(av.acc, "o")}</g>` : "";
+    return `<svg viewBox="0 -2 100 116" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><filter id="${id}" x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="16" result="b"/>
+        <feSpecularLighting in="b" surfaceScale="7" specularConstant=".55" specularExponent="16" lighting-color="#fff" result="s"><fePointLight x="170" y="90" z="260"/></feSpecularLighting>
+        <feComposite in="s" in2="SourceAlpha" operator="in" result="hi"/>
+        <feOffset in="b" dy="-12" result="o"/><feComposite in="SourceAlpha" in2="o" operator="out" result="edge"/>
+        <feFlood flood-color="#7a3a50" flood-opacity=".16"/><feComposite in2="edge" operator="in" result="sh"/>
+        <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="sh"/><feMergeNode in="hi"/></feMerge></filter></defs>
+      <ellipse cx="50" cy="${OY + 452 * OK}" rx="30" ry="4.5" fill="#000" opacity=".12"/>
+      <g transform="translate(${OX} ${OY}) scale(${OK})"><g filter="url(#${id})">${o.body}</g>${o.deco || ""}${faces}</g>${a}</svg>`;
   }
 
   /* ---------- 設定と記録 ---------- */
@@ -407,7 +504,12 @@
     p.append(h, note, pv, nameRow, chipRow("種類", TYPES, "type"), chipRow(draft.type === "hito" ? "かみの色" : "色", COLORS, "color", true),
       chipRow("服", OUTFITS, "outfit"), chipRow("小物", ACCS, "acc"), goalRow, msg, foot, offB);
     // 「ひと」を選ぶと色の見出しを「かみの色」にする
-    p.querySelector('[aria-label="種類"]').addEventListener("click", () => { p.querySelectorAll(".kqg-row>span")[2].textContent = draft.type === "hito" ? "かみの色" : "色"; });
+    // 内臓・細胞キャラのときは「色」「服」の行をかくす
+    const rowsFix = () => {
+      const sp = p.querySelectorAll(".kqg-row>span"); sp[2].textContent = draft.type === "hito" ? "かみの色" : "色";
+      const o = isOrgan(draft.type); sp[2].parentNode.hidden = o; sp[3].parentNode.hidden = o;
+    };
+    p.querySelector('[aria-label="種類"]').addEventListener("click", rowsFix); rowsFix();
     prev();
     sheet.hidden = false; hide();
     setTimeout(() => ok.focus({ preventScroll: true }), 50);
