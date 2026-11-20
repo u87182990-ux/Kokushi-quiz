@@ -1,4 +1,5 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style><script src="../shared/config.js?v=1794900000"></script><script src="../shared/account.js?v=1794900000"></script>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style><script src="../shared/config.js?v=1795000000"></script><script src="../shared/account.js?v=1795000000"></script>
+<script src="../shared/stats.js?v=1795000000"></script>
 <title>基礎医 暗記カード</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -158,6 +159,7 @@ function preview(c, g) {
   return ivl >= 30 ? Math.round(ivl / 30) + "か月" : ivl + "日";
 }
 function grade(g) {
+  if (window.KQStats) KQStats.hit(g > 0);
   const c = cur; const s = S[c.id] || { ivl: 0, ease: 2.5, reps: 0, lapses: 0, due: 0 };
   const isNew = !S[c.id];
   if (g === 0) { s.lapses++; s.ease = Math.max(1.3, s.ease - 0.2); s.ivl = 0; s.due = now() + 10 * 60 * 1000; queue.splice(Math.min(queue.length, 4), 0, c); }
