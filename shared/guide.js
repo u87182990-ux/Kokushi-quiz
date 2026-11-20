@@ -12,7 +12,7 @@
     { id: "hiyoko", name: "ひよこ" },
     { id: "robo", name: "ロボ" },
     { id: "hito", name: "ひと" },
-    // ここから下は内臓・細胞キャラ（色・服はえらべない。絵は ORGANS）
+    // ここから下は内臓・細胞キャラ（服はなし。色は OCOLORS から。絵は ORGANS）
     { id: "o-heart", name: "しんぞう" }, { id: "o-brain", name: "のう" }, { id: "o-stomach", name: "い" },
     { id: "o-gut", name: "ちょう" }, { id: "o-lung", name: "はい" }, { id: "o-liver", name: "かんぞう" },
     { id: "o-rbc", name: "赤血球" }, { id: "o-wbc", name: "白血球" }, { id: "o-stem", name: "幹細胞" },
@@ -34,7 +34,7 @@
     { id: "badge", name: "名札" }
   ];
   const GOALS = [5, 10, 20, 30, 50];
-  const DEF = { type: "neko", color: "#ffc48a", outfit: "hakui", acc: "none", name: "ナビ", goal: 10 };
+  const DEF = { type: "neko", color: "#ffc48a", ocolor: "orig", outfit: "hakui", acc: "none", name: "ナビ", goal: 10 };
 
   /* ---------- 絵（SVG） ---------- */
   const L = "#3b2f2f"; // 線の色
@@ -151,45 +151,47 @@
   const oc = (list, fill) => list.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`).join("");
   const ot = (d, color, w) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
   const ORGANS = {
-    "o-heart": { f: [[256, 290, 1.15, "tri"]],
+    "o-heart": { main: "#ff9fb3", f: [[256, 290, 1.15, "tri"]],
       body: ot("M206 205 L206 128", "#8cc4f0", 44) + ot("M300 200 C300 130 352 118 368 160", "#ff8ea4", 44) +
         `<ellipse cx="118" cy="300" rx="30" ry="22" transform="rotate(-25 118 300)" fill="#ff9fb3"/><ellipse cx="394" cy="300" rx="30" ry="22" transform="rotate(25 394 300)" fill="#ff9fb3"/>` +
         `<path d="M256 430 C160 380 112 320 116 250 C120 190 170 160 214 180 C236 190 250 204 256 214 C264 202 280 186 302 180 C352 166 398 200 396 258 C394 324 348 382 256 430 Z" fill="#ff9fb3"/>` },
-    "o-brain": { f: [[256, 270, 1.15, "smile"]],
+    "o-brain": { main: "#ffc6d6", f: [[256, 270, 1.15, "smile"]],
       body: ot("M262 350 L272 418", "#f2a6bd", 48) +
         oc([[256, 250, 140], [150, 255, 88], [362, 255, 88], [190, 175, 78], [322, 175, 78], [256, 160, 82], [180, 320, 72], [332, 320, 72], [256, 335, 80]], "#ffc6d6"),
       deco: `<g fill="none" stroke="#f08aa8" stroke-width="9" stroke-linecap="round"><path d="M256 118 C244 150 268 172 256 200"/><path d="M168 178 C190 160 214 196 236 180"/><path d="M344 178 C322 160 298 196 276 180"/><path d="M118 232 C140 214 160 246 182 228"/><path d="M394 232 C372 214 352 246 330 228"/><path d="M150 330 C170 350 192 330 200 350"/><path d="M362 330 C342 350 320 330 312 350"/></g>` },
-    "o-stomach": { f: [[298, 318, 1.1, "smile"]],
+    "o-stomach": { main: "#ffcfa6", f: [[298, 318, 1.1, "smile"]],
       body: ot("M196 78 L196 170", "#ffc59a", 46) + ot("M396 332 C432 356 436 404 404 424", "#ffc59a", 38) +
         `<path d="M170 150 C166 230 150 300 190 365 C232 432 352 440 398 368 C436 306 410 222 348 220 C298 218 282 255 260 226 C240 200 246 160 222 150 Z" fill="#ffcfa6"/>` },
-    "o-gut": { f: [[256, 160, 0.95, "cat"]],
+    "o-gut": { main: "#ffb7a3", f: [[256, 160, 0.95, "cat"]],
       body: oc([[150, 380, 52], [130, 310, 56], [134, 236, 56], [168, 172, 56], [232, 140, 56], [300, 140, 56], [356, 172, 56], [382, 236, 56], [384, 310, 56], [364, 380, 52]], "#ffb7a3") +
         `<rect x="186" y="210" width="140" height="140" rx="56" fill="#ffd3c4"/>`,
       deco: `<path d="M206 238 C230 222 246 250 270 236 C292 224 306 246 306 260 M206 300 C226 290 244 316 266 302 C290 290 302 312 306 324" fill="none" stroke="#f6a993" stroke-width="9" stroke-linecap="round"/>` },
-    "o-lung": { f: [[172, 312, 0.85, "smile"], [340, 312, 0.85, "cat"]],
+    "o-lung": { main: "#b8dcf7", f: [[172, 312, 0.85, "smile"], [340, 312, 0.85, "cat"]],
       body: ot("M256 86 L256 196 M256 196 L222 224 M256 196 L290 224", "#9edf8e", 30) +
         `<path d="M232 210 C232 170 208 150 180 152 C126 156 104 240 106 316 C108 380 140 418 186 416 C232 414 240 380 236 330 Z" fill="#b8dcf7"/>` +
         `<path d="M280 210 C280 170 304 150 332 152 C386 156 408 240 406 316 C404 380 372 418 326 416 C280 414 272 380 276 330 Z" fill="#b8dcf7"/>` },
-    "o-liver": { f: [[196, 262, 1.1, "smile"]],
+    "o-liver": { main: "#ffc96b", f: [[196, 262, 1.1, "smile"]],
       body: `<path d="M104 236 C104 186 160 170 230 172 C320 174 400 168 414 200 C426 230 392 268 340 300 C284 336 220 372 170 368 C124 364 104 300 104 236 Z" fill="#ffc96b"/>`,
       deco: `<path d="M292 182 C300 226 296 280 280 326" fill="none" stroke="#f0a64a" stroke-width="9" stroke-linecap="round"/>` },
-    "o-rbc": { f: [[256, 262, 1.05, "smile", "#ffc0ca"]],
+    "o-rbc": { main: "#ff7f8f", f: [[256, 262, 1.05, "smile", "#ffc0ca"]],
       body: `<ellipse cx="256" cy="272" rx="168" ry="158" fill="#ff7f8f"/>`,
       deco: `<ellipse cx="256" cy="276" rx="96" ry="80" fill="#f26b7a" opacity=".6"/>` },
-    "o-wbc": { f: [[256, 262, 1.15, "smile", "#ffb6c8"]],
+    "o-wbc": { main: "#fffaf0", f: [[256, 262, 1.15, "smile", "#ffb6c8"]],
       body: oc([[256, 262, 138], [256, 124, 50], [352, 154, 52], [394, 254, 50], [356, 358, 52], [256, 398, 50], [156, 358, 52], [118, 254, 50], [160, 154, 52], [306, 120, 40], [206, 120, 40], [400, 310, 40], [112, 310, 40]], "#fffaf0") },
-    "o-stem": { f: [[250, 268, 1.15, "open"]],
+    "o-stem": { main: "#cdf5d9", f: [[250, 268, 1.15, "open"]],
       body: ot("M256 140 C256 112 252 98 256 80", "#6fcf86", 16) +
         `<path d="M256 98 C222 62 182 72 174 94 C202 112 236 114 256 98 Z M258 94 C290 54 334 60 342 84 C314 106 280 108 258 94 Z" fill="#8fe0a2"/>` +
         `<circle cx="256" cy="285" r="150" fill="#cdf5d9"/>`,
       deco: `<circle cx="345" cy="352" r="34" fill="#b49af0"/><circle cx="170" cy="352" r="12" fill="#a8e8bb"/><circle cx="198" cy="386" r="8" fill="#a8e8bb"/>` },
-    "o-neuron": { f: [[256, 264, 1.1, "smile", "#ffab8a"]],
+    "o-neuron": { main: "#ffe27a", f: [[256, 264, 1.1, "smile", "#ffab8a"]],
       body: ot("M210 220 L136 166 M136 166 L104 180 M136 166 L126 128", "#ffe27a", 26) + ot("M302 220 L376 166 M376 166 L408 180 M376 166 L386 128", "#ffe27a", 26) +
         ot("M256 190 L256 116 M256 116 L230 92 M256 116 L282 92", "#ffe27a", 26) + ot("M186 316 L124 346", "#ffe27a", 26) + ot("M326 322 C356 362 360 400 398 428", "#ffe27a", 20) +
         `<path d="M256 180 C326 180 350 224 348 270 C346 330 302 352 256 352 C206 352 164 328 164 268 C164 218 194 180 256 180 Z" fill="#ffe27a"/>`,
       deco: `<g fill="#9fdcff"><rect x="334" y="340" width="34" height="24" rx="12" transform="rotate(58 351 352)"/><rect x="358" y="392" width="34" height="24" rx="12" transform="rotate(35 375 404)"/></g>` }
   };
   const isOrgan = t => !!ORGANS[t];
+  // 内臓・細胞キャラの色（「もとの色」＋ふつうの色）。体の色だけが変わる
+  const OCOLORS = [{ id: "orig", name: "もとの色", bg: "conic-gradient(#ff9fb3,#ffe27a,#b8dcf7,#cdf5d9,#ff9fb3)" }].concat(COLORS);
   const OK = 108 / 512, OX = -4, OY = 0; // 512 の絵 → キャラ枠への縮め方
   function organFace(x, y, s, mouth, blush, mood){
     s *= 1.32;
@@ -219,6 +221,7 @@
   let organN = 0;
   function drawOrgan(av, mood){
     const o = ORGANS[av.type], id = "kqgp" + (++organN);
+    const body = av.ocolor && av.ocolor !== "orig" ? o.body.split(o.main).join(av.ocolor) : o.body;
     const faces = o.f.map(([x, y, s, mouth, blush]) => organFace(x, y, s, mouth, blush, mood)).join("");
     // 小物は、いちばん目の顔の位置に合わせて動かす（服はなし）
     const [fx, fy] = o.f[0], dx = OX + fx * OK - 50, dy = OY + fy * OK - 53;
@@ -232,7 +235,7 @@
         <feFlood flood-color="#7a3a50" flood-opacity=".16"/><feComposite in2="edge" operator="in" result="sh"/>
         <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="sh"/><feMergeNode in="hi"/></feMerge></filter></defs>
       <ellipse cx="50" cy="${OY + 452 * OK}" rx="30" ry="4.5" fill="#000" opacity=".12"/>
-      <g transform="translate(${OX} ${OY}) scale(${OK})"><g filter="url(#${id})">${o.body}</g>${o.deco || ""}${faces}</g>${a}</svg>`;
+      <g transform="translate(${OX} ${OY}) scale(${OK})"><g filter="url(#${id})">${body}</g>${o.deco || ""}${faces}</g>${a}</svg>`;
   }
 
   /* ---------- 設定と記録 ---------- */
@@ -249,6 +252,7 @@
     }
     const v = Object.assign({}, DEF, a || {});
     v.type = valid(TYPES, v.type, DEF.type); v.color = valid(COLORS, v.color, DEF.color);
+    v.ocolor = valid(OCOLORS, v.ocolor, DEF.ocolor);
     v.outfit = valid(OUTFITS, v.outfit, DEF.outfit); v.acc = valid(ACCS, v.acc, DEF.acc);
     v.goal = GOALS.includes(+v.goal) ? +v.goal : DEF.goal;
     v.name = String(v.name || DEF.name).slice(0, 10);
@@ -463,7 +467,7 @@
     for (const it of list) {
       const b = document.createElement("button"); b.type = "button";
       b.className = swatch ? "kqg-sw" : "kqg-chip";
-      if (swatch) { b.style.background = it.id; b.title = it.name; b.setAttribute("aria-label", it.name); } else b.textContent = it.name;
+      if (swatch) { b.style.background = it.bg || it.id; b.title = it.name; b.setAttribute("aria-label", it.name); } else b.textContent = it.name;
       b.setAttribute("aria-pressed", String(draft[key] === it.id));
       b.onclick = () => { draft[key] = it.id; for (const x of box.children) x.setAttribute("aria-pressed", String(x === b)); prev(); };
       box.appendChild(b);
@@ -501,13 +505,13 @@
     const offB = document.createElement("button"); offB.type = "button"; offB.className = "kqg-btn"; offB.style.cssText = "width:100%;margin-top:6px";
     offB.textContent = "キャラをオフにする（画面から消す）"; offB.onclick = () => { closeEditor(); setOff(true); };
     foot.append(cancel, ok);
-    p.append(h, note, pv, nameRow, chipRow("種類", TYPES, "type"), chipRow(draft.type === "hito" ? "かみの色" : "色", COLORS, "color", true),
+    p.append(h, note, pv, nameRow, chipRow("種類", TYPES, "type"), chipRow(draft.type === "hito" ? "かみの色" : "色", COLORS, "color", true), chipRow("色", OCOLORS, "ocolor", true),
       chipRow("服", OUTFITS, "outfit"), chipRow("小物", ACCS, "acc"), goalRow, msg, foot, offB);
     // 「ひと」を選ぶと色の見出しを「かみの色」にする
-    // 内臓・細胞キャラのときは「色」「服」の行をかくす
+    // 内臓・細胞キャラのときは「色」「服」の行をかくし、内臓用の「色」（もとの色つき）を出す
     const rowsFix = () => {
       const sp = p.querySelectorAll(".kqg-row>span"); sp[2].textContent = draft.type === "hito" ? "かみの色" : "色";
-      const o = isOrgan(draft.type); sp[2].parentNode.hidden = o; sp[3].parentNode.hidden = o;
+      const o = isOrgan(draft.type); sp[2].parentNode.hidden = o; sp[3].parentNode.hidden = !o; sp[4].parentNode.hidden = o;
     };
     p.querySelector('[aria-label="種類"]').addEventListener("click", rowsFix); rowsFix();
     prev();
