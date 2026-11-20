@@ -47,6 +47,10 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
 .btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line2);background:var(--sheet);color:var(--ink);padding:11px 18px;border-radius:999px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);width:100%}
 .btn:disabled{opacity:.5;cursor:wait}
+.icon-pick{display:flex;gap:6px;flex-wrap:wrap}
+.icon-pick button{border:3px solid transparent;border-radius:22px;padding:3px;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--sub);font:inherit;font-size:12.5px;font-weight:700}
+.icon-pick img{width:60px;height:60px;border-radius:16px;display:block}
+.icon-pick button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
 .msg{margin-top:10px;font-size:13.5px;font-weight:700;min-height:1.5em}
 .msg.ng{color:var(--ng)} .msg.ok{color:var(--ok)}
 .apps{display:grid;gap:12px}
@@ -119,6 +123,12 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     <textarea id="move-code" class="code" placeholder="KOKUSHI-… で始まるコードをここに貼る" aria-label="引っ越しコード"></textarea>
     <button class="btn primary" id="move-go" type="button" style="margin-top:10px">引っ越す</button>
     <div class="msg" id="move-msg" role="status"></div>
+  </div>
+
+  <div class="panel" id="icon-box">
+    <h2>ホーム画面のアイコン</h2>
+    <p class="note">はじめは「Q」です。好きなアイコンをえらんでから、Safari の共有ボタン →「ホーム画面に追加」をしてね。すでに追加している人は、いまのアイコンを消してから追加し直すと変わります（ログインしていれば記録はそのままです）。</p>
+    <div class="icon-pick" id="icon-pick"></div>
   </div>
 
   <div class="panel" id="guide-box">
@@ -226,6 +236,25 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
   const _paint = paint; paint = function(){ _paint(); paintExtra(); };
   paint();
 })();
+window.addEventListener("DOMContentLoaded", () => {
+  const box = document.getElementById("icon-pick");
+  if (!box || !window.KQIcon) { const p = document.getElementById("icon-box"); if (p) p.hidden = true; return; }
+  const names = { a: "ボード", b: "ねこ", c: "Q", d: "ピンク" };
+  const draw = () => {
+    const cur = KQIcon.get();
+    box.innerHTML = "";
+    for (const k of KQIcon.list) {
+      const b = document.createElement("button");
+      b.type = "button"; b.setAttribute("aria-pressed", String(k === cur));
+      const img = document.createElement("img"); img.src = KQIcon.url(k); img.alt = "";
+      const t = document.createElement("span"); t.textContent = names[k];
+      b.append(img, t);
+      b.onclick = () => { KQIcon.set(k); draw(); };
+      box.appendChild(b);
+    }
+  };
+  draw();
+});
 </script>
 </body>
 </html>

@@ -9,6 +9,25 @@
   var me = document.currentScript;
   var root = new URL("../", me ? me.src : location.href); // サイトのいちばん上（/Kokushi-quiz/）
 
+  // ホーム画面のアイコン（トップページで A〜D から選べる。はじめは C）
+  var ICONS = ["a", "b", "c", "d"];
+  function applyIcon(k) {
+    if (ICONS.indexOf(k) < 0) k = "c";
+    var t = document.querySelector('link[rel="apple-touch-icon"]');
+    if (t) t.href = new URL("icons/" + k + "/apple-touch-icon.png", root).href;
+    var m = document.querySelector('link[rel="manifest"]');
+    if (m) m.href = new URL(k === "c" ? "manifest.webmanifest" : "manifest-" + k + ".webmanifest", root).href;
+  }
+  var picked = "c";
+  try { picked = localStorage.getItem("kq-icon") || "c"; } catch (_) {}
+  applyIcon(picked);
+  window.KQIcon = {
+    list: ICONS,
+    get: function () { try { return localStorage.getItem("kq-icon") || "c"; } catch (_) { return "c"; } },
+    set: function (k) { try { localStorage.setItem("kq-icon", k); } catch (_) {} applyIcon(k); },
+    url: function (k) { return new URL("icons/" + k + "/icon-192.png", root).href; }
+  };
+
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register(new URL("sw.js", root).href, { scope: root.pathname })
       .then(function (reg) { reg.update && reg.update(); })
