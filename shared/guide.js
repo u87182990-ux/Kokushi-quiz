@@ -560,6 +560,9 @@
     root.classList.toggle("min", !!lsGet(minKey, 0));
     meBtn.setAttribute("aria-label", av.name + (root.classList.contains("min") ? "（タップで出す）" : "（タップで話す・着せかえ）"));
     applyOff();
+    // 下にタブのバーがあるページでは、その上にのせる
+    const lift = () => { const tb = document.querySelector(".tabbar"); if (tb && tb.offsetHeight) root.style.bottom = (tb.offsetHeight + 10) + "px"; };
+    lift(); window.addEventListener("resize", lift); setTimeout(lift, 800);
     window.addEventListener("kq-avatar", () => { av = getAv(); paint(curMood); applyOff(); });
     watch();
     setTimeout(() => refresh(), pageApp() ? 900 : 300);
