@@ -249,7 +249,7 @@ body.modal-open{overflow:hidden}
     <div class="modes">
       <a class="mode" href="kakomon/"><span class="ic">📚</span><b>過去問クイズ</b><span>第67〜78回<br>全2,400問・解説つき</span></a>
       <a class="mode" href="kakomon/?start=random"><span class="ic">🎲</span><b>ランダム10問</b><span>過去問から<br>サクッと10問</span></a>
-      <a class="mode" href="kakomon/?start=weak"><span class="ic">🔁</span><b>苦手を復習</b><span id="h-weak">まちがえた問題を<br>2回続けて正解で卒業</span></a>
+      <a class="mode" href="kakomon/?start=weak"><span class="ic">🔁</span><b>苦手を復習</b><span id="h-weak">まちがえた問題を<br>どこで解いても2回続けて正解で卒業</span></a>
       <a class="mode" href="kakomon/?start=unsolved"><span class="ic">✨</span><b>まだ解いてない</b><span id="h-unsolved">はじめての問題から<br>20問</span></a>
       <a class="mode wide" href="prep/"><span class="ic">🎯</span><b>対策問題集</b><span>よく出るポイントのオリジナル270問・22テーマ</span></a>
     </div>
@@ -482,7 +482,7 @@ body.modal-open{overflow:hidden}
     $("#h-streak").textContent = streakOf(m);
     $("#h-today").textContent = fmtN((m[KQStats.ymd(Date.now())] || [0])[0]);
     const k = drillData(DRILLS[0]);
-    $("#h-weak").innerHTML = k.weak ? `苦手リスト <b class="num">${k.weak}</b>問<br>2回続けて正解で卒業` : "まちがえた問題を<br>2回続けて正解で卒業";
+    $("#h-weak").innerHTML = k.weak ? `苦手リスト <b class="num">${k.weak}</b>問<br>どこで解いても2回続けて正解で卒業` : "まちがえた問題を<br>どこで解いても2回続けて正解で卒業";
     $("#h-unsolved").innerHTML = `まだ解いていない<br><b class="num">${fmtN(2400 - k.done)}</b>問から20問`;
     $("#h-login").hidden = !!KQ.session();
     paintExam(k.done + drillData(DRILLS[1]).done);
