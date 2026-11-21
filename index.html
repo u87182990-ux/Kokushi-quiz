@@ -10,6 +10,7 @@
 <script src="shared/config.js?v=1795000000"></script>
 <script src="shared/account.js?v=1795300000"></script>
 <script src="shared/stats.js?v=1795000000"></script>
+<script src="shared/plan.js?v=1795400000"></script>
 <script src="shared/guide.js?v=1795300000" defer></script>
 <style>
 :root{
@@ -58,6 +59,25 @@ h1,h2,h3{font-family:var(--f-disp);margin:0;line-height:1.35}
 
 /* ホームの見出し */
 .hero{text-align:center;padding:26px 4px 6px}
+/* 今日やること・おすすめ */
+.today{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:4px 14px;margin-top:14px;padding:18px 18px;border-radius:20px;
+  background:var(--accent);color:var(--accent-ink);text-decoration:none;box-shadow:0 10px 24px -14px rgba(29,111,216,.9);transition:transform .1s}
+.today:active{transform:scale(.985)}
+.today .ic{grid-row:1/3;font-size:34px;line-height:1}
+.today b{font-family:var(--f-disp);font-size:21px;font-weight:900;line-height:1.3}
+.today b .num{font-size:1.15em}
+.today small{grid-column:2;font-size:12.5px;line-height:1.55;opacity:.92}
+.today::after{content:"›";grid-row:1/3;grid-column:3;font-size:30px;opacity:.85}
+.today.done{background:var(--ok)}
+.today-prog{display:flex;align-items:center;gap:10px;margin:8px 4px 0;font-size:12.5px;color:var(--sub)}
+.today-prog .meter{flex:1;margin:0}
+.reco{margin-top:12px;padding:14px 16px;border-radius:16px;background:var(--sheet);border:1px solid var(--line)}
+.reco-main{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;text-decoration:none;color:var(--ink)}
+.reco-main small{font-size:12px;color:var(--sub);font-weight:700}
+.reco-main b{font-size:15.5px;line-height:1.45}
+.reco-main .go{grid-row:1/3;grid-column:2;border-radius:999px;background:var(--accent);color:var(--accent-ink);padding:8px 14px;font-weight:700;font-size:13.5px;white-space:nowrap}
+.reco-more{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--sub);align-items:center}
+.reco-more a{font-size:12.5px}
 .hero h1{font-size:32px;font-weight:900;color:var(--accent);letter-spacing:.02em}
 .hero p{margin:6px 0 0;color:var(--sub);font-size:13.5px}
 .hero-nums{display:flex;justify-content:center;gap:34px;margin:18px 0 4px}
@@ -220,6 +240,9 @@ body.modal-open{overflow:hidden}
 <div class="wrap">
   <!-- ============ ホーム ============ -->
   <section class="view" id="v-home">
+    <a class="today" id="h-today-go" href="kakomon/?start=today"><span class="ic">▶</span><b>今日やること</b><small id="h-today-sub">復習 → 弱点分野 → 新しい問題の順に、今日の分を自動で組みます</small></a>
+    <div class="today-prog" id="h-today-prog" hidden><span class="num" id="h-today-lab"></span><span class="meter"><i id="h-today-bar" style="width:0"></i></span></div>
+    <div class="reco" id="h-reco" hidden></div>
     <div class="hero">
       <h1>国試ドリル</h1>
       <p>診療放射線技師国家試験の過去問と、よく出るポイントの対策問題</p>
@@ -251,6 +274,7 @@ body.modal-open{overflow:hidden}
       <a class="mode" href="kakomon/?start=random"><span class="ic">🎲</span><b>ランダム10問</b><span>過去問から<br>サクッと10問</span></a>
       <a class="mode" href="kakomon/?start=weak"><span class="ic">🔁</span><b>苦手を復習</b><span id="h-weak">まちがえた問題を<br>どこで解いても2回続けて正解で卒業</span></a>
       <a class="mode" href="kakomon/?start=unsolved"><span class="ic">✨</span><b>まだ解いてない</b><span id="h-unsolved">はじめての問題から<br>20問</span></a>
+      <a class="mode wide" href="kakomon/?start=mock"><span class="ic">⏱️</span><b>模試モード</b><span id="h-mock">本番と同じ200問・タイマーつき・中断しても続きから</span></a>
       <a class="mode wide" href="prep/"><span class="ic">🎯</span><b>対策問題集</b><span>よく出るポイントのオリジナル270問・22テーマ</span></a>
     </div>
 
@@ -441,7 +465,7 @@ body.modal-open{overflow:hidden}
       const rec = merged(lsGet(d.ls + sfx(), {}), cloud[d.app]?.rec);
       const weak = merged(lsGet(d.ls + sfx() + "-weak", {}), cloud[d.app]?.weak);
       const vals = Object.values(rec);
-      return { rec, done: vals.length, ok: vals.filter(r => r.r === 1).length, att: vals.reduce((a, r) => a + (r.c || 0) + (r.w || 0), 0), okc: vals.reduce((a, r) => a + (r.c || 0), 0), weak: Object.values(weak).filter(w => w && !w.out).length };
+      return { rec, weakMap: weak, done: vals.length, ok: vals.filter(r => r.r === 1).length, att: vals.reduce((a, r) => a + (r.c || 0) + (r.w || 0), 0), okc: vals.reduce((a, r) => a + (r.c || 0), 0), weak: Object.values(weak).filter(w => w && !w.out).length };
     }
     if (d.kind === "res") {
       const vals = Object.values(lsGet(d.ls + sfx(), {}));
@@ -485,17 +509,65 @@ body.modal-open{overflow:hidden}
     $("#h-weak").innerHTML = k.weak ? `苦手リスト <b class="num">${k.weak}</b>問<br>どこで解いても2回続けて正解で卒業` : "まちがえた問題を<br>どこで解いても2回続けて正解で卒業";
     $("#h-unsolved").innerHTML = `まだ解いていない<br><b class="num">${fmtN(2400 - k.done)}</b>問から20問`;
     $("#h-login").hidden = !!KQ.session();
+    const mk = [lsGet("kokushi-rec-v1" + sfx() + "-mock", null), cloud.kakomon?.mock].filter(x => x && x.at).sort((a, b) => b.at - a.at)[0];
+    $("#h-mock").innerHTML = mk && mk.status === "run" && mk.ids ? `<b class="num" style="font-size:inherit;margin:0">中断中：${Object.keys(mk.ans || {}).length} / ${mk.ids.length}問</b>・タップで続きから` : "本番と同じ200問・タイマーつき・中断しても続きから";
     paintExam(k.done + drillData(DRILLS[1]).done);
+    paintPlan(k, m);
     $("#h-fields").innerHTML = FIELDS.map(([f, n]) => `<a class="chip" href="kakomon/?field=${encodeURIComponent(f)}">${esc(f)} <small class="num">(${n})</small></a>`).join("");
     paintExtra();
   }
 
+  /* ---------- 今日やること・今日のおすすめ（shared/plan.js と kakomon/plan.json） ---------- */
+  let META = null, metaTried = false;
+  async function loadMeta(){
+    if (META || metaTried) return META; metaTried = true;
+    try { const j = await (await fetch("kakomon/plan.json")).json(); META = j.q.map(([id, f, t]) => ({ id, f: j.f[f], t: t >= 0 ? j.t[t] : null })); } catch {}
+    return META;
+  }
+  function cardsDue(){
+    const S = lsGet("kc_state" + sfx(), {}), now = Date.now();
+    if (!exGet().includes("kisoi") && !Object.keys(S).length) return 0;
+    return Object.values(S).filter(c => c && c.due <= now).length;
+  }
+  function paintPlan(k, m){
+    const goal = +avGet().goal || 10, done = (m[KQStats.ymd(Date.now())] || [0])[0];
+    const met = done >= goal, total = met ? goal : goal - done;
+    $("#h-today-prog").hidden = false;
+    $("#h-today-lab").textContent = met ? `今日の目標 ${goal}問 達成！（${fmtN(done)}問）` : `今日の目標 ${goal}問のうち ${fmtN(done)}問 済み`;
+    $("#h-today-bar").style.width = Math.min(100, done / goal * 100) + "%";
+    const go = $("#h-today-go");
+    go.classList.toggle("done", met);
+    if (!META) { loadMeta().then(x => { if (x) paintPlan(drillData(DRILLS[0]), dayMap()); }); return; }
+    const p = KQPlan.today(META, k.rec, k.weakMap || {}, { total, cardsDue: cardsDue() });
+    const parts = [];
+    if (p.weak.length) parts.push(`苦手の復習 ${p.weak.length}問`);
+    if (p.cards) parts.push(`暗記カード ${p.cards}枚`);
+    if (p.field.length) parts.push(`弱点（${esc(p.fieldName)}${p.fieldPct != null ? " " + Math.round(p.fieldPct * 100) + "%" : ""}）${p.field.length}問`);
+    if (p.fresh.length) parts.push(`新しい問題 ${p.fresh.length}問`);
+    const n = p.ids.length;
+    go.href = n ? `kakomon/?start=today&n=${n}&c=${p.cards}` : `kisoi/?start=due&n=${p.cards}`;
+    go.querySelector("b").innerHTML = `${met ? "もう1セット" : "今日やること"}　<span class="num">${n + p.cards}</span>${n ? "問" : "枚"}`;
+    $("#h-today-sub").innerHTML = parts.join(" → ") + (p.cards && n ? "<br>暗記カードは、問題のあとに続けて出ます" : "");
+    // 今日のおすすめ：いちばん苦手なテーマ（なければ分野）から10問
+    const rs = KQPlan.recommend(KQPlan.stats(META, k.rec), 3), box = $("#h-reco");
+    box.hidden = false;
+    if (!rs.length) { box.innerHTML = `<div class="reco-main"><small>今日のおすすめ</small><b style="font-size:13.5px;font-weight:400;color:var(--sub)">過去問をもう少し解くと（1つの分野で${KQPlan.MIN_ATT}回以上）、正答率がいちばん低いところから「おすすめ」が出ます。</b></div>`; return; }
+    const href = r => `kakomon/?field=${encodeURIComponent(r.field)}${r.theme ? "&theme=" + encodeURIComponent(r.theme) : ""}&n=10`;
+    const nm = r => r.theme ? `${esc(r.field)}・${esc(r.theme)}` : esc(r.field);
+    const pc = r => `<span class="pc-c num" style="${KQPlan.pcAttr(r.pct)};font-weight:800">${Math.round(r.pct * 100)}%</span>`;
+    const r0 = rs[0];
+    box.innerHTML = `<a class="reco-main" href="${href(r0)}"><small>今日のおすすめ（いちばん苦手なところ）</small><b>${nm(r0)}（正答率 ${pc(r0)}）から10問</b><span class="go">解く</span></a>` +
+      (rs.length > 1 ? `<div class="reco-more">ほかの苦手：${rs.slice(1).map(r => `<a class="chip" href="${href(r)}">${nm(r)} ${pc(r)}</a>`).join("")}</div>` : "");
+  }
+
   /* ---------- 試験日カウントダウン（1日の目標は案内キャラと同じ設定） ---------- */
   const GOALS = [5, 10, 20, 30, 50, 80, 100];
+  const EXAM_DAY = "2027-02-18";   // 第79回 診療放射線技師国家試験（厚生労働省の発表）
   const avGet = () => (window.KQ && KQ.avatar.get()) || {};
   const avPut = (patch) => { if (!window.KQ) return; KQ.avatar.set(Object.assign({}, avGet(), patch)); if (window.KQGuide && KQGuide.push) KQGuide.push(); };
   function paintExam(solved){
-    const av = avGet(), goal = +av.goal || 10, date = typeof av.exam === "string" && /^\d{4}-\d{2}-\d{2}$/.test(av.exam) ? av.exam : "";
+    if (avGet().exam === "2027-02-20") avPut({ exam: EXAM_DAY });   // 第79回の試験日は2月18日（前の2月20日を直す）
+    const av = avGet(), goal = +av.goal || 10, date = typeof av.exam === "string" && /^\d{4}-\d{2}-\d{2}$/.test(av.exam) ? av.exam : EXAM_DAY;
     $("#ex-date").value = date;
     $("#ex-goal").innerHTML = [...new Set([...GOALS, goal])].sort((a, b) => a - b).map(g => `<option value="${g}"${g === goal ? " selected" : ""}>${g}問</option>`).join("");
     const left = Math.max(0, 2670 - solved);
@@ -554,7 +626,7 @@ body.modal-open{overflow:hidden}
       const sub = x.card ? `学習したカード ${fmtN(x.done)} / ${fmtN(d.n)}枚` : `解いた問題 ${fmtN(x.done)} / ${fmtN(d.n)}問${x.att ? `・のべ${fmtN(x.att)}回答で正解${fmtN(x.okc)}回` : ""}`;
       const weakBtn = x.weak && d.kind === "rec" ? `<a class="mini ng" href="${d.id}/?start=weak">苦手 ${x.weak}問を解く</a>` : x.weak ? `<span class="mini ng">まちがい ${x.weak}問</span>` : "";
       return `<div class="cat" data-id="${d.id}">
-        <div class="cat-top"><span>${d.ic}</span><b>${esc(d.name)}</b><span class="pc num">${pc === null ? "" : pc + "%"}</span></div>
+        <div class="cat-top"><span>${d.ic}</span><b>${esc(d.name)}</b><span class="pc num pc-c" style="${pc === null ? "" : KQPlan.pcAttr(pc / 100)}">${pc === null ? "" : pc + "%"}</span></div>
         <div class="cat-sub num">${sub}</div>
         <div class="meter"><i style="width:${Math.min(100, x.done / d.n * 100)}%"></i></div>
         <div class="cat-row"><a class="mini" href="${d.id}/">開く</a>${weakBtn}${d.kind === "rec" && x.done ? `<button class="mini" type="button" data-fields="${d.id}">分野ごとを見る</button>` : ""}</div>
@@ -585,8 +657,8 @@ body.modal-open{overflow:hidden}
       }
       const pct = v => v.att ? v.okc / v.att : 2;
       const flds = [...g].sort((x, y) => pct(x[1]) - pct(y[1]));
-      const row = (f, v, href, cls) => `<a class="fld${cls}" href="${href}"><span>${esc(f)}</span><em class="num">${v.att ? Math.round(v.okc / v.att * 100) + "%" : "–"}　${v.done}/${v.n}</em><span class="meter"><i style="width:${v.att ? v.okc / v.att * 100 : 0}%"></i></span></a>`;
-      box.innerHTML = `<p class="fld-note">％＝のべ回答の正答率　右の数＝解いた問題／問題数<br>分野は正答率の低い（苦手な）順。まだ解いていない分野は下です${[...g.values()].some(v => v.sub.size > 1) ? `<br>解いた分野は、下の段にテーマごとの成績（これも苦手な順）が出ます${d.id === "kakomon" ? "。過去問のテーマは、問題のことばから自動で分けた目安です" : ""}` : ""}</p>` + flds.map(([f, v]) => row(f, v, `${d.id}/?field=${encodeURIComponent(f)}`, "") +
+      const row = (f, v, href, cls) => `<a class="fld${cls}" href="${href}" style="${v.att ? KQPlan.pcAttr(v.okc / v.att) : ""}"><span>${esc(f)}</span><em class="num">${v.att ? `<b class="pc-c">${Math.round(v.okc / v.att * 100)}%</b>` : "–"}　${v.done}/${v.n}</em><span class="meter"><i class="${v.att ? "pc-bg" : ""}" style="width:${v.att ? v.okc / v.att * 100 : 0}%"></i></span></a>`;
+      box.innerHTML = `<p class="fld-note">${KQPlan.legend()}<br>％＝のべ回答の正答率　右の数＝解いた問題／問題数<br>分野は正答率の低い（苦手な）順。まだ解いていない分野は下です${[...g.values()].some(v => v.sub.size > 1) ? `<br>解いた分野は、下の段にテーマごとの成績（これも苦手な順）が出ます${d.id === "kakomon" ? "。過去問のテーマは、問題のことばから自動で分けた目安です" : ""}` : ""}</p>` + flds.map(([f, v]) => row(f, v, `${d.id}/?field=${encodeURIComponent(f)}`, "") +
         (v.done && v.sub.size > 1 ? [...v.sub].filter(([, w]) => w.att).sort((x, y) => pct(x[1]) - pct(y[1])).map(([t, w]) => row(t, w, `${d.id}/?field=${encodeURIComponent(f)}`, " sub")).join("") : "")).join("");
       box.hidden = false; b.textContent = "とじる";
     } catch { b.textContent = "読みこめませんでした"; }
@@ -635,7 +707,7 @@ body.modal-open{overflow:hidden}
     document.querySelectorAll(".tabbar a").forEach(a => { if (a.dataset.v === cur) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
     $("#top-title").textContent = TITLES[cur];
     document.querySelector(".topbar .logo i").hidden = cur !== "home";
-    if (cur === "home") paintHome();
+    if (cur === "home") { paintHome(); loadCloud().then(r => { if (r && location.hash.replace("#", "") === "") paintHome(); }); }
     if (cur === "stats") { paintStats(); loadCloud().then(r => { if (r) paintStats(); }); }
     if (cur === "bm") { paintBm(); loadCloud().then(r => { if (r) paintBm(); }); }
     window.scrollTo(0, 0);
