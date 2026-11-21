@@ -152,6 +152,17 @@
   }
   // お試し版の見た目：ログインまわりをかくして、説明の文をお試し版むけに言いかえる
   function setupDemo(){
+    // 記録は本番と分ける：この端末の localStorage のキーに「kq-demo:」をつけて、本番の記録とまざらないようにする
+    try {
+      const P = "kq-demo:", SP = Storage.prototype, L = window.localStorage;
+      const g = SP.getItem, st = SP.setItem, rm = SP.removeItem, ky = SP.key, ln = Object.getOwnPropertyDescriptor(SP, "length");
+      const mine = () => { const a = []; for (let i = 0; i < ln.get.call(L); i++) { const k = ky.call(L, i); if (k && k.startsWith(P)) a.push(k); } return a; };
+      SP.getItem = function (k){ return this === L ? g.call(this, P + k) : g.call(this, k); };
+      SP.setItem = function (k, v){ return this === L ? st.call(this, P + k, v) : st.call(this, k, v); };
+      SP.removeItem = function (k){ return this === L ? rm.call(this, P + k) : rm.call(this, k); };
+      SP.key = function (i){ if (this !== L) return ky.call(this, i); const k = mine()[i]; return k ? k.slice(P.length) : null; };
+      SP.clear = (c => function (){ if (this !== L) return c.call(this); mine().forEach(k => rm.call(L, k)); })(SP.clear);
+    } catch {}
     const de = document.documentElement; de.classList.add("kq-demo");
     const st = document.createElement("style");
     st.textContent = ".kq-demo #acct,.kq-demo #h-login,.kq-demo #login-box,.kq-demo #me-box,.kq-demo #setup-warn,.kq-demo #move-box{display:none!important}"
@@ -162,7 +173,8 @@
       ["ニックネームでログインしていれば、記録は自動でクラウドに保存されます。", "お試し版なので、記録はこの端末だけに保存されます。"],
       ["ログインすると、記録もわたしの見た目も、どの端末でも同じになるよ。", "お試し版だよ。記録はこの端末だけに保存されるよ。"],
       ["いまはこの端末だけに保存されます。ログインすると、ニックネームといっしょに保存できます。", "この端末だけに保存されます。"],
-      ["（ログインしていれば記録はそのままです）", ""]
+      ["（ログインしていれば記録はそのままです）", ""],
+      ["お試し版なので、記録はこのブラウザだけに保存しています", "お試し版なので、記録はこのブラウザだけに保存しています（本番のサイトの記録とは別です）"]
     ];
     const fix = n => {
       const t = n.nodeValue; if (!t || t.indexOf("ログイン") < 0) return;
@@ -177,7 +189,7 @@
     };
     const start = () => {
       walk(document.body);
-      const b = document.createElement("div"); b.className = "kq-demo-badge"; b.textContent = "お試し版（ログインなし）";
+      const b = document.createElement("div"); b.className = "kq-demo-badge"; b.textContent = "お試し版（ログインなし・記録は本番と別）";
       document.body.insertBefore(b, document.body.firstChild);
       new MutationObserver(ms => { for (const m of ms) { if (m.type === "characterData") fix(m.target); else m.addedNodes.forEach(walk); } })
         .observe(document.body, { childList: true, subtree: true, characterData: true });
