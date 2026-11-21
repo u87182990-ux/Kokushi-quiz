@@ -302,7 +302,7 @@ body.modal-open{overflow:hidden}
 
     <h2 class="sec">カテゴリー別成績<small>タップで分野ごと</small></h2>
     <div class="cats" id="s-cats"></div>
-    <p class="note" style="margin-top:12px">ことばの意味：<b>解いた問題</b>＝ちがう問題の数。<b>回答（のべ）</b>＝同じ問題を2回解いたら2回と数える。<b>正答率</b>＝正解した回数÷のべ回答（どの画面も同じ計算です）。<b>苦手</b>＝まちがえて苦手リストに入った問題（2回続けて正解で卒業）。計算ドリル・画像情報ドリルは最新の答えだけを数えます。</p>
+    <p class="note" style="margin-top:12px">ことばの意味：<b>解いた問題</b>＝ちがう問題の数。<b>回答（のべ）</b>＝同じ問題を2回解いたら2回と数える。<b>正答率</b>＝正解した回数÷のべ回答（どの画面も同じ計算です）。<b>苦手</b>＝まちがえて苦手リストに入った問題（2回続けて正解で卒業）。医用工学 計算ドリル・画像情報 杉浦先生ドリルは1問に1回だけ答える形（やり直すときは記録を消す）なので、解いた問題の数＝のべ回答になり、正答率の計算も同じです。</p>
     <div class="sync" id="s-sync"></div>
   </section>
 
@@ -583,9 +583,11 @@ body.modal-open{overflow:hidden}
         const r = rec[q.id], f = q.field ?? q.topic, t = q.topic && q.topic !== f ? q.topic : TH[q.id];
         const v = add(g, f, r); if (t) add(v.sub, t, r);
       }
+      const pct = v => v.att ? v.okc / v.att : 2;
+      const flds = [...g].sort((x, y) => pct(x[1]) - pct(y[1]));
       const row = (f, v, href, cls) => `<a class="fld${cls}" href="${href}"><span>${esc(f)}</span><em class="num">${v.att ? Math.round(v.okc / v.att * 100) + "%" : "–"}　${v.done}/${v.n}</em><span class="meter"><i style="width:${v.att ? v.okc / v.att * 100 : 0}%"></i></span></a>`;
-      box.innerHTML = `<p class="fld-note">％＝のべ回答の正答率　右の数＝解いた問題／問題数${[...g.values()].some(v => v.sub.size > 1) ? `<br>解いた分野は、下の段にテーマごとの成績（苦手な順）が出ます${d.id === "kakomon" ? "。過去問のテーマは、問題のことばから自動で分けた目安です" : ""}` : ""}</p>` + [...g].map(([f, v]) => row(f, v, `${d.id}/?field=${encodeURIComponent(f)}`, "") +
-        (v.done && v.sub.size > 1 ? [...v.sub].filter(([, w]) => w.done).sort((x, y) => x[1].okc / x[1].att - y[1].okc / y[1].att).map(([t, w]) => row(t, w, `${d.id}/?field=${encodeURIComponent(f)}`, " sub")).join("") : "")).join("");
+      box.innerHTML = `<p class="fld-note">％＝のべ回答の正答率　右の数＝解いた問題／問題数<br>分野は正答率の低い（苦手な）順。まだ解いていない分野は下です${[...g.values()].some(v => v.sub.size > 1) ? `<br>解いた分野は、下の段にテーマごとの成績（これも苦手な順）が出ます${d.id === "kakomon" ? "。過去問のテーマは、問題のことばから自動で分けた目安です" : ""}` : ""}</p>` + flds.map(([f, v]) => row(f, v, `${d.id}/?field=${encodeURIComponent(f)}`, "") +
+        (v.done && v.sub.size > 1 ? [...v.sub].filter(([, w]) => w.att).sort((x, y) => pct(x[1]) - pct(y[1])).map(([t, w]) => row(t, w, `${d.id}/?field=${encodeURIComponent(f)}`, " sub")).join("") : "")).join("");
       box.hidden = false; b.textContent = "とじる";
     } catch { b.textContent = "読みこめませんでした"; }
   });
@@ -706,12 +708,11 @@ body.modal-open{overflow:hidden}
     $("#extra-list").hidden = !list.length;
     $("#extra-note").textContent = list.length ? "自分で選んだドリルです。「えらぶ」で入れかえられます。" : "科目ごとのドリルです。「えらぶ」で、使いたいものだけ自分のメニューに出せます。";
     const subs = [...new Set(EXTRA.map(x => x.subj))];
-    $("#extra-pick-body").innerHTML = `<p class="note">いろんな科目から選べます。チェックしたものが上のメニューに出ます。</p>` + subs.map(s => `<h3 class="subj">${esc(s)}</h3>` + EXTRA.filter(x => x.subj === s).map(x => `<label class="pk"><input type="checkbox" value="${x.id}"${on.includes(x.id) ? " checked" : ""}><span><b>${esc(x.name)}</b><small>${esc(x.sub)}</small></span></label>`).join("")).join("");
+    $("#extra-pick-body").innerHTML = `<p class="note">いろんな科目から選べます。チェックしたものが上のメニューに出ます。<b>チェックはその場で保存</b>されるので、「とじる」・Esc・まわりをタップ、どれで閉じても同じです。</p>` + subs.map(s => `<h3 class="subj">${esc(s)}</h3>` + EXTRA.filter(x => x.subj === s).map(x => `<label class="pk"><input type="checkbox" autocomplete="off" value="${x.id}"${on.includes(x.id) ? " checked" : ""}><span><b>${esc(x.name)}</b><small>${esc(x.sub)}</small></span></label>`).join("")).join("");
   }
-  $("#extra-pick").addEventListener("change", () => {
-    exSet([...$("#extra-pick").querySelectorAll("input:checked")].map(i => i.value)); paintExtra();
-  });
-  const pickOpen = o => { $("#extra-pick").hidden = !o; document.body.classList.toggle("modal-open", o); if (o) $("#extra-pick [data-close]").focus(); else $("#extra-tog").focus(); };
+  $("#extra-pick").addEventListener("change", () => pickSave());
+  const pickSave = () => { exSet([...$("#extra-pick").querySelectorAll("input:checked")].map(i => i.value)); paintExtra(); };
+  const pickOpen = o => { if (o) paintExtra(); else pickSave(); $("#extra-pick").hidden = !o; document.body.classList.toggle("modal-open", o); if (o) $("#extra-pick [data-close]").focus(); else $("#extra-tog").focus(); };
   $("#extra-tog").onclick = () => pickOpen(true);
   $("#extra-pick").addEventListener("click", e => { if (e.target.closest("[data-close]") || e.target === e.currentTarget) pickOpen(false); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#extra-pick").hidden) pickOpen(false); });

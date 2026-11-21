@@ -35,7 +35,7 @@
 ## 数字のことば（どの画面も同じ）
 - **解いた問題**＝ちがう問題の数。**回答（のべ）**＝同じ問題を2回解いたら2回。**正答率**＝正解した回数÷のべ回答。
 - **苦手リスト**＝まちがえた問題。苦手モードで2回続けて正解すると卒業して減る。**前回まちがえた問題**は別のリスト（1回正解で消える）。
-- 問題ページの数字・ラベルは `tools/fix-counts.py` で直している（mksite.py で作り直したあとに addbm.py → fix-counts.py の順で実行）。
+- 問題ページの数字・ラベルは `tools/fix-counts.py` と `tools/fix-weak.py` で直している（mksite.py で作り直したあとに addbm.py → fix-counts.py → fix-weak.py の順で実行）。苦手リストは、どこで解いても（1問だけ開いても）2回続けて正解で卒業。
 - 成績のテーマ別：対策問題集・治療ドリルは問題の topic、過去問は `kakomon/themes.json`（`tools/themes.py` がキーワードで自動で分けた目安）。
 - 試験日と1日の目標は案内キャラの設定（`KQ.avatar` の exam / goal）に入れて、クラウドにもいっしょに保存。
 - 過去問の計算問題138問の解説強化（【よくある間違い】＋選択肢ごとの説明）は `tools/calc-exp/*.txt` が元。`python3 tools/apply-calc-exp.py [quiz-app/src/exp]` で questions.json（と元の解説ファイル）に入れる。治療ドリルは kakomon の解説を使うので、そのあと chiryo の build.py を実行し直す。

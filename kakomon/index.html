@@ -284,7 +284,7 @@ select,input[type=search]{border:1px solid var(--line2);background:var(--sheet);
   <section class="view" id="view-review" hidden>
     <div class="panel weak">
       <h2>苦手な問題</h2>
-      <p style="margin:0 0 10px;color:var(--sub);font-size:13.5px">まちがえた問題はここにも入ります。ここから解いて<b>2回続けて正解</b>するとリストから外れ、本当に苦手な問題だけが残ります。またまちがえたら、もう一度リストに入ります。（下の「前回まちがえた問題」とは別です。こちらは1回正解すると消えます）</p>
+      <p style="margin:0 0 10px;color:var(--sub);font-size:13.5px">まちがえた問題はここにも入ります。ここからでも1問ずつ開いてでも、<b>2回続けて正解</b>するとリストから外れ、本当に苦手な問題だけが残ります。またまちがえたら、もう一度リストに入ります。（下の「前回まちがえた問題」とは別です。こちらは1回正解すると消えます）</p>
       <div class="row" style="margin-bottom:8px">
         <button class="btn primary" id="weak-start">苦手な問題を解く</button>
         <select id="weak-field" aria-label="分野でしぼる"></select>
@@ -355,7 +355,7 @@ const kaiOf = id => String(byId[id]?.kai ?? String(id).split("-")[0]);
 
 function saveLocal(){ try { localStorage.setItem(LS, JSON.stringify(rec)); } catch {} }
 
-/* 苦手リスト：まちがえると入る。苦手モードで2回続けて正解すると外れる（out=1）。記録 rec とは別に保存 */
+/* 苦手リスト：まちがえると入る。どこで解いても2回続けて正解すると外れる（out=1）。記録 rec とは別に保存 */
 const WLS = LS + "-weak", WEAK_N = 2;
 let weak = null, weakDirty = false, weakSeeded = false;
 try { weak = JSON.parse(localStorage.getItem(WLS) || "null"); } catch {}
@@ -367,12 +367,12 @@ function saveWeak(){ try { localStorage.setItem(WLS, JSON.stringify(weak)); } ca
 saveWeak();
 const isWeak = id => !!weak[id] && !weak[id].out;
 function weakRecord(id, ok, mode){
-  const now = Date.now();
+  const now = Date.now(), was = isWeak(id);
   if (!ok) weak[id] = { s: 0, t: now };
-  else if (mode && isWeak(id)) { const w = weak[id]; w.s++; w.t = now; if (w.s >= WEAK_N) w.out = 1; }
+  else if (was) { const w = weak[id]; w.s++; w.t = now; if (w.s >= WEAK_N) w.out = 1; }
   else return null;
   saveWeak(); weakDirty = true; flush();
-  return { ...weak[id] };
+  return { ...weak[id], was };
 }
 const APP = "kakomon";
 let saveTimer = null;
@@ -537,7 +537,7 @@ function renderHome(ngIds){
     <div class="stat"><b>${s.done}</b><span>解いた問題<br><small>ちがう問題の数</small></span></div>
     <div class="stat"><b>${tc + tw ? Math.round(tc / (tc + tw) * 100) : "–"}<small>${tc + tw ? "%" : ""}</small></b><span>正答率<br><small>のべ${tc + tw}回答で計算</small></span></div>
     <div class="stat warn"><b>${wkN}</b><span>苦手リスト<br><small>${wk1 ? "卒業まであと1回：" + wk1 + "問" : "2回続けて正解で卒業"}</small></span></div>`;
-  $("#stats-note").textContent = "正答率は、答えた回数ぜんぶ（のべ）で計算しています。同じ問題を2回解いたら2回と数えます。苦手リストは、苦手モードで2回続けて正解すると卒業して減ります。";
+  $("#stats-note").textContent = "正答率は、答えた回数ぜんぶ（のべ）で計算しています。同じ問題を2回解いたら2回と数えます。苦手リストは、どこで解いても2回続けて正解すると卒業して減ります。";
   $("#grid-kai").innerHTML = KAIS.map(k => {
     const ids = Q.filter(q => q.kai === k).map(q => q.id), s = summary(ids);
     return `<button class="tile" data-kai="${k}"><span class="t">第${k}回</span><span class="s num">${s.done}/${s.n}問　前回正解${s.ok}</span>${meter(s)}</button>`;
@@ -546,7 +546,7 @@ function renderHome(ngIds){
     const ids = Q.filter(q => q.field === f).map(q => q.id), s = summary(ids);
     return `<button class="tile" data-field="${esc(f)}"><span class="t">${esc(f)}</span><span class="s num">${s.done}/${s.n}問　前回正解${s.ok}</span>${meter(s)}</button>`;
   }).join("");
-  $("#go-review").disabled = !ngIds.length;
+  $("#go-review").disabled = !ngIds.length; $("#go-review").textContent = `前回まちがえた問題を解き直す（${ngIds.length}問）`;
   const wn = Q.filter(q => isWeak(q.id)).length;
   $("#go-weak").disabled = !wn; $("#go-weak").textContent = `苦手な問題だけ解く（${wn}問）`;
 }
@@ -600,7 +600,7 @@ function renderList(){
 function renderReview(ngIds){
   const f = $("#review-field").value;
   const list = ngIds.map(id => byId[id]).filter(q => !f || q.field === f);
-  $("#review-start").disabled = !list.length;
+  $("#review-start").disabled = !list.length; $("#review-start").textContent = `全部解き直す（${list.length}問）`;
   $("#review-list").innerHTML = list.length ? list.map(itemHTML).join("")
     : `<div class="empty">まちがえた問題はありません。問題を解くと、まちがえた問題がここにたまります。</div>`;
 }
@@ -735,7 +735,7 @@ function renderQuiz(){
         <span class="big">${ok ? "○ 正解！" : "✕ まちがい"}</span>
         ${q.answer.length ? `<span>正解は <b>${[q.answer, ...(q.alt || [])].map(a => a.join("・")).join(" または ")}</b>（${q.answer.map(n => esc(q.choices[n - 1])).join("、")}${q.alt ? " など" : ""}）</span>` : ""}
         ${q.note ? `<span style="font-size:13px">※ ${esc(q.note)}</span>` : q.alt ? `<span style="font-size:13px">※ 厚生労働省が複数の答えを正解と発表した問題です</span>` : ""}
-        ${quiz.weak ? weakNote(quiz.wk[quiz.i], ok) : ""}
+        ${weakNote(quiz.wk[quiz.i], ok)}
       </div>${expHtml(q)}` : ""}
     <div class="qfoot">
       <button class="btn" id="q-quit">やめる</button>
@@ -745,7 +745,7 @@ function renderQuiz(){
 }
 function weakNote(w, ok){
   if (!w) return "";
-  if (!ok) return `<span class="wk-note">連続正解は0回にもどりました。苦手リストに残ります</span>`;
+  if (!ok) return `<span class="wk-note">${w.was ? "連続正解は0回にもどりました。苦手リストに残ります" : "苦手リストに入りました。" + WEAK_N + "回続けて正解すると卒業です"}</span>`;
   if (w.out) return `<span class="wk-note">🎉 ${WEAK_N}回続けて正解！苦手リストから外れました</span>`;
   return `<span class="wk-note">あと${WEAK_N - w.s}回続けて正解すると、苦手リストから外れます</span>`;
 }
@@ -776,8 +776,8 @@ function finish(){
   const wrong = quiz.ids.filter((id, i) => quiz.results[i] === false);
   $("#result").innerHTML = `
     <h2>${esc(quiz.title)} の結果</h2>
-    <p style="margin:12px 0"><span class="result-big">${ok}</span> <span class="num">/ ${n}問 正解（${n ? Math.round(ok / n * 100) : 0}%）</span></p>
-    ${quiz.weak ? `<p class="wk-note" style="margin:0 0 12px">苦手リストから外れた問題：<span class="num">${quiz.wk.filter(w => w?.out).length}</span>問　／　のこりの苦手：<span class="num">${Q.filter(q => isWeak(q.id)).length}</span>問</p>` : ""}
+    <p style="margin:12px 0"><span class="result-big">${ok}</span> <span class="num">/ ${quiz.ids.length}問 正解（${Math.round(ok / quiz.ids.length * 100)}%）</span>${n < quiz.ids.length ? `<br><span style="font-size:13px;color:var(--sub)">${quiz.ids.length}問中${n}問に答えたところでやめました（答えた${n}問の正答率は${n ? Math.round(ok / n * 100) : 0}%）</span>` : ""}</p>
+    ${`<p class="wk-note" style="margin:0 0 12px">苦手リストから外れた問題：<span class="num">${quiz.wk.filter(w => w?.out).length}</span>問　／　のこりの苦手：<span class="num">${Q.filter(q => isWeak(q.id)).length}</span>問（うち卒業まであと1回：<span class="num">${Q.filter(q => isWeak(q.id) && (weak[q.id].s || 0) === WEAK_N - 1).length}</span>問）<br>苦手リストの問題は、どこで解いても（1問だけ開いても）${WEAK_N}回続けて正解すると卒業します</p>`}
     <div class="row" style="margin-bottom:12px">
       ${wrong.length ? `<button class="btn primary" id="r-retry">まちがえた${wrong.length}問をもう一度</button>` : ""}
       <button class="btn" id="r-home">ホームへ</button>
