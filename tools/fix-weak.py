@@ -25,7 +25,7 @@ for d in ["kakomon", "prep", "chiryo", "chiryo-quiz"]:
             '''  if (!ok) return `<span class="wk-note">${w.was ? "連続正解は0回にもどりました。苦手リストに残ります" : "苦手リストに入りました。" + WEAK_N + "回続けて正解すると卒業です"}</span>`;''')
     s = rep(s, '''    ${quiz.weak ? `<p class="wk-note" style="margin:0 0 12px">苦手リストから外れた問題：<span class="num">${quiz.wk.filter(w => w?.out).length}</span>問　／　のこりの苦手：<span class="num">${Q.filter(q => isWeak(q.id)).length}</span>問</p>` : ""}''',
             '''    ${quiz.weak || quiz.wk.some(Boolean) ? `<p class="wk-note" style="margin:0 0 12px">苦手リストから外れた問題：<span class="num">${quiz.wk.filter(w => w?.out).length}</span>問　／　のこりの苦手：<span class="num">${Q.filter(q => isWeak(q.id)).length}</span>問${(n1 => n1 ? `（うち卒業まであと1回：<span class="num">${n1}</span>問）` : "")(Q.filter(q => isWeak(q.id) && (weak[q.id].s || 0) === WEAK_N - 1).length)}<br>苦手リストの問題は、どこで解いても（1問だけ開いても）${WEAK_N}回続けて正解すると卒業します</p>` : ""}''')
-    s = rep(s, "ここから解いて<b>2回続けて正解</b>するとリストから外れ", "ここからでも1問ずつ開いてでも、<b>2回続けて正解</b>するとリストから外れ")
+    s = rep(s, "ここから解いて<b>2回続けて正解</b>するとリストから外れ", "ここから解いても、1問ずつ開いて解いても、<b>2回続けて正解</b>するとリストから外れ")
     s = rep(s, "苦手リストは、苦手モードで2回続けて正解すると卒業して減ります。", "苦手リストは、どこで解いても2回続けて正解すると卒業して減ります。")
     s = rep(s, '  $("#go-review").disabled = !ngIds.length;\n',
             '  $("#go-review").disabled = !ngIds.length; $("#go-review").textContent = `前回まちがえた問題を解き直す（${ngIds.length}問）`;\n')
