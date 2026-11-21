@@ -10,7 +10,7 @@ HEAD = ('<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="
         '<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">'
         '<meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">'
         '<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png"><script src="../shared/update.js" defer></script>'
-        '<script src="../shared/config.js?v=1794814000"></script><script src="../shared/account.js?v=1794814000"></script><script src="../shared/guide.js?v=1795100000" defer></script></head><body>\n')
+        '<script src="../shared/config.js?v=1794814000"></script><script src="../shared/account.js?v=1794814000"></script><script src="../shared/guide.js?v=1795300000" defer></script></head><body>\n')
 def sub1(s, a, b):
     assert s.count(a) == 1, a[:60]
     return s.replace(a, b, 1)

@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}.bmk{margin-left:auto;flex:none;border:1px solid var(--line);background:var(--sheet);color:var(--sub);border-radius:999px;padding:3px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;line-height:1.6}.bmk[aria-pressed="true"]{color:#d99a00;border-color:#e8b730;background:rgba(232,183,48,.12)}.choice.correct::after,.choice.wrongpick::after{margin-left:auto;flex:none;padding-left:8px;font-size:12.5px;font-weight:700;white-space:nowrap}.choice.correct::after{content:"✓ 正解";color:var(--ok)}.choice.wrongpick::after{content:"× あなたの回答";color:var(--ng)}</style><script src="../shared/config.js?v=1795000000"></script><script src="../shared/account.js?v=1795200000"></script><script src="../shared/stats.js?v=1795000000"></script><script src="../shared/guide.js?v=1795100000" defer></script><link rel="manifest" href="../manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="../icons/apple-touch-icon.png"><script src="../shared/update.js" defer></script></head><body>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}.bmk{margin-left:auto;flex:none;border:1px solid var(--line);background:var(--sheet);color:var(--sub);border-radius:999px;padding:3px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;line-height:1.6}.bmk[aria-pressed="true"]{color:#d99a00;border-color:#e8b730;background:rgba(232,183,48,.12)}.choice.correct::after,.choice.wrongpick::after{margin-left:auto;flex:none;padding-left:8px;font-size:12.5px;font-weight:700;white-space:nowrap}.choice.correct::after{content:"✓ 正解";color:var(--ok)}.choice.wrongpick::after{content:"× あなたの回答";color:var(--ng)}.trap{display:block;margin-top:10px;padding:8px 12px;border-radius:10px;background:rgba(232,183,48,.14);border-left:4px solid #e8b730}.trap b{display:block;font-size:12.5px;color:#a77700}</style><script src="../shared/config.js?v=1795000000"></script><script src="../shared/account.js?v=1795300000"></script><script src="../shared/stats.js?v=1795000000"></script><script src="../shared/guide.js?v=1795300000" defer></script><link rel="manifest" href="../manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="../icons/apple-touch-icon.png"><script src="../shared/update.js" defer></script></head><body>
 <title>放射線技師 国試ドリル</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -209,6 +209,7 @@ select,input[type=search]{border:1px solid var(--line2);background:var(--sheet);
     <div class="panel">
       <h2>あなたの成績</h2>
       <div class="stats" id="stats"></div>
+      <p class="stats-note" id="stats-note" style="margin:10px 0 0;color:var(--sub);font-size:12.5px;line-height:1.6"></p>
     </div>
     <div class="panel">
       <h2>回ごとに解く</h2>
@@ -226,7 +227,7 @@ select,input[type=search]{border:1px solid var(--line2);background:var(--sheet);
       <h2>そのほか</h2>
       <div class="row">
         <button class="btn primary" id="go-weak">苦手な問題だけ解く</button>
-        <button class="btn" id="go-review">間違えた問題を解き直す</button>
+        <button class="btn" id="go-review">前回まちがえた問題を解き直す</button>
         <button class="btn" id="go-random">ランダム10問</button>
       </div>
     </div>
@@ -283,7 +284,7 @@ select,input[type=search]{border:1px solid var(--line2);background:var(--sheet);
   <section class="view" id="view-review" hidden>
     <div class="panel weak">
       <h2>苦手な問題</h2>
-      <p style="margin:0 0 10px;color:var(--sub);font-size:13.5px">まちがえた問題はここにも入ります。ここから解いて<b>2回続けて正解</b>するとリストから外れ、本当に苦手な問題だけが残ります。またまちがえたら、もう一度リストに入ります。（下の「間違えた問題」の記録とは別です）</p>
+      <p style="margin:0 0 10px;color:var(--sub);font-size:13.5px">まちがえた問題はここにも入ります。ここから解いて<b>2回続けて正解</b>するとリストから外れ、本当に苦手な問題だけが残ります。またまちがえたら、もう一度リストに入ります。（下の「前回まちがえた問題」とは別です。こちらは1回正解すると消えます）</p>
       <div class="row" style="margin-bottom:8px">
         <button class="btn primary" id="weak-start">苦手な問題を解く</button>
         <select id="weak-field" aria-label="分野でしぼる"></select>
@@ -297,7 +298,7 @@ select,input[type=search]{border:1px solid var(--line2);background:var(--sheet);
       </details>
     </div>
     <div class="panel">
-      <h2>間違えた問題</h2>
+      <h2>前回まちがえた問題</h2>
       <p style="margin:0 0 10px;color:var(--sub);font-size:13.5px">前回まちがえた問題がここに集まります。解き直して正解すると、リストから消えます。</p>
       <div class="row" style="margin-bottom:8px">
         <button class="btn primary" id="review-start">全部解き直す</button>
@@ -518,7 +519,7 @@ function show(v){
 }
 function render(){
   const ngIds = Q.filter(q => isNg(q.id)).map(q => q.id);
-  const b = $("#badge-review"); b.hidden = !ngIds.length; b.textContent = ngIds.length;
+  const b = $("#badge-review"); const wkB = Q.filter(q => isWeak(q.id)).length; b.hidden = !wkB; b.textContent = wkB;
   if (view === "home") renderHome(ngIds);
   if (view === "list") renderList();
   if (view === "review") renderReview(ngIds);
@@ -530,18 +531,20 @@ function renderHome(ngIds){
   const s = summary(Q.map(q => q.id));
   const att = Object.entries(rec).filter(([id]) => byId[id]);
   const tc = att.reduce((a, [, r]) => a + r.c, 0), tw = att.reduce((a, [, r]) => a + r.w, 0);
+  const wkIds = Q.filter(q => isWeak(q.id)).map(q => q.id), wkN = wkIds.length, wk1 = wkIds.filter(id => (weak[id].s || 0) === WEAK_N - 1).length;
   $("#stats").innerHTML = `
-    <div class="stat"><b>${s.n}</b><span>問題数</span></div>
-    <div class="stat"><b>${s.done}</b><span>解いた問題</span></div>
-    <div class="stat"><b>${tc + tw ? Math.round(tc / (tc + tw) * 100) : 0}<small>%</small></b><span>正答率（全回答）</span></div>
-    <div class="stat warn"><b>${ngIds.length}</b><span>要復習</span></div>`;
+    <div class="stat"><b>${s.n}</b><span>過去問の問題数</span></div>
+    <div class="stat"><b>${s.done}</b><span>解いた問題<br><small>ちがう問題の数</small></span></div>
+    <div class="stat"><b>${tc + tw ? Math.round(tc / (tc + tw) * 100) : "–"}<small>${tc + tw ? "%" : ""}</small></b><span>正答率<br><small>のべ${tc + tw}回答で計算</small></span></div>
+    <div class="stat warn"><b>${wkN}</b><span>苦手リスト<br><small>${wk1 ? "卒業まであと1回：" + wk1 + "問" : "2回続けて正解で卒業"}</small></span></div>`;
+  $("#stats-note").textContent = "正答率は、答えた回数ぜんぶ（のべ）で計算しています。同じ問題を2回解いたら2回と数えます。苦手リストは、苦手モードで2回続けて正解すると卒業して減ります。";
   $("#grid-kai").innerHTML = KAIS.map(k => {
     const ids = Q.filter(q => q.kai === k).map(q => q.id), s = summary(ids);
-    return `<button class="tile" data-kai="${k}"><span class="t">第${k}回</span><span class="s num">${s.done}/${s.n}問　正解${s.ok}</span>${meter(s)}</button>`;
+    return `<button class="tile" data-kai="${k}"><span class="t">第${k}回</span><span class="s num">${s.done}/${s.n}問　前回正解${s.ok}</span>${meter(s)}</button>`;
   }).join("");
   $("#grid-field").innerHTML = FIELDS.map(f => {
     const ids = Q.filter(q => q.field === f).map(q => q.id), s = summary(ids);
-    return `<button class="tile" data-field="${esc(f)}"><span class="t">${esc(f)}</span><span class="s num">${s.done}/${s.n}問　正解${s.ok}</span>${meter(s)}</button>`;
+    return `<button class="tile" data-field="${esc(f)}"><span class="t">${esc(f)}</span><span class="s num">${s.done}/${s.n}問　前回正解${s.ok}</span>${meter(s)}</button>`;
   }).join("");
   $("#go-review").disabled = !ngIds.length;
   const wn = Q.filter(q => isWeak(q.id)).length;
@@ -607,7 +610,7 @@ const memo = (() => {
   const box = $("#memo"), pad = $("#memo-pad"), cv = $("#memo-cv"), ctx = cv.getContext("2d"), hint = $("#memo-hint");
   const MLS = "kokushi-memo-v1";
   let pref = {}; try { pref = JSON.parse(localStorage.getItem(MLS) || "{}") || {}; } catch {}
-  let tool = pref.tool || "ink", open = pref.open !== false;
+  let tool = pref.tool || "ink", open = pref.open === true;
   let strokes = [], cur = null, penSeen = false, W = 0, H = 0, dpr = 1;
   const savePref = () => { try { localStorage.setItem(MLS, JSON.stringify({ tool, open })); } catch {} };
   const color = c => getComputedStyle(document.documentElement).getPropertyValue(c === "red" ? "--ng" : c === "blue" ? "--accent" : "--ink").trim() || "#000";
@@ -748,9 +751,9 @@ function weakNote(w, ok){
 }
 function expHtml(q){
   const e = q.exp; if (!e) return "";
-  const right = new Set(q.answer);
+  const right = new Set([...q.answer, ...(q.alt || []).flat()]);
   const rows = e.c.map((t, i) => `<li><b class="${right.has(i + 1) ? "mk ok" : "mk ng"}">${right.has(i + 1) ? "○" : "✕"} ${i + 1}</b><span>${fmt(t)}</span></li>`).join("");
-  return `<div class="exp"><div class="exp-h">解説</div><p>${fmt(e.p)}</p><ul>${rows}</ul></div>`;
+  return `<div class="exp"><div class="exp-h">解説</div><p>${fmt(e.p).replace(/【よくある間違い】([^<]*)/, '<span class="trap"><b>よくある間違い</b>$1</span>')}</p><ul>${rows}</ul></div>`;
 }
 function pick(n){
   const q = byId[quiz.ids[quiz.i]], need = needOf(q);

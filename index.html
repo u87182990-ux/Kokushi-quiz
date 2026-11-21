@@ -8,9 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
 <script src="shared/config.js?v=1795000000"></script>
-<script src="shared/account.js?v=1795200000"></script>
+<script src="shared/account.js?v=1795300000"></script>
 <script src="shared/stats.js?v=1795000000"></script>
-<script src="shared/guide.js?v=1795100000" defer></script>
+<script src="shared/guide.js?v=1795300000" defer></script>
 <style>
 :root{
   --paper:#eef2f6; --sheet:#ffffff; --ink:#152033; --sub:#5d6a7e; --line:#dbe2ea; --line2:#c9d3de;
@@ -62,6 +62,21 @@ h1,h2,h3{font-family:var(--f-disp);margin:0;line-height:1.35}
 .hero p{margin:6px 0 0;color:var(--sub);font-size:13.5px}
 .hero-nums{display:flex;justify-content:center;gap:34px;margin:18px 0 4px}
 .hero-nums div{display:grid;justify-items:center}
+.fld.sub{padding-left:22px;font-size:.92em;opacity:.92}
+.fld.sub>span:first-child::before{content:"└ ";color:var(--sub)}
+.fld-note{margin:4px 0 6px;font-size:11.5px;color:var(--sub)}
+.exam{margin-top:14px}
+.exam-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.exam-top>div:first-child{display:flex;align-items:baseline;gap:4px}
+.exam-top .lab{font-size:13px;font-weight:700;color:var(--sub)}
+.exam-top b{font-family:var(--f-disp);font-size:34px;font-weight:900;color:var(--accent);line-height:1.1}
+.exam-pace{flex:1 1 180px;font-size:13.5px;line-height:1.6}
+.exam-pace em{font-style:normal;font-weight:800;font-size:1.15em;color:var(--accent)}
+.exam-row{display:flex;gap:10px 16px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--sub);font-weight:700}
+.exam-row input,.exam-row select{font:inherit;font-weight:400;color:var(--ink);background:var(--sheet);border:1px solid var(--line2);border-radius:10px;padding:5px 8px;margin-left:4px}
+.exam-msg{margin:8px 0 0;font-size:12.5px;color:var(--sub);line-height:1.6}
+.exam-msg:empty{display:none}
+.hero-note{margin:8px 0 0;font-size:11.5px;color:var(--sub)}
 .hero-nums b{font-family:var(--f-disp);font-size:30px;font-weight:900;line-height:1.15;color:var(--accent)}
 .hero-nums b.warm{color:var(--warm)}
 .hero-nums span{font-size:12px;color:var(--sub)}
@@ -168,12 +183,25 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
 .icon-pick{display:flex;gap:6px;flex-wrap:wrap}
 .icon-pick button{border:3px solid transparent;border-radius:22px;padding:3px;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--sub);font:inherit;font-size:12.5px;font-weight:700}
 .icon-pick img{width:60px;height:60px;border-radius:16px;display:block}
-.icon-pick button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.icon-pick button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:rgba(47,111,235,.08)}
+#icon-msg:empty{display:none}
+#icon-msg{margin-top:10px}
+.howto{margin-top:12px;font-size:13px}
+.howto summary{cursor:pointer;font-weight:700;color:var(--accent)}
+.howto p{margin:6px 0 0;line-height:1.6}
 .msg{margin-top:10px;font-size:13.5px;font-weight:700;min-height:1.5em}
 .msg.ng{color:var(--ng)} .msg.ok{color:var(--ok)}
 .apps{display:grid;gap:12px}
 .apps[hidden]{display:none}
-.pick{display:grid;gap:8px}.pick[hidden]{display:none}
+.pick{display:grid;gap:8px}
+.pick-modal[hidden]{display:none!important}
+.pick-modal{position:fixed;inset:0;z-index:2147482000;background:rgba(8,14,24,.5);display:flex;align-items:flex-end;justify-content:center}
+.pick-in{background:var(--paper);width:min(600px,100%);max-height:86vh;max-height:86dvh;overflow:auto;border-radius:20px 20px 0 0;padding:0 16px calc(16px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+.pick-head{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0 10px;background:var(--paper);border-bottom:1px solid var(--line);margin-bottom:8px}
+.pick-head b{font-size:16px}
+.pick-done{width:100%;margin-top:14px}
+@media (min-width:700px){.pick-modal{align-items:center}.pick-in{border-radius:20px;max-height:80vh}}
+body.modal-open{overflow:hidden}
 .pk{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line2);border-radius:10px;cursor:pointer}
 .pk input{width:20px;height:20px;margin:2px 0 0;flex:none}.subj{margin:6px 0 0;font-size:.85rem;opacity:.75}.pk b{display:block}.pk small{display:block;opacity:.7}
 .me{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
@@ -196,10 +224,23 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
       <h1>国試ドリル</h1>
       <p>診療放射線技師国家試験の過去問と、よく出るポイントの対策問題</p>
       <div class="hero-nums">
-        <div><b class="num" id="h-total">2,670</b><span>問題数</span></div>
+        <div><b class="num" id="h-total">2,670</b><span>全問題数</span></div>
         <div><b class="num warm" id="h-streak">0</b><span>🔥 連続日数</span></div>
-        <div><b class="num" id="h-today">0</b><span>今日の解答</span></div>
+        <div><b class="num" id="h-today">0</b><span>今日の回答（のべ）</span></div>
       </div>
+      <p class="hero-note">全問題数＝過去問2,400問＋対策問題集270問（追加ドリルは別）</p>
+    </div>
+
+    <div class="panel exam" id="h-exam">
+      <div class="exam-top">
+        <div><span class="lab">国試まで</span><b class="num" id="ex-days">–</b><span class="lab" id="ex-unit">日</span></div>
+        <div class="exam-pace" id="ex-pace">試験日を入れると、1日に何問ずつ解けばいいかが出ます</div>
+      </div>
+      <div class="exam-row">
+        <label>試験日 <input type="date" id="ex-date"></label>
+        <label>1日の目標 <select id="ex-goal"></select></label>
+      </div>
+      <p class="exam-msg" id="ex-msg"></p>
     </div>
 
     <a class="nudge" id="h-login" href="#me" hidden><span><b>ニックネームでログイン</b>記録がクラウドに残って、どの端末でも続きから使えます</span></a>
@@ -220,7 +261,13 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     <p class="note" id="extra-note">科目ごとのドリルです。「えらぶ」で、使いたいものだけ自分のメニューに出せます。</p>
     <div class="modes" id="extra-list" hidden></div>
     <div class="row-btns" style="margin-top:12px"><button class="btn" id="extra-tog" type="button">えらぶ</button></div>
-    <div id="extra-pick" class="pick" hidden style="margin-top:12px"></div>
+    <div id="extra-pick" class="pick-modal" hidden role="dialog" aria-modal="true" aria-labelledby="extra-pick-h">
+      <div class="pick-in">
+        <div class="pick-head"><b id="extra-pick-h">追加ドリルをえらぶ</b><button class="btn" type="button" data-close>とじる</button></div>
+        <div id="extra-pick-body" class="pick"></div>
+        <button class="btn primary pick-done" type="button" data-close>これでOK（とじる）</button>
+      </div>
+    </div>
   </section>
 
   <!-- ============ 成績 ============ -->
@@ -236,7 +283,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     <div class="tiles">
       <div class="tile"><span class="ic">🔥</span><b class="num" id="s-streak">0</b><span>連続学習日数</span></div>
       <div class="tile"><span class="ic">📅</span><b class="num" id="s-days">0</b><span>累計学習日数</span></div>
-      <div class="tile"><span class="ic">📊</span><b class="num" id="s-wn">0</b><span>今週の解答数</span></div>
+      <div class="tile"><span class="ic">📊</span><b class="num" id="s-wn">0</b><span>今週の回答（のべ）</span></div>
       <div class="tile"><span class="ic">✅</span><b class="num" id="s-wp">–</b><span>今週の正答率</span></div>
     </div>
 
@@ -255,6 +302,7 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
 
     <h2 class="sec">カテゴリー別成績<small>タップで分野ごと</small></h2>
     <div class="cats" id="s-cats"></div>
+    <p class="note" style="margin-top:12px">ことばの意味：<b>解いた問題</b>＝ちがう問題の数。<b>回答（のべ）</b>＝同じ問題を2回解いたら2回と数える。<b>正答率</b>＝正解した回数÷のべ回答（どの画面も同じ計算です）。<b>苦手</b>＝まちがえて苦手リストに入った問題（2回続けて正解で卒業）。計算ドリル・画像情報ドリルは最新の答えだけを数えます。</p>
     <div class="sync" id="s-sync"></div>
   </section>
 
@@ -306,8 +354,15 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
 
     <div class="panel" id="icon-box">
       <h2>ホーム画面のアイコン</h2>
-      <p class="note">はじめは「Q」です。好きなアイコンをえらんでから、Safari の共有ボタン →「ホーム画面に追加」をしてね。すでに追加している人は、いまのアイコンを消してから追加し直すと変わります（ログインしていれば記録はそのままです）。</p>
+      <p class="note">はじめは「Q」です。好きなアイコンをえらんでから、ホーム画面に追加してね。すでに追加している人は、いまのアイコンを消してから追加し直すと変わります（ログインしていれば記録はそのままです）。</p>
       <div class="icon-pick" id="icon-pick"></div>
+      <div class="msg ok" id="icon-msg" role="status" aria-live="polite"></div>
+      <details class="howto">
+        <summary>ホーム画面に追加する方法</summary>
+        <p><b>iPhone・iPad（Safari）</b>：下の共有ボタン（□に↑）→「ホーム画面に追加」→「追加」</p>
+        <p><b>Android（Chrome）</b>：右上の「︙」→「ホーム画面に追加」（または「アプリをインストール」）→「追加」</p>
+        <p><b>パソコン（Chrome・Edge）</b>：アドレスバー右の「インストール」アイコン（またはメニュー →「アプリとしてインストール」）</p>
+      </details>
     </div>
 
     <!-- 引っ越し -->
@@ -386,11 +441,12 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
       const rec = merged(lsGet(d.ls + sfx(), {}), cloud[d.app]?.rec);
       const weak = merged(lsGet(d.ls + sfx() + "-weak", {}), cloud[d.app]?.weak);
       const vals = Object.values(rec);
-      return { rec, done: vals.length, ok: vals.filter(r => r.r === 1).length, weak: Object.values(weak).filter(w => w && !w.out).length };
+      return { rec, done: vals.length, ok: vals.filter(r => r.r === 1).length, att: vals.reduce((a, r) => a + (r.c || 0) + (r.w || 0), 0), okc: vals.reduce((a, r) => a + (r.c || 0), 0), weak: Object.values(weak).filter(w => w && !w.out).length };
     }
     if (d.kind === "res") {
       const vals = Object.values(lsGet(d.ls + sfx(), {}));
-      return { done: vals.length, ok: vals.filter(r => r && r.ok).length, weak: vals.filter(r => r && !r.ok).length };
+      const ok = vals.filter(r => r && r.ok).length;
+      return { done: vals.length, ok, att: vals.length, okc: ok, weak: vals.filter(r => r && !r.ok).length };
     }
     const S = lsGet("kc_state" + sfx(), {});
     return { done: Object.keys(S).length, ok: null, weak: 0, card: true };
@@ -429,18 +485,39 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     $("#h-weak").innerHTML = k.weak ? `苦手リスト <b class="num">${k.weak}</b>問<br>2回続けて正解で卒業` : "まちがえた問題を<br>2回続けて正解で卒業";
     $("#h-unsolved").innerHTML = `まだ解いていない<br><b class="num">${fmtN(2400 - k.done)}</b>問から20問`;
     $("#h-login").hidden = !!KQ.session();
+    paintExam(k.done + drillData(DRILLS[1]).done);
     $("#h-fields").innerHTML = FIELDS.map(([f, n]) => `<a class="chip" href="kakomon/?field=${encodeURIComponent(f)}">${esc(f)} <small class="num">(${n})</small></a>`).join("");
     paintExtra();
   }
+
+  /* ---------- 試験日カウントダウン（1日の目標は案内キャラと同じ設定） ---------- */
+  const GOALS = [5, 10, 20, 30, 50, 80, 100];
+  const avGet = () => (window.KQ && KQ.avatar.get()) || {};
+  const avPut = (patch) => { if (!window.KQ) return; KQ.avatar.set(Object.assign({}, avGet(), patch)); if (window.KQGuide && KQGuide.push) KQGuide.push(); };
+  function paintExam(solved){
+    const av = avGet(), goal = +av.goal || 10, date = typeof av.exam === "string" && /^\d{4}-\d{2}-\d{2}$/.test(av.exam) ? av.exam : "";
+    $("#ex-date").value = date;
+    $("#ex-goal").innerHTML = [...new Set([...GOALS, goal])].sort((a, b) => a - b).map(g => `<option value="${g}"${g === goal ? " selected" : ""}>${g}問</option>`).join("");
+    const left = Math.max(0, 2670 - solved);
+    if (!date) { $("#ex-days").textContent = "–"; $("#ex-pace").innerHTML = "試験日を入れると、まだ解いていない問題を何日で終えられるか、1日何問ペースかが出ます"; $("#ex-msg").textContent = ""; return; }
+    const [y, m, d] = date.split("-").map(Number), days = Math.round((new Date(y, m - 1, d) - dayStart(Date.now())) / 864e5);
+    if (days < 0) { $("#ex-days").textContent = "0"; $("#ex-pace").textContent = "試験日がすぎています。次の試験日を入れてね。"; $("#ex-msg").textContent = ""; return; }
+    $("#ex-days").textContent = fmtN(days);
+    const pace = days ? Math.ceil(left / days) : left;
+    $("#ex-pace").innerHTML = left ? `まだ解いていない問題 <b class="num">${fmtN(left)}</b>問（過去問＋対策問題集）<br>1周するには <em class="num">1日${fmtN(pace)}問</em> ペース` : "過去問と対策問題集をぜんぶ1回解きました！苦手リストの復習で仕上げよう。";
+    $("#ex-msg").textContent = !left ? "" : goal >= pace ? `いまの目標（1日${goal}問）なら、試験日の${Math.floor(days - left / goal)}日前に1周できます。` : `いまの目標（1日${goal}問）だと、試験日までに${fmtN(goal * days)}問。1周するには目標を${pace}問以上にしよう。`;
+  }
+  $("#ex-date").addEventListener("change", e => { avPut({ exam: e.target.value || "" }); paintHome(); });
+  $("#ex-goal").addEventListener("change", e => { avPut({ goal: +e.target.value }); paintHome(); });
 
   /* ---------- 成績 ---------- */
   let calSel = null;
   function paintStats(){
     const list = DRILLS.filter(d => !d.extra || exGet().includes(d.id) || drillData(d).done > 0);
-    let done = 0, ok = 0, total = 0;
-    for (const d of list) { const x = drillData(d); if (x.card) continue; done += x.done; ok += x.ok; total += d.n; }
-    $("#s-pct").textContent = done ? Math.round(ok / done * 100) + "%" : "–";
-    $("#s-line").textContent = done ? `${fmtN(done)}問解答 / ${fmtN(total)}問中 ・ 正解 ${fmtN(ok)}問` : `まだ記録がありません（全${fmtN(total)}問）`;
+    let done = 0, att = 0, okc = 0, total = 0;
+    for (const d of list) { const x = drillData(d); if (x.card) continue; done += x.done; att += x.att; okc += x.okc; total += d.n; }
+    $("#s-pct").textContent = att ? Math.round(okc / att * 100) + "%" : "–";
+    $("#s-line").textContent = done ? `解いた問題 ${fmtN(done)} / ${fmtN(total)}問 ・ のべ${fmtN(att)}回答で正解${fmtN(okc)}回` : `まだ記録がありません（全${fmtN(total)}問）`;
     $("#s-meter").style.width = (total ? Math.min(100, done / total * 100) : 0) + "%";
 
     const m = dayMap(), ymd = KQStats.ymd, today = dayStart(Date.now());
@@ -473,8 +550,8 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     // ドリルごと
     $("#s-cats").innerHTML = list.map(d => {
       const x = drillData(d);
-      const pc = x.card ? null : x.done ? Math.round(x.ok / x.done * 100) : null;
-      const sub = x.card ? `学習したカード ${fmtN(x.done)} / ${fmtN(d.n)}枚` : `解いた問題 ${fmtN(x.done)} / ${fmtN(d.n)}問${x.done ? `・正解 ${fmtN(x.ok)}問` : ""}`;
+      const pc = x.card ? null : x.att ? Math.round(x.okc / x.att * 100) : null;
+      const sub = x.card ? `学習したカード ${fmtN(x.done)} / ${fmtN(d.n)}枚` : `解いた問題 ${fmtN(x.done)} / ${fmtN(d.n)}問${x.att ? `・のべ${fmtN(x.att)}回答で正解${fmtN(x.okc)}回` : ""}`;
       const weakBtn = x.weak && d.kind === "rec" ? `<a class="mini ng" href="${d.id}/?start=weak">苦手 ${x.weak}問を解く</a>` : x.weak ? `<span class="mini ng">まちがい ${x.weak}問</span>` : "";
       return `<div class="cat" data-id="${d.id}">
         <div class="cat-top"><span>${d.ic}</span><b>${esc(d.name)}</b><span class="pc num">${pc === null ? "" : pc + "%"}</span></div>
@@ -498,13 +575,17 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     b.textContent = "読みこみ中…";
     try {
       const Q = qCache[d.id] || (qCache[d.id] = (await (await fetch(d.id + "/questions.json")).json()).questions);
+      if (d.id === "kakomon" && !qCache.th) { try { qCache.th = await (await fetch("kakomon/themes.json")).json(); } catch { qCache.th = {}; } }
+      const TH = d.id === "kakomon" ? qCache.th || {} : {};
       const rec = drillData(d).rec, g = new Map();
+      const add = (m, k, r) => { const v = m.get(k) || { n: 0, done: 0, att: 0, okc: 0, sub: new Map() }; v.n++; if (r) { v.done++; v.att += (r.c || 0) + (r.w || 0); v.okc += r.c || 0; } m.set(k, v); return v; };
       for (const q of Q) {
-        const f = q.field ?? q.topic, v = g.get(f) || { n: 0, done: 0, ok: 0 }; v.n++;
-        const r = rec[q.id]; if (r) { v.done++; if (r.r === 1) v.ok++; }
-        g.set(f, v);
+        const r = rec[q.id], f = q.field ?? q.topic, t = q.topic && q.topic !== f ? q.topic : TH[q.id];
+        const v = add(g, f, r); if (t) add(v.sub, t, r);
       }
-      box.innerHTML = [...g].map(([f, v]) => `<a class="fld" href="${d.id}/?field=${encodeURIComponent(f)}"><span>${esc(f)}</span><em class="num">${v.done ? Math.round(v.ok / v.done * 100) + "%" : "–"}　${v.done}/${v.n}</em><span class="meter"><i style="width:${v.done ? v.ok / v.done * 100 : 0}%"></i></span></a>`).join("");
+      const row = (f, v, href, cls) => `<a class="fld${cls}" href="${href}"><span>${esc(f)}</span><em class="num">${v.att ? Math.round(v.okc / v.att * 100) + "%" : "–"}　${v.done}/${v.n}</em><span class="meter"><i style="width:${v.att ? v.okc / v.att * 100 : 0}%"></i></span></a>`;
+      box.innerHTML = `<p class="fld-note">％＝のべ回答の正答率　右の数＝解いた問題／問題数${[...g.values()].some(v => v.sub.size > 1) ? `<br>解いた分野は、下の段にテーマごとの成績（苦手な順）が出ます${d.id === "kakomon" ? "。過去問のテーマは、問題のことばから自動で分けた目安です" : ""}` : ""}</p>` + [...g].map(([f, v]) => row(f, v, `${d.id}/?field=${encodeURIComponent(f)}`, "") +
+        (v.done && v.sub.size > 1 ? [...v.sub].filter(([, w]) => w.done).sort((x, y) => x[1].okc / x[1].att - y[1].okc / y[1].att).map(([t, w]) => row(t, w, `${d.id}/?field=${encodeURIComponent(f)}`, " sub")).join("") : "")).join("");
       box.hidden = false; b.textContent = "とじる";
     } catch { b.textContent = "読みこめませんでした"; }
   });
@@ -625,19 +706,22 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
     $("#extra-list").hidden = !list.length;
     $("#extra-note").textContent = list.length ? "自分で選んだドリルです。「えらぶ」で入れかえられます。" : "科目ごとのドリルです。「えらぶ」で、使いたいものだけ自分のメニューに出せます。";
     const subs = [...new Set(EXTRA.map(x => x.subj))];
-    $("#extra-pick").innerHTML = `<p class="note">いろんな科目から選べます。チェックしたものが上のメニューに出ます。</p>` + subs.map(s => `<h3 class="subj">${esc(s)}</h3>` + EXTRA.filter(x => x.subj === s).map(x => `<label class="pk"><input type="checkbox" value="${x.id}"${on.includes(x.id) ? " checked" : ""}><span><b>${esc(x.name)}</b><small>${esc(x.sub)}</small></span></label>`).join("")).join("");
+    $("#extra-pick-body").innerHTML = `<p class="note">いろんな科目から選べます。チェックしたものが上のメニューに出ます。</p>` + subs.map(s => `<h3 class="subj">${esc(s)}</h3>` + EXTRA.filter(x => x.subj === s).map(x => `<label class="pk"><input type="checkbox" value="${x.id}"${on.includes(x.id) ? " checked" : ""}><span><b>${esc(x.name)}</b><small>${esc(x.sub)}</small></span></label>`).join("")).join("");
   }
   $("#extra-pick").addEventListener("change", () => {
     exSet([...$("#extra-pick").querySelectorAll("input:checked")].map(i => i.value)); paintExtra();
   });
-  $("#extra-tog").onclick = () => { const p = $("#extra-pick"); p.hidden = !p.hidden; $("#extra-tog").textContent = p.hidden ? "えらぶ" : "とじる"; };
+  const pickOpen = o => { $("#extra-pick").hidden = !o; document.body.classList.toggle("modal-open", o); if (o) $("#extra-pick [data-close]").focus(); else $("#extra-tog").focus(); };
+  $("#extra-tog").onclick = () => pickOpen(true);
+  $("#extra-pick").addEventListener("click", e => { if (e.target.closest("[data-close]") || e.target === e.currentTarget) pickOpen(false); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#extra-pick").hidden) pickOpen(false); });
 
   paintMe(); route();
 })();
 window.addEventListener("DOMContentLoaded", () => {
   const box = document.getElementById("icon-pick");
   if (!box || !window.KQIcon) { const p = document.getElementById("icon-box"); if (p) p.hidden = true; return; }
-  const names = { a: "ボード", b: "ねこ", c: "Q", d: "ピンク", e: "しんぞう", f: "のう", g: "い", h: "ちょう", i: "赤血球", j: "白血球", k: "幹細胞", l: "ニューロン", m: "肺", n: "肝臓" };
+  const names = { a: "合格ボード", b: "ねこ", c: "Q", d: "ピンク", e: "しんぞう", f: "のう", g: "い", h: "ちょう", i: "赤血球", j: "白血球", k: "幹細胞", l: "ニューロン", m: "肺", n: "肝臓" };
   const draw = () => {
     const cur = KQIcon.get();
     box.innerHTML = "";
@@ -645,9 +729,14 @@ window.addEventListener("DOMContentLoaded", () => {
       const b = document.createElement("button");
       b.type = "button"; b.setAttribute("aria-pressed", String(k === cur));
       const img = document.createElement("img"); img.src = KQIcon.url(k); img.alt = "";
-      const t = document.createElement("span"); t.textContent = names[k];
+      const t = document.createElement("span"); t.textContent = (k === cur ? "✓ " : "") + names[k];
+      b.setAttribute("aria-label", names[k] + (k === cur ? "（えらび中）" : ""));
       b.append(img, t);
-      b.onclick = () => { KQIcon.set(k); draw(); };
+      b.onclick = () => {
+        KQIcon.set(k); draw();
+        const m = document.getElementById("icon-msg");
+        if (m) m.textContent = `「${names[k]}」にしました。ホーム画面に追加すると、このアイコンになります（すでに追加している人は、消してから追加し直してね）。`;
+      };
       box.appendChild(b);
     }
   };

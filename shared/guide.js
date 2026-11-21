@@ -33,7 +33,7 @@
     { id: "ribbon", name: "リボン" }, { id: "crown", name: "王冠" }, { id: "phones", name: "ヘッドホン" },
     { id: "badge", name: "名札" }
   ];
-  const GOALS = [5, 10, 20, 30, 50];
+  const GOALS = [5, 10, 20, 30, 50, 80, 100];
   const DEF = { type: "neko", color: "#ffc48a", ocolor: "orig", outfit: "hakui", acc: "none", name: "ナビ", goal: 10 };
 
   /* ---------- 絵（SVG） ---------- */
@@ -588,7 +588,7 @@
     watch();
     setTimeout(() => refresh(), pageApp() ? 900 : 300);
   }
-  window.KQGuide = { refresh: () => root && refresh(), open: () => { if (!root) return; if (av.off) setOff(false); openEditor(); },
+  window.KQGuide = { push: () => pushCloud(), refresh: () => root && refresh(), open: () => { if (!root) return; if (av.off) setOff(false); openEditor(); },
     isOff: () => !!(av && av.off), setOff: on => root && setOff(on), draw, parts: { TYPES, COLORS, OUTFITS, ACCS } };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();

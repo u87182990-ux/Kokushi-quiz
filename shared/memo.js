@@ -65,7 +65,7 @@
     const undoB = box.querySelector('[data-act="undo"]'), clearB = box.querySelector('[data-act="clear"]'), togB = box.querySelector('[data-act="toggle"]');
     const MLS = "kokushi-memo-v1";   // 過去問クイズと同じ設定（ペンの色・開け閉め）を使う
     let pref = {}; try { pref = JSON.parse(localStorage.getItem(MLS) || "{}") || {}; } catch {}
-    let tool = pref.tool || "ink", open = pref.open !== false;
+    let tool = pref.tool || "ink", open = pref.open === true;
     let strokes = [], cur = null, penSeen = false, W = 0, H = 0, dpr = 1;
     const savePref = () => { try { localStorage.setItem(MLS, JSON.stringify({ tool, open })); } catch {} };
     const color = c => getComputedStyle(box).getPropertyValue(c === "red" ? "--kqm-red" : c === "blue" ? "--kqm-blue" : "color").trim()
