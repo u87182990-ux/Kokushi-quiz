@@ -1,8 +1,18 @@
 // ニックネーム＋4ケタ数字で記録をクラウドに保存する小さなライブラリ
 (() => {
   const SK = "kq-session-v1";
+  // お試し版（ログインなし）: /demo/ か ?demo=1 から入ると、このタブの間はログインなし・記録は端末だけ・クラウドには送らない
+  const DK = "kq-demo";
+  let DEMO = false;
+  try {
+    const q = new URLSearchParams(location.search).get("demo");
+    if (q === "0") sessionStorage.removeItem(DK);
+    else if (q !== null) sessionStorage.setItem(DK, "1");
+    DEMO = sessionStorage.getItem(DK) === "1";
+  } catch { DEMO = /[?&]demo=(?!0)/.test(location.search); }
+  if (DEMO) setupDemo();
   const cfg = () => window.KQ_CONFIG || {};
-  const ready = () => !!(cfg().url && cfg().anonKey);
+  const ready = () => !DEMO && !!(cfg().url && cfg().anonKey);
   async function rpc(fn, args){
     const c = cfg();
     const r = await fetch(c.url.replace(/\/$/, "") + "/rest/v1/rpc/" + fn, {
@@ -15,6 +25,7 @@
   }
   let mem = null; // localStorage が使えないブラウザ用
   function session(){
+    if (DEMO) return null;
     try { const s = JSON.parse(localStorage.getItem(SK) || "null"); if (s && s.nick && s.pin) return s; } catch {}
     try { const s = JSON.parse(sessionStorage.getItem(SK) || "null"); if (s && s.nick && s.pin) return s; } catch {}
     return mem;
@@ -36,6 +47,7 @@
     setup: "まだ保存の準備ができていません（管理者の設定待ち）"
   };
   async function login(nick, pin, isNew){
+    if (DEMO) return { ok: false, msg: "お試し版なのでログインはありません" };
     nick = String(nick || "").trim(); pin = String(pin || "").trim();
     if (!ready()) return { ok: false, msg: MSG.setup };
     if (!nick || nick.length > 20) return { ok: false, msg: MSG.bad_nick };
@@ -138,6 +150,40 @@
     }
     return { ok: true, res };
   }
-  window.KQ = { ready, session, login, load, save, logout: () => setSession(null), decode, migrate,
+  // お試し版の見た目：ログインまわりをかくして、説明の文をお試し版むけに言いかえる
+  function setupDemo(){
+    const de = document.documentElement; de.classList.add("kq-demo");
+    const st = document.createElement("style");
+    st.textContent = ".kq-demo #acct,.kq-demo #h-login,.kq-demo #login-box,.kq-demo #me-box,.kq-demo #setup-warn,.kq-demo #move-box{display:none!important}"
+      + ".kq-demo-badge{background:#e8b730;color:#2a1d00;font:700 12px/1.5 system-ui,sans-serif;padding:3px 12px;text-align:center;letter-spacing:.04em}";
+    (document.head || de).appendChild(st);
+    const REP = [
+      [/ログインしていないので、記録はこのブラウザだけに保存しています。.*$/, "お試し版なので、記録はこのブラウザだけに保存しています"],
+      ["ニックネームでログインしていれば、記録は自動でクラウドに保存されます。", "お試し版なので、記録はこの端末だけに保存されます。"],
+      ["ログインすると、記録もわたしの見た目も、どの端末でも同じになるよ。", "お試し版だよ。記録はこの端末だけに保存されるよ。"],
+      ["いまはこの端末だけに保存されます。ログインすると、ニックネームといっしょに保存できます。", "この端末だけに保存されます。"],
+      ["（ログインしていれば記録はそのままです）", ""]
+    ];
+    const fix = n => {
+      const t = n.nodeValue; if (!t || t.indexOf("ログイン") < 0) return;
+      let v = t; for (const [a, b] of REP) v = v.replace(a, b);
+      if (v !== t) n.nodeValue = v;
+    };
+    const walk = root => {
+      if (root.nodeType === 3) return fix(root);
+      if (root.nodeType !== 1 && root.nodeType !== 9 && root.nodeType !== 11) return;
+      const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n;
+      while ((n = w.nextNode())) fix(n);
+    };
+    const start = () => {
+      walk(document.body);
+      const b = document.createElement("div"); b.className = "kq-demo-badge"; b.textContent = "お試し版（ログインなし）";
+      document.body.insertBefore(b, document.body.firstChild);
+      new MutationObserver(ms => { for (const m of ms) { if (m.type === "characterData") fix(m.target); else m.addedNodes.forEach(walk); } })
+        .observe(document.body, { childList: true, subtree: true, characterData: true });
+    };
+    if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);
+  }
+  window.KQ = { demo: DEMO, ready, session, login, load, save, logout: () => setSession(null), decode, migrate,
     avatar: { get: getAvatar, set: v => { v = Object.assign({}, v, { t: Date.now() }); putAvatar(v); return v; } } };
 })();

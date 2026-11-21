@@ -25,3 +25,8 @@
 - `shared/stats.js` … 日ごとの解答数（成績・連続日数・学習カレンダー用）とブックマークを記録。`account.js` がクラウド保存の時にいっしょに送る。
 - 問題ページの「☆ 保存」ボタン・`?start=bm|weak|random|unsolved`・`?q=問題id`・`?field=分野` は `tools/addbm.py` でつけている。`tools/mksite.py` で作り直した時は、そのあとに `python3 tools/addbm.py` を実行する。
 - 新しいドリルを足す時は、`index.html` の `DRILLS`（成績用）と `EXTRA`（メニュー用）に1行ずつ足す。
+
+## お試し版（ログインなし）
+- `demo/` … `https://u87182990-ux.github.io/Kokushi-quiz/demo/` を開くと、そのタブの間はログインなしのお試し版になる（`?demo=1` でも同じ、`?demo=0` で元にもどる）。
+- しくみは `shared/account.js` の DEMO。ログイン画面・引っ越し・右上の「ログインして保存」をかくし、記録は端末だけに保存して Supabase には一切送らない。ほかの機能（成績・カレンダー・ブックマーク・メモ・案内キャラなど）はそのまま。
+- タブ（sessionStorage）だけの切りかえなので、ふつうのサイトやホーム画面のアプリには影響しない。
