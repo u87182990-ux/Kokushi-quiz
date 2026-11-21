@@ -10,7 +10,7 @@ def rep(s, a, b, n=1):
     assert s.count(a) == n, (a[:80], s.count(a))
     return s.replace(a, b)
 
-V = "1795400000"
+V = "1795500000"
 TAGS = f'<script src="../shared/plan.js?v={V}"></script><script src="../shared/zoom.js?v={V}" defer></script>'
 
 # ---------------- 共通：画像の拡大・正答率の色 ----------------
@@ -149,6 +149,7 @@ const MK_K = LS + "-mock", MH_K = LS + "-mockh", MK_N = 200, MK_PASS = 0.6;
 let mock = null, mockH = [];
 try { mock = JSON.parse(localStorage.getItem(MK_K) || "null"); } catch {}
 try { mockH = JSON.parse(localStorage.getItem(MH_K) || "[]"); if (!Array.isArray(mockH)) mockH = []; } catch { mockH = []; }
+let mockPauseAsk = false, mockPauseT = null, mockMsg = "";
 let mockScreen = "setup", mockShow = null, mockPal = false, mockAsk = false, mockDel = false, runSince = null, mockTimer = null, mockNewAsk = false;
 const mockRun = () => !!(mock && mock.status === "run" && Array.isArray(mock.ids));
 function saveMock(sync = true){
@@ -227,11 +228,13 @@ function renderMock(){
 }
 function renderMockSetup(box){
   const run = mockRun();
+  setTimeout(() => { mockMsg = ""; }, 0);   // メッセージは1回だけ
   const kinds = `<option value="mix">全回ミックス（本番と同じ分野の数・まだ解いていない問題が先）</option>` + KAIS.map(k => `<option value="${k}">第${k}回をそのまま（午前100問＋午後100問）</option>`).join("");
   const hist = mockH.slice(0, 10).map((h, i) => `<button class="mk-h" data-mh="${i}"><span>${esc(h.title)}　<small>${new Date(h.id).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}</small></span><small>${h.score >= Math.ceil(h.n * MK_PASS) ? "✓ 合格ライン超え" : `合格ラインまで あと${Math.ceil(h.n * MK_PASS) - h.score}点`}・${jmin(h.used)}</small><b class="pc-c" style="${KQPlan.pcAttr(h.score / h.n)}">${h.score}<small style="font-size:12px">/${h.n}</small></b></button>`).join("");
   box.innerHTML = `<div class="panel">
     <h2>模試モード</h2>
     <p style="margin:0 0 12px;color:var(--sub);font-size:13.5px">本番と同じ<b>200問（午前100問＋午後100問）</b>を通して解きます。途中で答えは出ません。最後に「提出して採点」すると、<b>合格ライン（6割＝120点）</b>との差と、分野ごとの点数が出ます。<br>「中断する」でいつでもやめられます。時間も答えも保存されるので、あとで続きから再開できます（ログインしていれば、ほかの端末でも）。</p>
+    ${mockMsg && run ? `<p class="bk-msg ok" role="status" style="margin:0 0 10px">✓ ${esc(mockMsg)}</p>` : ""}
     ${run ? `<div class="mk-resume"><b>中断中の模試：${esc(mock.title)}</b><br><span class="num" style="font-size:13.5px">答えた問題 ${mockAnswered()} / ${mock.ids.length}問・使った時間 ${jmin(mock.used || 0)}${mock.limit ? `（のこり ${jmin(Math.max(0, mock.limit - (mock.used || 0)))}）` : ""}</span>
       <div class="row" style="margin-top:10px"><button class="btn primary" id="mk-resume">続きから解く</button><button class="btn danger" id="mk-discard">${mockDel ? "本当にやめる（答えは消えます）" : "この模試をやめる"}</button></div></div>` : ""}
     <div class="mk-form">
@@ -258,7 +261,7 @@ function renderMockExam(box){
     <div class="mk-top">
       <span class="qno">模試 ${esc(mock.title)}　${mockLab(i)}</span>
       <span class="mk-time num" id="mk-time">–</span>
-      <button class="btn" id="mk-pause" style="padding:5px 12px;font-size:13px">中断する</button>
+      <button class="btn${mockPauseAsk ? " danger" : ""}" id="mk-pause" style="padding:5px 12px;font-size:13px">${mockPauseAsk ? "もう一度押すと中断（答えと時間は保存）" : "中断する"}</button>
     </div>
     <div class="prog"><i style="width:${aN / n * 100}%"></i></div>
     ${mock.kind === "mix" ? `<div class="mk-src">出典：第${q.kai}回 ${esc(q.session || "")}${q.no}</div>` : ""}
@@ -287,7 +290,7 @@ function mockPick(k){
   mock.ans[i] = [...cur].sort((a, b) => a - b); if (!mock.ans[i].length) delete mock.ans[i];
   mock.at = Date.now(); saveMock(); renderMock();
 }
-function mockGo(i){ if (!mockRun()) return; mock.i = Math.max(0, Math.min(mock.ids.length - 1, i)); mockAsk = false; mock.at = Date.now(); saveMock(false); renderMock(); window.scrollTo(0, 0); }
+function mockGo(i){ if (!mockRun()) return; mockPauseAsk = false; mock.i = Math.max(0, Math.min(mock.ids.length - 1, i)); mockAsk = false; mock.at = Date.now(); saveMock(false); renderMock(); window.scrollTo(0, 0); }
 function mockSubmit(){
   pauseTimer();
   const n = mock.ids.length, half = mockHalf(), fields = {}, wrong = [];
@@ -347,7 +350,13 @@ document.addEventListener("click", e => {
     }
     case "mk-resume": mockShow = null; mockScreen = "exam"; mockDel = false; show("mock"); resumeTimer(); return;
     case "mk-discard": if (!mockDel) { mockDel = true; return renderMock(); } mockDel = false; mock = { status: "done", id: mock.id, at: Date.now() }; saveMock(); return renderMock();
-    case "mk-pause": pauseTimer(); mockScreen = "setup"; mockAsk = false; document.body.classList.remove("in-quiz"); renderMock(); window.scrollTo(0, 0); return;
+    case "mk-pause": {
+      // まちがえて押しても大丈夫なように、2回押しで中断。中断したら保存できたことを出す
+      if (!mockPauseAsk) { mockPauseAsk = true; renderMock(); clearTimeout(mockPauseT); mockPauseT = setTimeout(() => { if (mockPauseAsk) { mockPauseAsk = false; if (view === "mock" && mockScreen === "exam") renderMock(); } }, 4000); return; }
+      mockPauseAsk = false; pauseTimer();
+      mockMsg = `中断して保存しました（答えた ${mockAnswered()}問・使った時間 ${jmin(mock.used || 0)}${Object.keys(mock.flag).length ? "・🚩" + Object.keys(mock.flag).length + "問" : ""}）。「続きから解く」で、同じところから再開できます。`;
+      mockScreen = "setup"; mockAsk = false; document.body.classList.remove("in-quiz"); renderMock(); window.scrollTo(0, 0); return;
+    }
     case "mk-prev": return mockGo((mock.i || 0) - 1);
     case "mk-next": return mockGo((mock.i || 0) + 1);
     case "mk-flag": { const i = mock.i || 0; if (mock.flag[i]) delete mock.flag[i]; else mock.flag[i] = 1; saveMock(false); return renderMock(); }
@@ -376,8 +385,18 @@ function paintMockEntry(){
 let TH = null;
 const planItems = () => Q.map(q => ({ id: q.id, f: q.field, t: TH ? TH[q.id] : null }));
 function startToday(n, c){
-  const p = KQPlan.today(planItems(), rec, weak, { total: n + c, cardsDue: c });
-  startQuiz("今日やること", p.ids, { today: { cards: p.cards } });
+  const p = KQPlan.today(planItems(), rec, weak, { total: n + c, cardsDue: c }), tag = {};
+  // 問題ごとに「なぜ今日出たか」をおぼえておく（苦手はまちがえた日も）
+  for (const id of p.weak) tag[id] = ["weak", weak[id]?.t || rec[id]?.t || 0];
+  for (const id of p.field) tag[id] = ["field", p.fieldName];
+  for (const id of p.fresh) tag[id] = [rec[id] ? "again" : "new"];
+  startQuiz("今日やること", p.ids, { today: { cards: p.cards, tag } });
+}
+function todayTag(id){
+  const t = quiz?.today?.tag?.[id]; if (!t) return "";
+  const d = t[1] ? new Date(t[1]) : null;
+  const lab = t[0] === "weak" ? `🔁 苦手の復習${d ? `（${d.getMonth() + 1}/${d.getDate()}にまちがえた問題）` : ""}` : t[0] === "field" ? `🎯 弱点分野の問題` : t[0] === "again" ? "📉 正答率が低い問題" : "✨ はじめての問題";
+  return `<span class="chip" style="background:var(--accent-soft);color:var(--accent);font-weight:700">${lab}</span>`;
 }
 async function startTheme(field, theme, n){
   if (theme && !TH) { try { TH = await (await fetch("themes.json")).json(); } catch { TH = {}; } }
@@ -392,6 +411,9 @@ s = rep(s, '''    case "go-random": return startQuiz("ランダム10問", shuffl
 # ホームに中断中の模試を出す
 s = rep(s, '''  $("#go-review").disabled = !ngIds.length;''', '''  paintMockEntry();
   $("#go-review").disabled = !ngIds.length;''')
+s = rep(s, '''      <span class="chip">${esc(q.field)}</span>
+      <span class="num" style="color:var(--sub);font-size:13px">${esc(quiz.title)}''', '''      <span class="chip">${esc(q.field)}</span>${todayTag(q.id)}
+      <span class="num" style="color:var(--sub);font-size:13px">${esc(quiz.title)}''')
 # 保存とクラウドからの取りこみ
 s = rep(s, "  const r = await KQ.save(APP, { v: 1, at: Date.now(), rec, weak });", "  const r = await KQ.save(APP, { v: 1, at: Date.now(), rec, weak, mock, mockh: mockH });")
 s = rep(s, "  if (mergeIn(d.rec, d.weak)) { saveLocal(); saveWeak(); render(); }", "  const mch = mergeMock(d.mock, d.mockh);\n  if (mergeIn(d.rec, d.weak) || mch) { saveLocal(); saveWeak(); if (!(view === \"mock\" && mockScreen === \"exam\")) render(); }")
