@@ -38,3 +38,4 @@
 - 問題ページの数字・ラベルは `tools/fix-counts.py` で直している（mksite.py で作り直したあとに addbm.py → fix-counts.py の順で実行）。
 - 成績のテーマ別：対策問題集・治療ドリルは問題の topic、過去問は `kakomon/themes.json`（`tools/themes.py` がキーワードで自動で分けた目安）。
 - 試験日と1日の目標は案内キャラの設定（`KQ.avatar` の exam / goal）に入れて、クラウドにもいっしょに保存。
+- 過去問の計算問題138問の解説強化（【よくある間違い】＋選択肢ごとの説明）は `tools/calc-exp/*.txt` が元。`python3 tools/apply-calc-exp.py [quiz-app/src/exp]` で questions.json（と元の解説ファイル）に入れる。治療ドリルは kakomon の解説を使うので、そのあと chiryo の build.py を実行し直す。

@@ -38,4 +38,8 @@ for d, nm in NAMES.items():
     s = rep(s, "b.hidden = !ngIds.length; b.textContent = ngIds.length;",
             "const wkB = Q.filter(q => isWeak(q.id)).length; b.hidden = !wkB; b.textContent = wkB;")
     s = rep(s, "open = pref.open !== false;", "open = pref.open === true;")
+    # 解説：【よくある間違い】を目立たせる・複数正解（alt）の選択肢も○にする
+    s = rep(s, "  const right = new Set(q.answer);", "  const right = new Set([...q.answer, ...(q.alt || []).flat()]);")
+    s = rep(s, "<p>${fmt(e.p)}</p><ul>", "<p>${fmt(e.p).replace(/【よくある間違い】([^<]*)/, '<span class=\"trap\"><b>よくある間違い</b>$1</span>')}</p><ul>")
+    s = rep(s, "content:\"× あなたの回答\";color:var(--ng)}</style>", "content:\"× あなたの回答\";color:var(--ng)}.trap{display:block;margin-top:10px;padding:8px 12px;border-radius:10px;background:rgba(232,183,48,.14);border-left:4px solid #e8b730}.trap b{display:block;font-size:12.5px;color:#a77700}</style>")
     open(p, "w", encoding="utf-8").write(s); print(p, "ok")
