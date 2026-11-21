@@ -780,8 +780,8 @@ function finish(){
   const wrong = quiz.ids.filter((id, i) => quiz.results[i] === false);
   $("#result").innerHTML = `
     <h2>${esc(quiz.title)} の結果</h2>
-    <p style="margin:12px 0"><span class="result-big">${ok}</span> <span class="num">/ ${n}問 正解（${n ? Math.round(ok / n * 100) : 0}%）</span></p>
-    ${quiz.weak || quiz.wk.some(Boolean) ? `<p class="wk-note" style="margin:0 0 12px">苦手リストから外れた問題：<span class="num">${quiz.wk.filter(w => w?.out).length}</span>問　／　のこりの苦手：<span class="num">${Q.filter(q => isWeak(q.id)).length}</span>問${(n1 => n1 ? `（うち卒業まであと1回：<span class="num">${n1}</span>問）` : "")(Q.filter(q => isWeak(q.id) && (weak[q.id].s || 0) === WEAK_N - 1).length)}<br>苦手リストの問題は、どこで解いても（1問だけ開いても）${WEAK_N}回続けて正解すると卒業します</p>` : ""}
+    <p style="margin:12px 0"><span class="result-big">${ok}</span> <span class="num">/ ${quiz.ids.length}問 正解（${Math.round(ok / quiz.ids.length * 100)}%）</span>${n < quiz.ids.length ? `<br><span style="font-size:13px;color:var(--sub)">${quiz.ids.length}問中${n}問に答えたところでやめました（答えた${n}問の正答率は${n ? Math.round(ok / n * 100) : 0}%）</span>` : ""}</p>
+    ${`<p class="wk-note" style="margin:0 0 12px">苦手リストから外れた問題：<span class="num">${quiz.wk.filter(w => w?.out).length}</span>問　／　のこりの苦手：<span class="num">${Q.filter(q => isWeak(q.id)).length}</span>問（うち卒業まであと1回：<span class="num">${Q.filter(q => isWeak(q.id) && (weak[q.id].s || 0) === WEAK_N - 1).length}</span>問）<br>苦手リストの問題は、どこで解いても（1問だけ開いても）${WEAK_N}回続けて正解すると卒業します</p>`}
     <div class="row" style="margin-bottom:12px">
       ${wrong.length ? `<button class="btn primary" id="r-retry">まちがえた${wrong.length}問をもう一度</button>` : ""}
       <button class="btn" id="r-home">ホームへ</button>

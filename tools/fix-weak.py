@@ -10,6 +10,7 @@ def rep(s, a, b, n=1):
 
 for d in ["kakomon", "prep", "chiryo", "chiryo-quiz"]:
     p = f"{d}/index.html"; s = open(p, encoding="utf-8").read()
+    if "に答えたところでやめました" in s: print(p, "もう直してある"); continue
     s = rep(s, "苦手モードで2回続けて正解すると外れる", "どこで解いても2回続けて正解すると外れる")
     s = rep(s, '''function weakRecord(id, ok, mode){
   const now = Date.now();
@@ -30,4 +31,10 @@ for d in ["kakomon", "prep", "chiryo", "chiryo-quiz"]:
             '  $("#go-review").disabled = !ngIds.length; $("#go-review").textContent = `前回まちがえた問題を解き直す（${ngIds.length}問）`;\n')
     s = rep(s, '  $("#review-start").disabled = !list.length;\n',
             '  $("#review-start").disabled = !list.length; $("#review-start").textContent = `全部解き直す（${list.length}問）`;\n')
+    # 結果画面：苦手のまとめはどのセットでも出す／やめたときも分母は始めた問題数
+    s = rep(s, "    ${quiz.weak || quiz.wk.some(Boolean) ? `<p class=\"wk-note\"", "    ${`<p class=\"wk-note\"")
+    s = rep(s, "苦手リストから外れた問題：<span class=\"num\">${quiz.wk.filter(w => w?.out).length}</span>問　／　のこりの苦手：<span class=\"num\">${Q.filter(q => isWeak(q.id)).length}</span>問${(n1 => n1 ? `（うち卒業まであと1回：<span class=\"num\">${n1}</span>問）` : \"\")(Q.filter(q => isWeak(q.id) && (weak[q.id].s || 0) === WEAK_N - 1).length)}<br>苦手リストの問題は、どこで解いても（1問だけ開いても）${WEAK_N}回続けて正解すると卒業します</p>` : \"\"}",
+            "苦手リストから外れた問題：<span class=\"num\">${quiz.wk.filter(w => w?.out).length}</span>問　／　のこりの苦手：<span class=\"num\">${Q.filter(q => isWeak(q.id)).length}</span>問（うち卒業まであと1回：<span class=\"num\">${Q.filter(q => isWeak(q.id) && (weak[q.id].s || 0) === WEAK_N - 1).length}</span>問）<br>苦手リストの問題は、どこで解いても（1問だけ開いても）${WEAK_N}回続けて正解すると卒業します</p>`}")
+    s = rep(s, "<span class=\"result-big\">${ok}</span> <span class=\"num\">/ ${n}問 正解（${n ? Math.round(ok / n * 100) : 0}%）</span></p>",
+            "<span class=\"result-big\">${ok}</span> <span class=\"num\">/ ${quiz.ids.length}問 正解（${Math.round(ok / quiz.ids.length * 100)}%）</span>${n < quiz.ids.length ? `<br><span style=\"font-size:13px;color:var(--sub)\">${quiz.ids.length}問中${n}問に答えたところでやめました（答えた${n}問の正答率は${n ? Math.round(ok / n * 100) : 0}%）</span>` : \"\"}</p>")
     open(p, "w", encoding="utf-8").write(s); print(p, "ok")
