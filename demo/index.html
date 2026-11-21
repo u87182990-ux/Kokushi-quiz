@@ -1,0 +1,9 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>国試ドリル（お試し版）</title>
+<script>
+// お試し版（ログインなし）の入り口。このタブの間はログインなしで、記録は端末だけに保存されます
+try { sessionStorage.setItem("kq-demo", "1"); } catch {}
+location.replace("../?demo=1" + location.hash);
+</script>
+<style>body{font-family:system-ui,sans-serif;background:#0f1b2d;color:#fff;margin:0;padding:40px 16px;text-align:center}a{color:#8cc8ff}</style>
+</head><body><p>お試し版をひらいています…<br><a href="../?demo=1">ひらかないときはここをタップ</a></p></body></html>
