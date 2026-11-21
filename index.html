@@ -10,7 +10,7 @@
 <script src="shared/config.js?v=1795000000"></script>
 <script src="shared/account.js?v=1795300000"></script>
 <script src="shared/stats.js?v=1795000000"></script>
-<script src="shared/plan.js?v=1795400000"></script>
+<script src="shared/plan.js?v=1795500000"></script>
 <script src="shared/guide.js?v=1795300000" defer></script>
 <style>
 :root{
@@ -59,16 +59,16 @@ h1,h2,h3{font-family:var(--f-disp);margin:0;line-height:1.35}
 
 /* ホームの見出し */
 .hero{text-align:center;padding:26px 4px 6px}
-/* 今日やること・おすすめ */
-.today{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:4px 14px;margin-top:14px;padding:18px 18px;border-radius:20px;
+/* 今日やること・おすすめ（.today は学習カレンダーの今日のマスで使っているので .todo） */
+.todo{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:4px 14px;margin-top:14px;padding:18px 18px;border-radius:20px;
   background:var(--accent);color:var(--accent-ink);text-decoration:none;box-shadow:0 10px 24px -14px rgba(29,111,216,.9);transition:transform .1s}
-.today:active{transform:scale(.985)}
-.today .ic{grid-row:1/3;font-size:34px;line-height:1}
-.today b{font-family:var(--f-disp);font-size:21px;font-weight:900;line-height:1.3}
-.today b .num{font-size:1.15em}
-.today small{grid-column:2;font-size:12.5px;line-height:1.55;opacity:.92}
-.today::after{content:"›";grid-row:1/3;grid-column:3;font-size:30px;opacity:.85}
-.today.done{background:var(--ok)}
+.todo:active{transform:scale(.985)}
+.todo .ic{grid-row:1/3;font-size:34px;line-height:1}
+.todo b{font-family:var(--f-disp);font-size:21px;font-weight:900;line-height:1.3}
+.todo b .num{font-size:1.15em}
+.todo small{grid-column:2;font-size:12.5px;line-height:1.55;opacity:.92}
+.todo::after{content:"›";grid-row:1/3;grid-column:3;font-size:30px;opacity:.85}
+.todo.done{background:var(--ok)}
 .today-prog{display:flex;align-items:center;gap:10px;margin:8px 4px 0;font-size:12.5px;color:var(--sub)}
 .today-prog .meter{flex:1;margin:0}
 .reco{margin-top:12px;padding:14px 16px;border-radius:16px;background:var(--sheet);border:1px solid var(--line)}
@@ -240,7 +240,7 @@ body.modal-open{overflow:hidden}
 <div class="wrap">
   <!-- ============ ホーム ============ -->
   <section class="view" id="v-home">
-    <a class="today" id="h-today-go" href="kakomon/?start=today"><span class="ic">▶</span><b>今日やること</b><small id="h-today-sub">復習 → 弱点分野 → 新しい問題の順に、今日の分を自動で組みます</small></a>
+    <a class="todo" id="h-today-go" href="kakomon/?start=today"><span class="ic">▶</span><b>今日やること</b><small id="h-today-sub">復習 → 弱点分野 → 新しい問題の順に、今日の分を自動で組みます</small></a>
     <div class="today-prog" id="h-today-prog" hidden><span class="num" id="h-today-lab"></span><span class="meter"><i id="h-today-bar" style="width:0"></i></span></div>
     <div class="reco" id="h-reco" hidden></div>
     <div class="hero">
@@ -551,7 +551,12 @@ body.modal-open{overflow:hidden}
     // 今日のおすすめ：いちばん苦手なテーマ（なければ分野）から10問
     const rs = KQPlan.recommend(KQPlan.stats(META, k.rec), 3), box = $("#h-reco");
     box.hidden = false;
-    if (!rs.length) { box.innerHTML = `<div class="reco-main"><small>今日のおすすめ</small><b style="font-size:13.5px;font-weight:400;color:var(--sub)">過去問をもう少し解くと（1つの分野で${KQPlan.MIN_ATT}回以上）、正答率がいちばん低いところから「おすすめ」が出ます。</b></div>`; return; }
+    if (!rs.length) {
+      // まだ出ないとき：いちばん多く答えた分野が、あと何回でおすすめの条件（1つの分野で5回）になるか
+      const top = [...KQPlan.stats(META, k.rec).values()].sort((a, b) => b.att - a.att)[0], left = KQPlan.MIN_ATT - (top ? top.att : 0);
+      box.innerHTML = `<div class="reco-main"><small>今日のおすすめ（まだ準備中）</small><b style="font-size:13.5px;font-weight:400;color:var(--ink)">1つの分野で<b>${KQPlan.MIN_ATT}回</b>答えると、正答率がいちばん低いところから「おすすめ」が出ます。<br>${top && top.att ? `いちばん答えた分野：${esc(top.name)}（${top.att}回）→ <b>あと${left}回</b>でおすすめが出ます。` : "まだ過去問の記録がありません。"}<br><span style="font-size:12px;color:var(--sub)">ランダム10問は分野がばらけるので、「今日やること」か、下のカテゴリー（分野）から解くと早く出ます。</span></b></div>`;
+      return;
+    }
     const href = r => `kakomon/?field=${encodeURIComponent(r.field)}${r.theme ? "&theme=" + encodeURIComponent(r.theme) : ""}&n=10`;
     const nm = r => r.theme ? `${esc(r.field)}・${esc(r.theme)}` : esc(r.field);
     const pc = r => `<span class="pc-c num" style="${KQPlan.pcAttr(r.pct)};font-weight:800">${Math.round(r.pct * 100)}%</span>`;
