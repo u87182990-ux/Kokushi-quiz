@@ -12,9 +12,29 @@
 <script src="shared/stats.js?v=1795000000"></script>
 <script src="shared/plan.js?v=1795500000"></script>
 <script src="shared/guide.js?v=1795300000" defer></script>
+<link rel="stylesheet" href="shared/skins.css?v=1795400000">
 <script>
 /* 見た目の設定（シンプル）を、画面が出る前に当てる（ちらつき防止） */
-try { if (((window.KQ && KQ.avatar.get()) || {}).look?.theme === "simple") document.documentElement.classList.add("simple"); } catch {}
+/* 見た目（4種類は書体も）を、画面が出る前に当てる（ちらつき防止） */
+window.SKIN_FONTS = {
+  a: "Shippori+Mincho+B1:wght@600;800&family=IBM+Plex+Sans+JP:wght@400;500;700",
+  b: "Klee+One:wght@400;600",
+  c: "IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;700",
+  d: "Barlow+Condensed:wght@500;600;700"
+};
+window.applySkin = t => {
+  const de = document.documentElement;
+  de.classList.toggle("simple", t === "simple");
+  if (SKIN_FONTS[t]) {
+    de.dataset.skin = t;
+    if (!document.getElementById("skin-font-" + t)) {
+      const l = document.createElement("link"); l.rel = "stylesheet"; l.id = "skin-font-" + t;
+      l.href = "https://fonts.googleapis.com/css2?family=" + SKIN_FONTS[t] + "&display=swap";
+      document.head.appendChild(l);
+    }
+  } else delete de.dataset.skin;
+};
+try { applySkin((((window.KQ && KQ.avatar.get()) || {}).look || {}).theme || ""); } catch {}
 </script>
 <style>
 :root{
@@ -519,7 +539,11 @@ body{letter-spacing:.01em}
       <h2>見た目とホームの並び</h2>
       <p class="note">自分の好きな見た目にできます。えらんだ設定は、ログインしていればほかの端末でも同じになります。</p>
       <div class="look-pick" id="look-theme" role="group" aria-label="見た目">
-        <button type="button" data-theme=""><b>にぎやか</b><small>絵文字・大きな数字・カード（ふつう）</small></button>
+        <button type="button" data-theme=""><b>にぎやか</b><small>いまの見た目（ふつう）</small></button>
+        <button type="button" data-theme="a"><b>誌面</b><small>雑誌みたい。明朝の大きな数字と罫線</small></button>
+        <button type="button" data-theme="b"><b>方眼ノート</b><small>ノートと手書き。青ペンと赤ペン</small></button>
+        <button type="button" data-theme="c"><b>モノ</b><small>白と黒だけ。静かで締まった画面</small></button>
+        <button type="button" data-theme="d"><b>読影室</b><small>フィルムのように数字が光る</small></button>
         <button type="button" data-theme="simple"><b>シンプル</b><small>飾りを減らして、すっきり一覧に</small></button>
       </div>
       <p class="note" style="margin-bottom:8px"><b>ホームに出すもの</b>（チェックを外すとかくれます・↑↓で順番）</p>
@@ -967,7 +991,7 @@ body{letter-spacing:.01em}
     const l = avGet().look || {};
     const order = (Array.isArray(l.order) ? l.order : []).filter(k => BLKS[k]);
     for (const k of BLK_DEF) if (!order.includes(k)) order.splice(BLK_DEF.indexOf(k), 0, k);
-    return { theme: l.theme === "simple" ? "simple" : "", order, hide: (Array.isArray(l.hide) ? l.hide : []).filter(k => BLKS[k]) };
+    return { theme: ["simple", "a", "b", "c", "d"].includes(l.theme) ? l.theme : "", order, hide: (Array.isArray(l.hide) ? l.hide : []).filter(k => BLKS[k]) };
   }
   let lookTimer = null;
   function lookPut(l){
@@ -979,7 +1003,7 @@ body{letter-spacing:.01em}
   }
   function applyLook(){
     const l = lookGet(), home = $("#v-home");
-    document.documentElement.classList.toggle("simple", l.theme === "simple");
+    applySkin(l.theme);
     for (const k of l.order) { const b = home.querySelector(`.blk[data-blk="${k}"]`); if (b) { home.appendChild(b); b.hidden = l.hide.includes(k); } }
   }
   function paintLook(){
@@ -990,7 +1014,7 @@ body{letter-spacing:.01em}
   $("#look-theme").addEventListener("click", e => {
     const b = e.target.closest("button[data-theme]"); if (!b) return;
     lookPut(Object.assign(lookGet(), { theme: b.dataset.theme }));
-    $("#look-msg").textContent = b.dataset.theme ? "シンプルにしました。ホームを見てみてね。" : "にぎやか（ふつう）にもどしました。";
+    $("#look-msg").textContent = `「${b.querySelector("b").textContent}」にしました。ホームを見てみてね。`;
   });
   $("#look-blks").addEventListener("change", e => {
     const k = e.target.dataset.k; if (!k) return;
