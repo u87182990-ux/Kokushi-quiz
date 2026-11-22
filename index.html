@@ -12,6 +12,10 @@
 <script src="shared/stats.js?v=1795000000"></script>
 <script src="shared/plan.js?v=1795500000"></script>
 <script src="shared/guide.js?v=1795300000" defer></script>
+<script>
+/* 見た目の設定（シンプル）を、画面が出る前に当てる（ちらつき防止） */
+try { if (((window.KQ && KQ.avatar.get()) || {}).look?.theme === "simple") document.documentElement.classList.add("simple"); } catch {}
+</script>
 <style>
 :root{
   --paper:#eef2f6; --sheet:#ffffff; --ink:#152033; --sub:#5d6a7e; --line:#dbe2ea; --line2:#c9d3de;
@@ -75,6 +79,7 @@ h1,h2,h3{font-family:var(--f-disp);margin:0;line-height:1.35}
 .reco-main{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;text-decoration:none;color:var(--ink)}
 .reco-main small{font-size:12px;color:var(--sub);font-weight:700}
 .reco-main b{font-size:15.5px;line-height:1.45}
+.reco-main>small,.reco-main>b{grid-column:1}
 .reco-main .go{grid-row:1/3;grid-column:2;border-radius:999px;background:var(--accent);color:var(--accent-ink);padding:8px 14px;font-weight:700;font-size:13.5px;white-space:nowrap}
 .reco-more{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--sub);align-items:center}
 .reco-more a{font-size:12.5px}
@@ -234,6 +239,135 @@ body.modal-open{overflow:hidden}
 .off-row b{text-align:right;white-space:nowrap}
 .off-row b.ok{color:var(--ok)}
 .warn{background:var(--ng-soft);border-radius:12px;padding:10px 14px;font-size:13.5px}
+/* ===== 洗練（骨格・並び・色はそのまま。文字の段階・余白・線・動きだけ整える） ===== */
+:root{ --r-card:14px; --r-sm:10px; --gap:10px; --ease:cubic-bezier(.2,.8,.2,1);
+  --note:#ffe86b; --note-glue:#f3d63f; --note-ink:#2a2617; }
+body{letter-spacing:.01em}
+.wrap{padding-top:10px}
+/* 文字：見出し＞数字＞本文＞補足 の4段。数字は太く・少し大きく・字間をつめる */
+.num{letter-spacing:-.01em}
+.sec{margin:32px 0 12px;font-size:15px;letter-spacing:.04em}
+.sec::before{width:3px;height:1em}
+.sec small{font-size:11.5px;letter-spacing:0}
+.note{font-size:13px;line-height:1.7}
+/* 今日やること：影をやめて、うすい内側の線でしめる */
+.todo{grid-template-columns:40px 1fr auto;gap:2px 14px;padding:16px 16px 16px 14px;border-radius:16px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 1px 0 rgba(10,30,60,.12);
+  transition:transform .16s var(--ease),filter .16s}
+.todo .ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:15px;background:rgba(255,255,255,.18)}
+.todo b{font-size:18px;font-weight:700;letter-spacing:.02em}
+.todo b .num{font-family:var(--f-disp);font-size:26px;font-weight:900;margin-left:2px}
+.todo small{font-size:12px;opacity:.88}
+.todo::after{font-size:26px;opacity:.7}
+.todo:active{transform:scale(.98);filter:brightness(.96)}
+.todo[hidden]{display:none}
+.todo.night{background:var(--box);color:var(--box-ink);box-shadow:inset 0 0 0 1px rgba(127,211,255,.22);margin-top:10px;margin-bottom:-4px}
+.todo.night .ic{background:rgba(127,211,255,.16);color:var(--glow)}
+.today-prog{margin:10px 2px 0;font-size:12px}
+.today-prog .meter{height:4px}
+.reco{margin-top:12px;border-radius:var(--r-card);padding:14px 16px}
+.reco-main b{font-size:15px}
+.reco-main .go{padding:7px 14px;font-size:13px}
+/* 数字の段：3つを同じ幅の列にして、間に細い線 */
+.hero{padding:30px 0 2px}
+.hero h1{font-size:28px;letter-spacing:.06em}
+.hero p{font-size:12.5px;margin-top:4px}
+.hero-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:22px 0 0;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.hero-nums div+div{border-left:1px solid var(--line)}
+.hero-nums b{font-size:34px;letter-spacing:-.02em}
+.hero-nums span{font-size:11px;letter-spacing:.04em;margin-top:2px}
+.hero-note{font-size:11px;margin-top:8px}
+/* カード：角丸・線・余白をそろえる */
+.panel,.reco,.mode,.big-card,.tiles,.cal,.cat,.bm{border-radius:var(--r-card)}
+.panel{padding:16px 18px;margin-top:12px}
+.exam-top b{font-size:40px;letter-spacing:-.02em}
+.exam-top .lab{font-size:12px}
+.exam-pace .ex-lab{font-size:11.5px;color:var(--sub);font-weight:700}
+.exam-pace b{font-size:26px!important}
+.exam-pace{font-size:13px}
+.modes{gap:var(--gap)}
+.mode{min-height:124px;padding:16px 12px 14px;gap:0;transition:transform .16s var(--ease),border-color .15s,background-color .15s}
+.mode .ic{font-size:24px;line-height:1;margin-bottom:8px}
+.mode b{font-size:15.5px;margin:0 0 2px;letter-spacing:.02em}
+.mode span{font-size:11.5px;line-height:1.55}
+.mode .num{font-size:12.5px;font-weight:700;color:var(--ink)}
+.mode:active{transform:scale(.97)}
+.mode.wide{min-height:72px;padding:14px 16px;gap:0 14px}
+.mode.wide .ic{margin:0;font-size:22px}
+.chips{gap:6px}
+.chip{padding:6px 12px;font-size:13px;transition:transform .12s var(--ease),border-color .15s}
+.chip:active{transform:scale(.96)}
+.chip small{font-variant-numeric:tabular-nums}
+.nudge{border-radius:var(--r-card);margin-top:0;margin-bottom:14px;transition:transform .16s var(--ease)}
+.nudge:active{transform:scale(.98)}
+.btn{transition:transform .12s var(--ease),background-color .15s}
+.btn:active{transform:scale(.97)}
+/* 付箋は1か所だけ：苦手を復習の件数 */
+.mode{position:relative}
+.mode .fusen{position:absolute;top:-6px;right:10px;padding:5px 9px 3px;font:700 12px/1.2 var(--f-disp);color:var(--note-ink);
+  background:linear-gradient(var(--note-glue) 0 5px,var(--note) 5px);transform:rotate(4deg);box-shadow:0 1px 0 rgba(0,0,0,.12);border-radius:1px}
+.mode .fusen.peel{animation:fpeel .6s var(--ease) forwards;pointer-events:none}
+@keyframes fpeel{to{transform:rotate(-18deg) translate(14px,-16px);opacity:0}}
+/* 成績 */
+.big-card .pct b{font-size:56px;letter-spacing:-.03em}
+.tiles{gap:8px}
+.tile b{font-size:30px;letter-spacing:-.02em}
+/* 画面の切りかえ：下から少しだけ */
+.view:not([hidden]){animation:vin .22s var(--ease)}
+@keyframes vin{from{opacity:0;transform:translateY(6px)}}
+.tabbar a{transition:color .15s}
+.tabbar svg{transition:transform .16s var(--ease)}
+.tabbar a:active svg{transform:scale(.88)}
+.tabbar a[aria-current="page"] svg{transform:translateY(-1px)}
+@media (prefers-reduced-motion:reduce){.view:not([hidden]),.fusen.peel{animation:none}.todo,.mode,.chip,.btn,.nudge,.tabbar svg{transition:none}}
+
+/* 見た目・ホームの並び（マイページ） */
+.look-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.look-pick button{display:grid;gap:2px;justify-items:start;text-align:left;padding:12px 14px;border:2px solid var(--line2);border-radius:14px;background:var(--sheet);color:var(--ink);font:inherit;cursor:pointer}
+.look-pick button b{font-size:15px}
+.look-pick button small{font-size:12px;color:var(--sub);line-height:1.5}
+.look-pick button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.blk-list{display:grid;gap:6px;margin:0 0 12px;padding:0;list-style:none}
+.blk-list li{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line2);border-radius:12px;background:var(--sheet)}
+.blk-list li.off{opacity:.55}
+.blk-list label{display:flex;align-items:center;gap:8px;margin:0;flex:1;font-size:14px;color:var(--ink);font-weight:700;cursor:pointer}
+.blk-list input{width:20px;height:20px;margin:0;flex:none}
+.blk-list button{border:1px solid var(--line2);background:var(--paper);color:var(--ink);width:36px;height:36px;border-radius:10px;font:inherit;font-size:16px;cursor:pointer}
+.blk-list button:disabled{opacity:.3;cursor:default}
+.blk[hidden]{display:none!important}
+.modes[hidden]{display:none!important}
+
+/* ===== シンプル（マイページでえらんだ人だけ） ===== */
+.simple body{font-size:14.5px}
+.simple .topbar{font-size:15px}
+.simple .topbar .logo i{display:none}
+.simple .tabbar svg{stroke-width:1.6}
+.simple .tabbar a[aria-current="page"] svg{fill:none}
+.simple .ic{display:none!important}
+.simple .todo{grid-template-columns:1fr auto;padding:14px 16px;border-radius:12px;box-shadow:none}
+.simple .todo b{font-size:17px;font-weight:700}
+.simple .todo small{grid-column:1}
+.simple .todo::after{grid-column:2;font-size:24px}
+.simple .reco,.simple .panel,.simple .big-card,.simple .tiles,.simple .cal,.simple .cat{border-radius:12px}
+.simple .reco-more{display:none}
+.simple .hero{padding:16px 0 0}
+.simple .hero h1,.simple .hero>p,.simple .hero-note{display:none}
+.simple .hero-nums{justify-content:space-around;gap:10px;margin:0;padding:12px 8px;background:var(--sheet);border:1px solid var(--line);border-radius:12px}
+.simple .hero-nums b{font-size:22px;font-weight:700}
+.simple .hero-nums b.warm{color:var(--accent)}
+.simple .hero-nums span{font-size:11.5px}
+.simple .exam-top b{font-size:26px;font-weight:700}
+.simple .sec{margin:22px 0 8px;font-size:14px;color:var(--sub)}
+.simple .sec::before,.simple .panel h2::before{display:none}
+.simple .modes{grid-template-columns:1fr;gap:0;background:var(--sheet);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.simple .mode,.simple .mode.wide{grid-column:auto;min-height:0;grid-template-columns:1fr auto;justify-items:start;text-align:left;gap:0 10px;padding:12px 16px;border:0;border-bottom:1px solid var(--line);border-radius:0}
+.simple .mode:last-child{border-bottom:0}
+.simple .mode b{grid-column:1;margin:0;font-size:15px;font-family:var(--f-body)}
+.simple .mode span{grid-column:1;font-size:12px}
+.simple .mode span br{display:none}
+.simple .mode::after,.simple .mode.wide::after{content:"›";grid-row:1/3;grid-column:2;align-self:center;font-size:22px;color:var(--sub)}
+.simple .chip{padding:5px 12px;font-size:13px;font-weight:400}
+.simple .tile b,.simple .big-card .pct b{font-weight:700}
+.simple .nudge{border-radius:12px}
 </style>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><script src="shared/update.js" defer></script>
 </head>
@@ -243,10 +377,14 @@ body.modal-open{overflow:hidden}
 <div class="wrap">
   <!-- ============ ホーム ============ -->
   <section class="view" id="v-home">
+    <a class="nudge" id="h-login" href="#me" hidden><span><b>ニックネームでログイン</b>記録がクラウドに残って、どの端末でも続きから使えます</span></a>
+    <div class="blk" data-blk="today">
+    <a class="todo night" id="h-night" href="kakomon/?start=weak" hidden><span class="ic">☾</span><b>夜は苦手の復習から</b><small id="h-night-sub"></small></a>
     <a class="todo" id="h-today-go" href="kakomon/?start=today"><span class="ic">▶</span><b>今日やること</b><small id="h-today-sub">復習 → 弱点分野 → 新しい問題の順に、今日の分を自動で組みます</small></a>
     <div class="today-prog" id="h-today-prog" hidden><span class="num" id="h-today-lab"></span><span class="meter"><i id="h-today-bar" style="width:0"></i></span></div>
     <div class="reco" id="h-reco" hidden></div>
-    <div class="hero">
+    </div>
+    <div class="blk hero" data-blk="nums">
       <h1>国試ドリル</h1>
       <p>診療放射線技師国家試験の過去問と、よく出るポイントの対策問題</p>
       <div class="hero-nums">
@@ -257,7 +395,7 @@ body.modal-open{overflow:hidden}
       <p class="hero-note">全問題数＝過去問2,400問＋対策問題集270問（追加ドリルは別）</p>
     </div>
 
-    <div class="panel exam" id="h-exam">
+    <div class="blk panel exam" id="h-exam" data-blk="exam">
       <div class="exam-top">
         <div><span class="lab">国試まで</span><b class="num" id="ex-days">–</b><span class="lab" id="ex-unit">日</span></div>
         <div class="exam-pace" id="ex-pace">試験日を入れると、1日に何問ずつ解けばいいかが出ます</div>
@@ -269,21 +407,24 @@ body.modal-open{overflow:hidden}
       <p class="exam-msg" id="ex-msg"></p>
     </div>
 
-    <a class="nudge" id="h-login" href="#me" hidden><span><b>ニックネームでログイン</b>記録がクラウドに残って、どの端末でも続きから使えます</span></a>
-
+    <div class="blk" data-blk="modes">
     <h2 class="sec">演習モード</h2>
     <div class="modes">
       <a class="mode" href="kakomon/"><span class="ic">📚</span><b>過去問クイズ</b><span>第67〜78回<br>全2,400問・解説つき</span></a>
       <a class="mode" href="kakomon/?start=random"><span class="ic">🎲</span><b>ランダム10問</b><span>過去問から<br>サクッと10問</span></a>
-      <a class="mode" href="kakomon/?start=weak"><span class="ic">🔁</span><b>苦手を復習</b><span id="h-weak">まちがえた問題を<br>どこで解いても2回続けて正解で卒業</span></a>
+      <a class="mode" href="kakomon/?start=weak"><span class="fusen" id="h-weak-tag" hidden></span><span class="ic">🔁</span><b>苦手を復習</b><span id="h-weak">まちがえた問題を<br>どこで解いても2回続けて正解で卒業</span></a>
       <a class="mode" href="kakomon/?start=unsolved"><span class="ic">✨</span><b>まだ解いてない</b><span id="h-unsolved">はじめての問題から<br>20問</span></a>
       <a class="mode wide" href="kakomon/?start=mock"><span class="ic">⏱️</span><b>模試モード</b><span id="h-mock">本番と同じ200問・タイマーつき・中断しても続きから</span></a>
       <a class="mode wide" href="prep/"><span class="ic">🎯</span><b>対策問題集</b><span>よく出るポイントのオリジナル270問・22テーマ</span></a>
     </div>
+    </div>
 
+    <div class="blk" data-blk="fields">
     <h2 class="sec">カテゴリー別<small>過去問の分野</small></h2>
     <div class="chips" id="h-fields"></div>
+    </div>
 
+    <div class="blk" data-blk="extra">
     <h2 class="sec">追加ドリル</h2>
     <p class="note" id="extra-note">科目ごとのドリルです。「えらぶ」で、使いたいものだけ自分のメニューに出せます。</p>
     <div class="modes" id="extra-list" hidden></div>
@@ -294,6 +435,7 @@ body.modal-open{overflow:hidden}
         <div id="extra-pick-body" class="pick"></div>
         <button class="btn primary pick-done" type="button" data-close>これでOK（とじる）</button>
       </div>
+    </div>
     </div>
   </section>
 
@@ -368,6 +510,19 @@ body.modal-open{overflow:hidden}
         <button class="btn" id="logout" type="button">ログアウト</button>
       </div>
       <p class="note" style="margin:8px 0 0">記録は自動でクラウドに保存されます。ほかの端末では、同じニックネームと数字でログインしてください。</p>
+    </div>
+
+    <div class="panel" id="look-box">
+      <h2>見た目とホームの並び</h2>
+      <p class="note">自分の好きな見た目にできます。えらんだ設定は、ログインしていればほかの端末でも同じになります。</p>
+      <div class="look-pick" id="look-theme" role="group" aria-label="見た目">
+        <button type="button" data-theme=""><b>にぎやか</b><small>絵文字・大きな数字・カード（ふつう）</small></button>
+        <button type="button" data-theme="simple"><b>シンプル</b><small>飾りを減らして、すっきり一覧に</small></button>
+      </div>
+      <p class="note" style="margin-bottom:8px"><b>ホームに出すもの</b>（チェックを外すとかくれます・↑↓で順番）</p>
+      <ul class="blk-list" id="look-blks"></ul>
+      <div class="row-btns"><button class="btn" id="look-reset" type="button">もとの並びにもどす</button></div>
+      <div class="msg ok" id="look-msg" role="status" aria-live="polite"></div>
     </div>
 
     <div class="panel" id="guide-box">
@@ -519,6 +674,19 @@ body.modal-open{overflow:hidden}
     $("#h-streak").textContent = streakOf(m);
     $("#h-today").textContent = fmtN((m[KQStats.ymd(Date.now())] || [0])[0]);
     const k = drillData(DRILLS[0]);
+    // 21時〜朝5時は「苦手の復習」をいちばん上に（苦手リストがあるときだけ）
+    const hr = new Date().getHours(), night = (hr >= 21 || hr < 5) && k.weak > 0;
+    $("#h-night").hidden = !night;
+    if (night) $("#h-night").querySelector("b").innerHTML = `夜は苦手の復習から　<span class="num">${k.weak}</span>問`, $("#h-night-sub").textContent = "21時〜朝5時は、苦手の復習がいちばん上に出ます。2回続けて正解で卒業";
+    // 苦手の件数は付箋。前に見たときより減っていたら（＝卒業した）、古い付箋をはがして新しい数を見せる
+    const tag = $("#h-weak-tag"), seenKey = "kq-weak-seen" + sfx();
+    let seen = null; try { seen = localStorage.getItem(seenKey); } catch {}
+    tag.hidden = !k.weak; tag.textContent = k.weak + "問";
+    if (seen !== null && +seen > k.weak && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const old = tag.cloneNode(); old.removeAttribute("id"); old.hidden = false; old.textContent = seen + "問"; old.setAttribute("aria-hidden", "true");
+      tag.after(old); requestAnimationFrame(() => old.classList.add("peel")); setTimeout(() => old.remove(), 800);
+    }
+    try { localStorage.setItem(seenKey, String(k.weak)); } catch {}
     $("#h-weak").innerHTML = k.weak ? `苦手リスト <b class="num">${k.weak}</b>問<br>どこで解いても2回続けて正解で卒業` : "まちがえた問題を<br>どこで解いても2回続けて正解で卒業";
     $("#h-unsolved").innerHTML = `まだ解いていない<br><b class="num">${fmtN(2400 - k.done)}</b>問から20問`;
     $("#h-login").hidden = !!KQ.session();
@@ -594,7 +762,7 @@ body.modal-open{overflow:hidden}
     if (days < 0) { $("#ex-days").textContent = "0"; $("#ex-pace").textContent = "試験日がすぎています。次の試験日を入れてね。"; $("#ex-msg").textContent = ""; return; }
     $("#ex-days").textContent = fmtN(days);
     const pace = days ? Math.ceil(left / days) : left;
-    $("#ex-pace").innerHTML = left ? `まだ解いていない問題 <b class="num">${fmtN(left)}</b>問（過去問＋対策問題集）<br>1周するには <em class="num">1日${fmtN(pace)}問</em> ペース` : "過去問と対策問題集をぜんぶ1回解きました！苦手リストの復習で仕上げよう。";
+    $("#ex-pace").innerHTML = left ? `<span class="ex-lab">まだ解いていない問題（過去問＋対策問題集）</span><br><b class="num">${fmtN(left)}</b>問<br>1周するには <em class="num" style="white-space:nowrap">1日${fmtN(pace)}問</em> ペース` : "過去問と対策問題集をぜんぶ1回解きました！苦手リストの復習で仕上げよう。";
     $("#ex-msg").textContent = !left ? "" : goal >= pace ? `いまの目標（1日${goal}問）なら、試験日の${Math.floor(days - left / goal)}日前に1周できます。` : `いまの目標（1日${goal}問）だと、試験日までに${fmtN(goal * days)}問。1周するには目標を${pace}問以上にしよう。`;
   }
   $("#ex-date").addEventListener("change", e => { avPut({ exam: e.target.value || "" }); paintHome(); });
@@ -763,7 +931,7 @@ body.modal-open{overflow:hidden}
     b.disabled = false;
     if (!r.ok) { m.className = "msg ng"; m.textContent = r.msg; return; }
     m.className = "msg ok"; m.textContent = `ようこそ、${r.nick} さん！`;
-    $("#pin").value = ""; cloudTried = false; paintMe(); paintExtra(); if (window.KQGuide) KQGuide.refresh();
+    $("#pin").value = ""; cloudTried = false; paintMe(); paintExtra(); applyLook(); paintLook(); if (window.KQGuide) KQGuide.refresh();
   });
   const APPN = { kakomon: "過去問クイズ", prep: "対策問題集" };
   $("#move-go").onclick = async () => {
@@ -786,7 +954,56 @@ body.modal-open{overflow:hidden}
   $("#guide-edit").onclick = () => window.KQGuide && KQGuide.open();
   $("#guide-off").onclick = () => { if (window.KQGuide) KQGuide.setOff(!KQGuide.isOff()); };
   window.addEventListener("kq-guide", paintGuide);
-  $("#logout").onclick = () => { KQ.logout(); for (const k in cloud) delete cloud[k]; cloudTried = false; paintMe(); setMode(false); paintExtra(); if (window.KQGuide) KQGuide.refresh(); };
+  $("#logout").onclick = () => { KQ.logout(); for (const k in cloud) delete cloud[k]; cloudTried = false; paintMe(); setMode(false); paintExtra(); applyLook(); paintLook(); if (window.KQGuide) KQGuide.refresh(); };
+
+
+  /* ---------- 見た目とホームの並び（案内キャラの設定といっしょに保存＝クラウドにも入る） ---------- */
+  const BLKS = { today: "今日やること・おすすめ", nums: "全問題数・連続日数", exam: "国試までのカウントダウン", modes: "演習モード", fields: "カテゴリー別（分野）", extra: "追加ドリル" };
+  const BLK_DEF = Object.keys(BLKS);
+  function lookGet(){
+    const l = avGet().look || {};
+    const order = (Array.isArray(l.order) ? l.order : []).filter(k => BLKS[k]);
+    for (const k of BLK_DEF) if (!order.includes(k)) order.splice(BLK_DEF.indexOf(k), 0, k);
+    return { theme: l.theme === "simple" ? "simple" : "", order, hide: (Array.isArray(l.hide) ? l.hide : []).filter(k => BLKS[k]) };
+  }
+  let lookTimer = null;
+  function lookPut(l){
+    if (!window.KQ) return;
+    KQ.avatar.set(Object.assign({}, avGet(), { look: l }));
+    clearTimeout(lookTimer);   // 何回も押してもクラウドへは1回だけ送る
+    lookTimer = setTimeout(() => { if (window.KQGuide && KQGuide.push) KQGuide.push(); }, 1500);
+    applyLook(); paintLook();
+  }
+  function applyLook(){
+    const l = lookGet(), home = $("#v-home");
+    document.documentElement.classList.toggle("simple", l.theme === "simple");
+    for (const k of l.order) { const b = home.querySelector(`.blk[data-blk="${k}"]`); if (b) { home.appendChild(b); b.hidden = l.hide.includes(k); } }
+  }
+  function paintLook(){
+    const l = lookGet();
+    document.querySelectorAll("#look-theme button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.theme === l.theme)));
+    $("#look-blks").innerHTML = l.order.map((k, i) => `<li class="${l.hide.includes(k) ? "off" : ""}"><label><input type="checkbox" data-k="${k}"${l.hide.includes(k) ? "" : " checked"}>${BLKS[k]}</label><button type="button" data-up="${k}" aria-label="${BLKS[k]}を上へ"${i ? "" : " disabled"}>↑</button><button type="button" data-down="${k}" aria-label="${BLKS[k]}を下へ"${i < l.order.length - 1 ? "" : " disabled"}>↓</button></li>`).join("");
+  }
+  $("#look-theme").addEventListener("click", e => {
+    const b = e.target.closest("button[data-theme]"); if (!b) return;
+    lookPut(Object.assign(lookGet(), { theme: b.dataset.theme }));
+    $("#look-msg").textContent = b.dataset.theme ? "シンプルにしました。ホームを見てみてね。" : "にぎやか（ふつう）にもどしました。";
+  });
+  $("#look-blks").addEventListener("change", e => {
+    const k = e.target.dataset.k; if (!k) return;
+    const l = lookGet(); l.hide = e.target.checked ? l.hide.filter(x => x !== k) : [...l.hide, k];
+    lookPut(l); $("#look-msg").textContent = e.target.checked ? `「${BLKS[k]}」をホームに出します。` : `「${BLKS[k]}」をホームからかくしました。`;
+  });
+  $("#look-blks").addEventListener("click", e => {
+    const b = e.target.closest("button[data-up],button[data-down]"); if (!b) return;
+    const l = lookGet(), k = b.dataset.up || b.dataset.down, i = l.order.indexOf(k), j = b.dataset.up ? i - 1 : i + 1;
+    if (j < 0 || j >= l.order.length) return;
+    [l.order[i], l.order[j]] = [l.order[j], l.order[i]];
+    lookPut(l); $("#look-msg").textContent = "";
+    const nb = $(`#look-blks button[data-${b.dataset.up ? "up" : "down"}="${k}"]`); if (nb && !nb.disabled) nb.focus();
+  });
+  $("#look-reset").onclick = () => { lookPut({ theme: lookGet().theme, order: [...BLK_DEF], hide: [] }); $("#look-msg").textContent = "ホームの並びをもとにもどしました（見た目はそのまま）。"; };
+  window.addEventListener("kq-avatar", () => { applyLook(); paintLook(); });   // クラウドから新しい設定が来たとき
 
   /* ---------- 追加ドリル（自分で選んだものだけ出す） ---------- */
   const exKey = () => "kq-extra-v2" + sfx();
@@ -832,7 +1049,7 @@ body.modal-open{overflow:hidden}
     };
   })();
 
-  paintMe(); route();
+  paintMe(); applyLook(); paintLook(); route();
 })();
 window.addEventListener("DOMContentLoaded", () => {
   const box = document.getElementById("icon-pick");
