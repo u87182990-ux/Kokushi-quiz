@@ -316,7 +316,8 @@ function renderMockResult(box, h){
   const zero = fl.filter(x => x.ok === 0 && x.n >= 2);
   box.innerHTML = `<div class="panel">
     <h2>模試の結果（${esc(h.title)}）</h2>
-    <div class="mk-score"><span class="result-big pc-c" style="${KQPlan.pcAttr(pct)}">${h.score}</span><span class="num">/ ${h.n}点（${Math.round(pct * 100)}%）</span></div>
+    <div class="mk-score"><span class="result-big pc-c" style="${KQPlan.pcAttr(pct)}">${h.score}</span><span class="num">/ ${h.n}点（得点率 ${Math.round(pct * 100)}%）</span></div>
+    <p class="bk-note" style="margin:0 0 6px">得点率＝この模試の${h.n}問のうち正解した問題の割合（答えなかった問題も0点で入ります）。ホームや成績の「正答率」は、ほかで解いた分や解き直しもふくめた<b>のべ回答</b>で計算するので、数字がちがうことがあります。</p>
     <p class="mk-pass" style="color:${diff >= 0 ? "var(--ok)" : "var(--ng)"}">${diff >= 0 ? `🎉 合格ライン（${line}点）を ${diff}点 上回りました` : `合格ライン（${line}点）まで あと ${-diff}点`}</p>
     <div class="mk-line" aria-hidden="true"><i class="pc-bg" style="width:${pct * 100}%;${KQPlan.pcAttr(pct)}"></i><u style="left:${MK_PASS * 100}%"></u></div>
     <div class="mk-line-lab"><span style="left:${MK_PASS * 100}%">合格ライン ${line}点</span></div>
