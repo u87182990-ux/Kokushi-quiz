@@ -21,7 +21,7 @@
   :root[data-theme="dark"] .pc-soft{background:hsl(var(--pc-h,210) 45% 17%)!important}`;
   function addCss(){ if (document.getElementById("kq-plan-css")) return; const s = document.createElement("style"); s.id = "kq-plan-css"; s.textContent = css; document.head.appendChild(s); }
   if (document.head) addCss(); else document.addEventListener("DOMContentLoaded", addCss);
-  const legend = () => `<span class="pc-legend">正答率の色：<span>赤＝苦手</span><i></i><span>緑＝得意</span>（黄色が合格ラインの60%）</span>`;
+  const legend = () => `<span class="pc-legend">正答率の色：<span>赤＝苦手</span><i></i><span>緑＝得意</span>（赤→オレンジ→黄→緑となめらかに変わります。黄色が合格ラインの60%）</span>`;
 
   /* ---------- 日付で決まる並べかえ（同じ日なら同じ順番） ---------- */
   function seeded(seed){ let h = 2166136261; for (const c of String(seed)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 1e6) / 1e6; }; }
