@@ -239,6 +239,87 @@ body.modal-open{overflow:hidden}
 .off-row b{text-align:right;white-space:nowrap}
 .off-row b.ok{color:var(--ok)}
 .warn{background:var(--ng-soft);border-radius:12px;padding:10px 14px;font-size:13.5px}
+/* ===== 洗練（骨格・並び・色はそのまま。文字の段階・余白・線・動きだけ整える） ===== */
+:root{ --r-card:14px; --r-sm:10px; --gap:10px; --ease:cubic-bezier(.2,.8,.2,1);
+  --note:#ffe86b; --note-glue:#f3d63f; --note-ink:#2a2617; }
+body{letter-spacing:.01em}
+.wrap{padding-top:10px}
+/* 文字：見出し＞数字＞本文＞補足 の4段。数字は太く・少し大きく・字間をつめる */
+.num{letter-spacing:-.01em}
+.sec{margin:32px 0 12px;font-size:15px;letter-spacing:.04em}
+.sec::before{width:3px;height:1em}
+.sec small{font-size:11.5px;letter-spacing:0}
+.note{font-size:13px;line-height:1.7}
+/* 今日やること：影をやめて、うすい内側の線でしめる */
+.todo{grid-template-columns:40px 1fr auto;gap:2px 14px;padding:16px 16px 16px 14px;border-radius:16px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 1px 0 rgba(10,30,60,.12);
+  transition:transform .16s var(--ease),filter .16s}
+.todo .ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:15px;background:rgba(255,255,255,.18)}
+.todo b{font-size:18px;font-weight:700;letter-spacing:.02em}
+.todo b .num{font-family:var(--f-disp);font-size:26px;font-weight:900;margin-left:2px}
+.todo small{font-size:12px;opacity:.88}
+.todo::after{font-size:26px;opacity:.7}
+.todo:active{transform:scale(.98);filter:brightness(.96)}
+.todo[hidden]{display:none}
+.todo.night{background:var(--box);color:var(--box-ink);box-shadow:inset 0 0 0 1px rgba(127,211,255,.22);margin-top:10px;margin-bottom:-4px}
+.todo.night .ic{background:rgba(127,211,255,.16);color:var(--glow)}
+.today-prog{margin:10px 2px 0;font-size:12px}
+.today-prog .meter{height:4px}
+.reco{margin-top:12px;border-radius:var(--r-card);padding:14px 16px}
+.reco-main b{font-size:15px}
+.reco-main .go{padding:7px 14px;font-size:13px}
+/* 数字の段：3つを同じ幅の列にして、間に細い線 */
+.hero{padding:30px 0 2px}
+.hero h1{font-size:28px;letter-spacing:.06em}
+.hero p{font-size:12.5px;margin-top:4px}
+.hero-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:22px 0 0;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.hero-nums div+div{border-left:1px solid var(--line)}
+.hero-nums b{font-size:34px;letter-spacing:-.02em}
+.hero-nums span{font-size:11px;letter-spacing:.04em;margin-top:2px}
+.hero-note{font-size:11px;margin-top:8px}
+/* カード：角丸・線・余白をそろえる */
+.panel,.reco,.mode,.big-card,.tiles,.cal,.cat,.bm{border-radius:var(--r-card)}
+.panel{padding:16px 18px;margin-top:12px}
+.exam-top b{font-size:40px;letter-spacing:-.02em}
+.exam-top .lab{font-size:12px}
+.exam-pace .ex-lab{font-size:11.5px;color:var(--sub);font-weight:700}
+.exam-pace b{font-size:26px!important}
+.exam-pace{font-size:13px}
+.modes{gap:var(--gap)}
+.mode{min-height:124px;padding:16px 12px 14px;gap:0;transition:transform .16s var(--ease),border-color .15s,background-color .15s}
+.mode .ic{font-size:24px;line-height:1;margin-bottom:8px}
+.mode b{font-size:15.5px;margin:0 0 2px;letter-spacing:.02em}
+.mode span{font-size:11.5px;line-height:1.55}
+.mode .num{font-size:12.5px;font-weight:700;color:var(--ink)}
+.mode:active{transform:scale(.97)}
+.mode.wide{min-height:72px;padding:14px 16px;gap:0 14px}
+.mode.wide .ic{margin:0;font-size:22px}
+.chips{gap:6px}
+.chip{padding:6px 12px;font-size:13px;transition:transform .12s var(--ease),border-color .15s}
+.chip:active{transform:scale(.96)}
+.chip small{font-variant-numeric:tabular-nums}
+.nudge{border-radius:var(--r-card);margin-top:0;margin-bottom:14px;transition:transform .16s var(--ease)}
+.nudge:active{transform:scale(.98)}
+.btn{transition:transform .12s var(--ease),background-color .15s}
+.btn:active{transform:scale(.97)}
+/* 付箋は1か所だけ：苦手を復習の件数 */
+.mode{position:relative}
+.mode .fusen{position:absolute;top:-6px;right:10px;padding:5px 9px 3px;font:700 12px/1.2 var(--f-disp);color:var(--note-ink);
+  background:linear-gradient(var(--note-glue) 0 5px,var(--note) 5px);transform:rotate(4deg);box-shadow:0 1px 0 rgba(0,0,0,.12);border-radius:1px}
+.mode .fusen.peel{animation:fpeel .6s var(--ease) forwards;pointer-events:none}
+@keyframes fpeel{to{transform:rotate(-18deg) translate(14px,-16px);opacity:0}}
+/* 成績 */
+.big-card .pct b{font-size:56px;letter-spacing:-.03em}
+.tiles{gap:8px}
+.tile b{font-size:30px;letter-spacing:-.02em}
+/* 画面の切りかえ：下から少しだけ */
+.view:not([hidden]){animation:vin .22s var(--ease)}
+@keyframes vin{from{opacity:0;transform:translateY(6px)}}
+.tabbar a{transition:color .15s}
+.tabbar svg{transition:transform .16s var(--ease)}
+.tabbar a:active svg{transform:scale(.88)}
+.tabbar a[aria-current="page"] svg{transform:translateY(-1px)}
+@media (prefers-reduced-motion:reduce){.view:not([hidden]),.fusen.peel{animation:none}.todo,.mode,.chip,.btn,.nudge,.tabbar svg{transition:none}}
+
 /* 見た目・ホームの並び（マイページ） */
 .look-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .look-pick button{display:grid;gap:2px;justify-items:start;text-align:left;padding:12px 14px;border:2px solid var(--line2);border-radius:14px;background:var(--sheet);color:var(--ink);font:inherit;cursor:pointer}
@@ -298,6 +379,7 @@ body.modal-open{overflow:hidden}
   <section class="view" id="v-home">
     <a class="nudge" id="h-login" href="#me" hidden><span><b>ニックネームでログイン</b>記録がクラウドに残って、どの端末でも続きから使えます</span></a>
     <div class="blk" data-blk="today">
+    <a class="todo night" id="h-night" href="kakomon/?start=weak" hidden><span class="ic">☾</span><b>夜は苦手の復習から</b><small id="h-night-sub"></small></a>
     <a class="todo" id="h-today-go" href="kakomon/?start=today"><span class="ic">▶</span><b>今日やること</b><small id="h-today-sub">復習 → 弱点分野 → 新しい問題の順に、今日の分を自動で組みます</small></a>
     <div class="today-prog" id="h-today-prog" hidden><span class="num" id="h-today-lab"></span><span class="meter"><i id="h-today-bar" style="width:0"></i></span></div>
     <div class="reco" id="h-reco" hidden></div>
@@ -330,7 +412,7 @@ body.modal-open{overflow:hidden}
     <div class="modes">
       <a class="mode" href="kakomon/"><span class="ic">📚</span><b>過去問クイズ</b><span>第67〜78回<br>全2,400問・解説つき</span></a>
       <a class="mode" href="kakomon/?start=random"><span class="ic">🎲</span><b>ランダム10問</b><span>過去問から<br>サクッと10問</span></a>
-      <a class="mode" href="kakomon/?start=weak"><span class="ic">🔁</span><b>苦手を復習</b><span id="h-weak">まちがえた問題を<br>どこで解いても2回続けて正解で卒業</span></a>
+      <a class="mode" href="kakomon/?start=weak"><span class="fusen" id="h-weak-tag" hidden></span><span class="ic">🔁</span><b>苦手を復習</b><span id="h-weak">まちがえた問題を<br>どこで解いても2回続けて正解で卒業</span></a>
       <a class="mode" href="kakomon/?start=unsolved"><span class="ic">✨</span><b>まだ解いてない</b><span id="h-unsolved">はじめての問題から<br>20問</span></a>
       <a class="mode wide" href="kakomon/?start=mock"><span class="ic">⏱️</span><b>模試モード</b><span id="h-mock">本番と同じ200問・タイマーつき・中断しても続きから</span></a>
       <a class="mode wide" href="prep/"><span class="ic">🎯</span><b>対策問題集</b><span>よく出るポイントのオリジナル270問・22テーマ</span></a>
@@ -592,6 +674,19 @@ body.modal-open{overflow:hidden}
     $("#h-streak").textContent = streakOf(m);
     $("#h-today").textContent = fmtN((m[KQStats.ymd(Date.now())] || [0])[0]);
     const k = drillData(DRILLS[0]);
+    // 21時〜朝5時は「苦手の復習」をいちばん上に（苦手リストがあるときだけ）
+    const hr = new Date().getHours(), night = (hr >= 21 || hr < 5) && k.weak > 0;
+    $("#h-night").hidden = !night;
+    if (night) $("#h-night").querySelector("b").innerHTML = `夜は苦手の復習から　<span class="num">${k.weak}</span>問`, $("#h-night-sub").textContent = "21時〜朝5時は、苦手の復習がいちばん上に出ます。2回続けて正解で卒業";
+    // 苦手の件数は付箋。前に見たときより減っていたら（＝卒業した）、古い付箋をはがして新しい数を見せる
+    const tag = $("#h-weak-tag"), seenKey = "kq-weak-seen" + sfx();
+    let seen = null; try { seen = localStorage.getItem(seenKey); } catch {}
+    tag.hidden = !k.weak; tag.textContent = k.weak + "問";
+    if (seen !== null && +seen > k.weak && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const old = tag.cloneNode(); old.removeAttribute("id"); old.hidden = false; old.textContent = seen + "問"; old.setAttribute("aria-hidden", "true");
+      tag.after(old); requestAnimationFrame(() => old.classList.add("peel")); setTimeout(() => old.remove(), 800);
+    }
+    try { localStorage.setItem(seenKey, String(k.weak)); } catch {}
     $("#h-weak").innerHTML = k.weak ? `苦手リスト <b class="num">${k.weak}</b>問<br>どこで解いても2回続けて正解で卒業` : "まちがえた問題を<br>どこで解いても2回続けて正解で卒業";
     $("#h-unsolved").innerHTML = `まだ解いていない<br><b class="num">${fmtN(2400 - k.done)}</b>問から20問`;
     $("#h-login").hidden = !!KQ.session();
@@ -667,7 +762,7 @@ body.modal-open{overflow:hidden}
     if (days < 0) { $("#ex-days").textContent = "0"; $("#ex-pace").textContent = "試験日がすぎています。次の試験日を入れてね。"; $("#ex-msg").textContent = ""; return; }
     $("#ex-days").textContent = fmtN(days);
     const pace = days ? Math.ceil(left / days) : left;
-    $("#ex-pace").innerHTML = left ? `まだ解いていない問題 <b class="num">${fmtN(left)}</b>問（過去問＋対策問題集）<br>1周するには <em class="num">1日${fmtN(pace)}問</em> ペース` : "過去問と対策問題集をぜんぶ1回解きました！苦手リストの復習で仕上げよう。";
+    $("#ex-pace").innerHTML = left ? `<span class="ex-lab">まだ解いていない問題（過去問＋対策問題集）</span><br><b class="num">${fmtN(left)}</b>問<br>1周するには <em class="num" style="white-space:nowrap">1日${fmtN(pace)}問</em> ペース` : "過去問と対策問題集をぜんぶ1回解きました！苦手リストの復習で仕上げよう。";
     $("#ex-msg").textContent = !left ? "" : goal >= pace ? `いまの目標（1日${goal}問）なら、試験日の${Math.floor(days - left / goal)}日前に1周できます。` : `いまの目標（1日${goal}問）だと、試験日までに${fmtN(goal * days)}問。1周するには目標を${pace}問以上にしよう。`;
   }
   $("#ex-date").addEventListener("change", e => { avPut({ exam: e.target.value || "" }); paintHome(); });
