@@ -389,7 +389,7 @@ async function doSave(){
   flushing = false;
   if (r.ok) setSync(`☁ ${KQS.nick} さんの記録として保存しました（どの端末でも続きから）`);
   else if (r.msg === "bad_app") { cloud = false; setSync("このドリルの記録は、いまはこの端末に保存しています（クラウド保存は準備中）"); }
-  else { setSync("クラウド保存に失敗しました（この端末には保存されています）" + (r.msg ? "：" + r.msg : "")); weakDirty = true; clearTimeout(saveTimer); saveTimer = setTimeout(doSave, 15000); }
+  else { setSync(navigator.onLine === false ? "📴 オフライン中：記録はこの端末に保存しています。つながったら自動でクラウドに送ります" : "クラウド保存に失敗しました（この端末には保存されています）" + (r.msg ? "：" + r.msg : "")); weakDirty = true; clearTimeout(saveTimer); saveTimer = setTimeout(doSave, 15000); }
 }
 function mergeIn(r2, w2){
   let changed = false;
@@ -411,7 +411,7 @@ async function connectCloud(){
   const r = await KQ.load(APP);
   if (!r.ok) {
     if (r.status === "wrong" || r.status === "none") { showAcct(null); setSync("ログインが切れました。右上からもう一度ログインしてください"); }
-    else setSync("クラウドにつながりませんでした（この端末の記録で続けます）" + (r.msg ? "：" + r.msg : ""));
+    else setSync(navigator.onLine === false ? "📴 オフライン中：記録はこの端末に保存しています。つながったら自動でクラウドに送ります" : "クラウドにつながりませんでした（この端末の記録で続けます）" + (r.msg ? "：" + r.msg : ""));
     return;
   }
   const d = r.data || {};
@@ -426,7 +426,7 @@ const BK_APP = "chiryoq", BK_HEAD = "KOKUSHI-" + BK_APP.toUpperCase() + "1";
 let lsOk = true;
 try { const k = LS + "-test"; localStorage.setItem(k, "1"); lsOk = localStorage.getItem(k) === "1"; localStorage.removeItem(k); } catch { lsOk = false; }
 if (!lsOk) { setSync("⚠ このブラウザでは記録が保存されません。閉じる前に下の「記録を書き出す」をしてください"); $("#sync").classList.add("warn"); }
-setTimeout(() => { if (!cloud && lsOk) setSync("ログインしていないので、記録はこのブラウザだけに保存しています。右上の「ログインして保存」から、ニックネームで保存できます"); }, 11000);
+setTimeout(() => { if (!cloud && lsOk && !KQS) setSync("ログインしていないので、記録はこのブラウザだけに保存しています。右上の「ログインして保存」から、ニックネームで保存できます"); }, 11000);
 const b64 = u8 => { let t = ""; for (let i = 0; i < u8.length; i += 0x8000) t += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(t); };
 const unb64 = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
 async function pipe(u8, Stream, kind){ return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new Stream(kind))).arrayBuffer()); }
@@ -873,6 +873,15 @@ fetch("questions.json").then(r => r.ok ? r.json() : Promise.reject())
 // 案内キャラ（shared/guide.js）が記録を読むための窓口
 window.KQPage = { app: APP, get rec(){ return rec; }, get Q(){ return Q; }, isWeak, get quiz(){ return quiz; }, get view(){ return view; }, get cloud(){ return cloud; }, doSave };
 connectCloud();
+/* オフラインから復帰した時：まだつながっていなければつなぎ直す（たまった記録もまとめて送る） */
+let reconnecting = false;
+async function backOnline(){
+  if (!KQS || navigator.onLine === false || reconnecting || cloud === false) return;
+  if (cloud) { dirty.add("all"); flush(); return; }
+  reconnecting = true; try { await connectCloud(); } finally { reconnecting = false; }
+}
+window.addEventListener("online", () => setTimeout(backOnline, 1500));
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && !cloud) backOnline(); });
 })();
 </script>
 

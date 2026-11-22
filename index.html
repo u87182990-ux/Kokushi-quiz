@@ -230,6 +230,9 @@ body.modal-open{overflow:hidden}
 .steps li{margin-bottom:4px}
 .code{width:100%;min-height:90px;font:12px ui-monospace,monospace;color:var(--ink);background:var(--paper);border:1px solid var(--line2);border-radius:12px;padding:8px 10px;word-break:break-all}
 .row-btns{display:flex;flex-wrap:wrap;gap:8px}
+.off-row{display:flex;justify-content:space-between;gap:12px;margin:0 0 8px;font-size:14px}
+.off-row b{text-align:right;white-space:nowrap}
+.off-row b.ok{color:var(--ok)}
 .warn{background:var(--ng-soft);border-radius:12px;padding:10px 14px;font-size:13.5px}
 </style>
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><script src="shared/update.js" defer></script>
@@ -374,6 +377,16 @@ body.modal-open{overflow:hidden}
         <button class="btn" id="guide-edit" type="button">着せかえ</button>
         <button class="btn" id="guide-off" type="button">オフにする</button>
       </div>
+    </div>
+
+    <div class="panel" id="off-box">
+      <h2>オフラインで使う</h2>
+      <p class="note">電波がないところ（電車・地下・機内など）でも、問題と解説が使えます。解いた記録はこの端末にたまって、つながったときに自動でクラウドに送られます。</p>
+      <p class="off-row"><span>問題・解説</span><b id="off-core">確認中…</b></p>
+      <p class="off-row"><span id="off-img-label">問題の画像</span><b id="off-img">まだ保存していません</b></p>
+      <div class="row-btns"><button class="btn" id="off-img-btn" type="button">画像も保存する</button></div>
+      <div class="msg" id="off-msg" role="status" aria-live="polite"></div>
+      <p class="note" style="margin:10px 0 0">画像は大きいので、Wi-Fiのときがおすすめです。新しい問題が増えたら、つながったときに自動で追加されます。</p>
     </div>
 
     <div class="panel" id="icon-box">
@@ -793,6 +806,31 @@ body.modal-open{overflow:hidden}
   $("#extra-tog").onclick = () => pickOpen(true);
   $("#extra-pick").addEventListener("click", e => { if (e.target.closest("[data-close]") || e.target === e.currentTarget) pickOpen(false); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#extra-pick").hidden) pickOpen(false); });
+
+  /* ---------- オフラインで使う（shared/offline.js） ---------- */
+  function paintOff(o){
+    const core = $("#off-core"), img = $("#off-img"), btn = $("#off-img-btn"), msg = $("#off-msg");
+    if (!o.supported) { core.textContent = "このブラウザでは使えません"; btn.hidden = true; return; }
+    const prog = part => o.busy && o.part === part ? `保存中… ${o.done}/${o.total}` : "";
+    core.textContent = prog("core") || (o.core ? "保存ずみ ✓" : (o.online ? "つながっている時に自動で保存します" : "まだ保存していません"));
+    core.className = o.core && !o.busy ? "ok" : "";
+    $("#off-img-label").textContent = `問題の画像（${o.imgSize.n || "約440"}枚・約${o.imgSize.n ? o.imgSize.mb : 11}MB）`;
+    img.textContent = prog("img") || (o.imgOn ? (o.img ? "保存ずみ ✓" : "つながったら保存します") : "まだ保存していません");
+    img.className = o.imgOn && o.img && !o.busy ? "ok" : "";
+    btn.textContent = o.imgOn ? "画像を消す（容量をあける）" : "画像も保存する";
+    btn.disabled = o.busy;
+    msg.className = "msg" + (o.err ? " ng" : "");
+    msg.textContent = o.err ? o.err + "。電波のいいところで、もう一度押してください" : (!o.online ? "📴 いまオフラインです" : "");
+  }
+  (function bootOff(){
+    if (!window.KQOffline) return setTimeout(bootOff, 300);
+    KQOffline.onChange(paintOff); paintOff(KQOffline.info());
+    $("#off-img-btn").onclick = () => {
+      const o = KQOffline.info();
+      if (!o.imgOn && !o.online) { $("#off-msg").textContent = "いまオフラインなので、つながってから押してください"; return; }
+      KQOffline.setImages(!o.imgOn);
+    };
+  })();
 
   paintMe(); route();
 })();
