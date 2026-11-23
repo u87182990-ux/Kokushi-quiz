@@ -1,0 +1,262 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>耳で聞くドリル</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<script src="../shared/update.js" defer></script>
+<style>
+:root{
+  --paper:#eef2f6; --sheet:#ffffff; --ink:#152033; --sub:#5d6a7e; --line:#dbe2ea;
+  --accent:#1d6fd8; --accent-ink:#ffffff; --accent-soft:#e5effc; --ok:#14885a; --ok-soft:#e2f4ec;
+  --f:"BIZ UDPGothic","Hiragino Sans","Noto Sans JP",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0b111a; --sheet:#131b27; --ink:#e6ecf4; --sub:#93a1b5; --line:#233044;
+  --accent:#5aa2ff; --accent-ink:#06121f; --accent-soft:#16263d; --ok:#4cc790; --ok-soft:#12301f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0b111a; --sheet:#131b27; --ink:#e6ecf4; --sub:#93a1b5; --line:#233044;
+  --accent:#5aa2ff; --accent-ink:#06121f; --accent-soft:#16263d; --ok:#4cc790; --ok-soft:#12301f; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f);line-height:1.6;
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.wrap{max-width:560px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+header a{color:var(--accent);text-decoration:none;font-size:15px}
+h1{font-size:20px;margin:0;flex:1}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+label{display:block;font-size:14px;color:var(--sub);margin:0 0 4px}
+select{width:100%;font:inherit;font-size:16px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);margin-bottom:10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:block;width:100%;font:inherit;font-weight:700;font-size:18px;padding:16px;border-radius:14px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);cursor:pointer}
+.btn.main{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-size:22px;padding:20px}
+.ctrl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.ctrl .btn{font-size:15px;padding:14px 4px}
+.now{font-size:13px;color:var(--sub);display:flex;justify-content:space-between;gap:8px}
+.stage{display:inline-block;font-size:13px;font-weight:700;padding:2px 10px;border-radius:14px;background:var(--accent-soft);color:var(--accent)}
+.stage.ans{background:var(--ok-soft);color:var(--ok)}
+.q{font-size:16px;margin:10px 0;white-space:pre-wrap}
+ol{margin:0;padding-left:24px}
+li.ok{color:var(--ok);font-weight:700}
+.exp{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:15px}
+.note{font-size:13px;color:var(--sub);margin:8px 0 0}
+.note b{color:var(--ink)}
+</style></head><body>
+<div class="wrap">
+<header><a href="../">‹ ホーム</a><h1>🎧 耳で聞くドリル</h1></header>
+
+<div class="card" id="setup">
+  <label for="set">どの問題を聞く？</label>
+  <select id="set">
+    <option value="kakomon">過去問（第67〜78回）ぜんぶからランダム</option>
+    <option value="prep">対策問題集（270問）</option>
+    <option value="chiryo">放射線治療 下郷先生ドリル（授業）</option>
+    <option value="chiryo-quiz">治療クイズ（随時更新）</option>
+  </select>
+  <div id="field-box">
+    <label for="field">分野（過去問のとき）</label>
+    <select id="field"><option value="">すべての分野</option></select>
+  </div>
+  <div class="row">
+    <div><label for="think">考える時間</label>
+      <select id="think"><option value="3">3秒</option><option value="5" selected>5秒</option><option value="8">8秒</option><option value="12">12秒</option></select></div>
+    <div><label for="rate">読む速さ</label>
+      <select id="rate"><option value="0.9">ゆっくり</option><option value="1.05" selected>ふつう</option><option value="1.25">はやめ</option><option value="1.45">かなりはやい</option></select></div>
+  </div>
+  <label for="voice">声</label>
+  <select id="voice"><option value="">おまかせ（日本語）</option></select>
+  <button class="btn main" id="go">▶ 聞きはじめる</button>
+  <p class="note" id="count"></p>
+  <p class="note">図や画像を見る問題は自動でとばします。聞くだけなので、正解数の記録には入りません。</p>
+  <p class="note"><b>画面を消すと止まることがあります。</b>聞いている間は画面がつきっぱなしになるようにしてあるので、明るさを下げてポケットへ。イヤホンがおすすめです。</p>
+</div>
+
+<div class="card" id="player" hidden>
+  <div class="now"><span id="pos"></span><span class="stage" id="stage"></span></div>
+  <div class="q" id="qtext"></div>
+  <ol id="choices"></ol>
+  <div class="exp" id="exp" hidden></div>
+  <button class="btn main" id="pp" style="margin-top:16px">⏸ 一時停止</button>
+  <div class="ctrl">
+    <button class="btn" id="prev">⏮ 前へ</button>
+    <button class="btn" id="again">↻ もう一回</button>
+    <button class="btn" id="next">次へ ⏭</button>
+  </div>
+  <button class="btn" id="stop" style="margin-top:10px;font-size:15px;padding:12px">⚙ 設定にもどる</button>
+  <p class="note" id="lockmsg"></p>
+</div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const LS = "kq-audio";
+const load = () => { try { return JSON.parse(localStorage.getItem(LS)) || {}; } catch (e) { return {}; } };
+const save = o => { try { localStorage.setItem(LS, JSON.stringify(Object.assign(load(), o))); } catch (e) {} };
+const synth = window.speechSynthesis;
+const cache = {};
+let list = [], idx = 0, playing = false, token = 0, wake = null, actx = null;
+
+if (!synth) { $("#go").disabled = true; $("#count").textContent = "このブラウザは読み上げに対応していません。Safari か Chrome で開いてください。"; }
+
+// ---- 問題の読み込み ----
+async function getSet(name) {
+  if (!cache[name]) {
+    const r = await fetch(`../${name}/questions.json`);
+    cache[name] = (await r.json()).questions;
+  }
+  return cache[name];
+}
+const visual = q => (q.images && q.images.length) || /別冊|図|写真|画像|グラフ|下の表|次の表|波形|スペクトル/.test(q.question) ||
+  q.choices.some(c => /img\/|\.(png|jpe?g)/i.test(c));
+const usable = qs => qs.filter(q => q.choices && q.choices.length && q.answer && q.answer.length && !visual(q));
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+async function refresh() {
+  const set = $("#set").value;
+  $("#field-box").hidden = set !== "kakomon";
+  try {
+    const qs = usable(await getSet(set));
+    if (set === "kakomon" && $("#field").options.length < 2) {
+      const fs = [...new Set(qs.map(q => q.field))];
+      $("#field").innerHTML += fs.map(f => `<option>${f}</option>`).join("");
+      const s = load(); if (s.field) $("#field").value = s.field;
+    }
+    const f = set === "kakomon" ? $("#field").value : "";
+    const n = qs.filter(q => !f || q.field === f).length;
+    $("#count").textContent = `聞ける問題：${n}問`;
+  } catch (e) { $("#count").textContent = "問題を読みこめませんでした。電波のよいところでもう一度。"; }
+}
+
+// ---- 声 ----
+function voices() {
+  const vs = synth.getVoices().filter(v => /^ja/i.test(v.lang));
+  const sel = $("#voice"), cur = sel.value || load().voice || "";
+  sel.innerHTML = `<option value="">おまかせ（日本語）</option>` + vs.map(v => `<option value="${v.name}">${v.name}</option>`).join("");
+  if (vs.some(v => v.name === cur)) sel.value = cur;
+}
+function pickVoice() {
+  const vs = synth.getVoices().filter(v => /^ja/i.test(v.lang));
+  const name = $("#voice").value;
+  return vs.find(v => v.name === name) || vs.find(v => /Kyoko|O-ren|Google|Nanami|Haruka/i.test(v.name)) || vs[0] || null;
+}
+
+// ---- 読みやすい言葉に直す ----
+const SUP = { "⁰":"0","¹":"1","²":"2","³":"3","⁴":"4","⁵":"5","⁶":"6","⁷":"7","⁸":"8","⁹":"9","₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5","₆":"6","₇":"7","₈":"8","₉":"9","⁺":"プラス","⁻":"マイナス","⁄":"/" };
+function say(t) {
+  t = String(t).replace(/\*\*/g, "").replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹₀-₉⁺⁻⁄]/g, c => SUP[c] || c);
+  return t
+    .replace(/(\d)\s*×\s*10\s*[-−]\s*(\d+)/g, "$1かける10のマイナス$2乗")
+    .replace(/(\d)\s*×\s*10\s*(\d+)/g, "$1かける10の$2乗")
+    .replace(/×/g, "かける").replace(/÷/g, "わる").replace(/[→⇒]/g, "、").replace(/[≒≈]/g, "やく")
+    .replace(/±/g, "プラスマイナス").replace(/≦|≤/g, "以下").replace(/≧|≥/g, "以上")
+    .replace(/\bmGy\b/g, "ミリグレイ").replace(/\bGy\b/g, "グレイ").replace(/\bmSv\b/g, "ミリシーベルト").replace(/\bμSv\b/g, "マイクロシーベルト").replace(/\bSv\b/g, "シーベルト")
+    .replace(/\bMBq\b/g, "メガベクレル").replace(/\bGBq\b/g, "ギガベクレル").replace(/\bkBq\b/g, "キロベクレル").replace(/\bBq\b/g, "ベクレル")
+    .replace(/\bMeV\b/g, "メブ").replace(/\bkeV\b/g, "キロ電子ボルト").replace(/\beV\b/g, "電子ボルト").replace(/\bkV\b/g, "キロボルト").replace(/\bmA\b/g, "ミリアンペア").replace(/\bmAs\b/g, "ミリアンペア秒")
+    .replace(/(\d)\s*mm\b/g, "$1ミリ").replace(/(\d)\s*cm\b/g, "$1センチ").replace(/(\d)\s*nm\b/g, "$1ナノメートル")
+    .replace(/[（(]/g, "、").replace(/[）)]/g, "、").replace(/[「」『』〔〕【】]/g, "")
+    .replace(/\n+/g, "。").replace(/、\s*、/g, "、").replace(/、。/g, "。");
+}
+// 長い文はChromeで途中で切れるので、文ごとに分けて読む
+const pieces = t => say(t).split(/(?<=[。！？])/).map(s => s.trim()).filter(Boolean);
+
+function speakOne(text, my) {
+  return new Promise(res => {
+    if (my !== token) return res();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "ja-JP"; u.rate = +$("#rate").value; const v = pickVoice(); if (v) u.voice = v;
+    let done = false; const fin = () => { if (!done) { done = true; clearTimeout(t); res(); } };
+    u.onend = fin; u.onerror = fin;
+    const t = setTimeout(fin, 4000 + text.length * 400); // onend が来ない機種の保険
+    synth.speak(u);
+  });
+}
+async function speak(text, my) { for (const p of pieces(text)) { if (my !== token) return; await speakOne(p, my); } }
+const wait = (ms, my) => new Promise(r => { const s = Date.now(); const f = () => (my !== token || Date.now() - s >= ms) ? r() : setTimeout(f, 100); f(); });
+function chime() {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    [880, 1320].forEach((hz, i) => {
+      const o = actx.createOscillator(), g = actx.createGain(), t0 = actx.currentTime + i * 0.12;
+      o.frequency.value = hz; g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.15, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.25);
+      o.connect(g).connect(actx.destination); o.start(t0); o.stop(t0 + 0.3);
+    });
+  } catch (e) {}
+}
+
+// ---- 画面 ----
+const plain = t => String(t).replace(/\*\*/g, "");
+function show(q, ans) {
+  $("#pos").textContent = `${idx + 1} / ${list.length}問` + (q.kai > 60 ? `　第${q.kai}回 ${q.session}${q.no}` : q.topic ? `　${q.topic}` : "");
+  $("#stage").textContent = ans ? "正解と解説" : "問題";
+  $("#stage").className = "stage" + (ans ? " ans" : "");
+  $("#qtext").textContent = plain(q.question);
+  $("#choices").innerHTML = q.choices.map((c, i) => `<li class="${ans && q.answer.includes(i + 1) ? "ok" : ""}"></li>`).join("");
+  [...$("#choices").children].forEach((li, i) => li.textContent = plain(q.choices[i]));
+  $("#exp").hidden = !ans;
+  $("#exp").textContent = ans && q.exp ? plain(q.exp.p || "") : "";
+}
+
+async function playQ() {
+  const my = ++token; synth.cancel();
+  while (my === token && idx < list.length) {
+    const q = list[idx];
+    save({ idx });
+    show(q, false);
+    await speak(`第${idx + 1}問。` + q.question, my);
+    for (let i = 0; i < q.choices.length; i++) { if (my !== token) return; await speak(`${i + 1}番。${q.choices[i]}`, my); }
+    if (my !== token) return;
+    await wait(+$("#think").value * 1000, my);
+    if (my !== token) return;
+    chime(); show(q, true);
+    await wait(500, my);
+    const nums = q.answer.map(n => `${n}番`).join("と");
+    await speak(`正解は、${nums}。` + q.answer.map(n => q.choices[n - 1]).join("。") + "。", my);
+    if (q.exp && q.exp.p) await speak(q.exp.p, my);
+    if (my !== token) return;
+    await wait(1500, my);
+    if (my !== token) return;
+    idx++;
+  }
+  if (my === token && idx >= list.length) { playing = false; setPP(); speak("ぜんぶ終わりました。おつかれさまでした。", ++token); }
+}
+
+function setPP() { $("#pp").textContent = playing ? "⏸ 一時停止" : "▶ つづきから"; }
+async function keepAwake() {
+  try { if ("wakeLock" in navigator && !wake) { wake = await navigator.wakeLock.request("screen"); wake.addEventListener("release", () => wake = null); } $("#lockmsg").textContent = "画面はつきっぱなしになっています。"; }
+  catch (e) { $("#lockmsg").textContent = "画面が自動で消えると止まることがあります。設定の「自動ロック」を長めにしてください。"; }
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && playing) keepAwake(); });
+
+function play() { playing = true; setPP(); keepAwake(); playQ(); }
+function pause() { playing = false; token++; synth.cancel(); setPP(); if (wake) { wake.release(); wake = null; } }
+
+$("#go").onclick = async () => {
+  // iPhone は最初の読み上げをボタンを押した中で始めないと鳴らないので、すぐ一言しゃべる
+  synth.cancel(); const hi = new SpeechSynthesisUtterance("はじめます"); hi.lang = "ja-JP"; hi.rate = +$("#rate").value; const v = pickVoice(); if (v) hi.voice = v; synth.speak(hi);
+  chime();
+  const set = $("#set").value, field = set === "kakomon" ? $("#field").value : "";
+  save({ set, field, think: $("#think").value, rate: $("#rate").value, voice: $("#voice").value });
+  const qs = usable(await getSet(set)).filter(q => !field || q.field === field);
+  const s = load();
+  if (s.order && s.oset === set + "|" + field && s.idx < s.order.length && confirm(`前回のつづき（${s.idx + 1}問目）から聞きますか？\n「キャンセル」で最初から（順番をシャッフル）`)) {
+    const m = new Map(qs.map(q => [q.id, q])); list = s.order.map(id => m.get(id)).filter(Boolean); idx = s.idx;
+  } else {
+    list = shuffle(qs.slice()); idx = 0; save({ order: list.map(q => q.id), oset: set + "|" + field, idx: 0 });
+  }
+  if (!list.length) return;
+  $("#setup").hidden = true; $("#player").hidden = false;
+  await new Promise(r => { const t = setTimeout(r, 1200); hi.onend = () => { clearTimeout(t); r(); }; });
+  play();
+};
+$("#pp").onclick = () => playing ? pause() : play();
+$("#again").onclick = () => { playing = true; setPP(); playQ(); };
+$("#next").onclick = () => { if (idx < list.length - 1) idx++; playing = true; setPP(); playQ(); };
+$("#prev").onclick = () => { if (idx > 0) idx--; playing = true; setPP(); playQ(); };
+$("#stop").onclick = () => { pause(); $("#player").hidden = true; $("#setup").hidden = false; };
+$("#set").onchange = refresh; $("#field").onchange = refresh;
+
+// 前回の設定をもどす
+(() => { const s = load(); for (const k of ["set", "think", "rate"]) if (s[k]) $("#" + k).value = s[k]; })();
+if (synth) { voices(); synth.onvoiceschanged = voices; }
+refresh();
+</script>
+</body></html>
