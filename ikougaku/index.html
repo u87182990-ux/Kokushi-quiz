@@ -106,7 +106,6 @@ figure img{display:block;margin:0 auto;max-width:100%;height:auto}
 
 <script src="../shared/memo.js?v=1795300000"></script>
 <script src="data.js?v=1794900000"></script>
-<script src="../shared/zukai.js?v=1795700000"></script>
 <script>
 (()=>{
 const Q = window.QUIZ || [];
@@ -191,7 +190,6 @@ function show(q,pick){
   const ok=pick===q.a;
   $("after").innerHTML=`<p class="verdict ${ok?"ok":"ng"}">${ok?"正解":"不正解"}　正答は ${"12345"[q.a]}（${q.o[q.a]}）</p>
     <div class="exp"><h3>解説</h3>${q.e}</div>`;
-  if(window.ZukaiMount) ZukaiMount($("after").querySelector(".exp"), q.id);   // 図解（ある問題だけ）
 }
 $("shuffleBtn").onclick=()=>{st.shuffle=!st.shuffle;st.pos=0;build()};
 $("wrongBtn").onclick=()=>{st.wrong=!st.wrong;st.pos=0;build()};
