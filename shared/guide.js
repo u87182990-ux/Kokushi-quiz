@@ -551,7 +551,7 @@
   function weakLine(s){
     const app = pageApp(), w = app ? s.weak[app] : (s.weak.kakomon && s.weak.kakomon.n ? s.weak.kakomon : s.weak.prep);
     if (!w || !w.n) return null;
-    return `苦手な分野は「${w.f}」みたい（苦手リストに${w.n}問）。どこで解いても2回続けて正解すると卒業だよ。`;
+    return `苦手な分野は「${w.f}」みたい（苦手リストに${w.n}問）。あした→3日後→7日後の復習日に正解すると卒業だよ。`;
   }
   const TIPS = [
     "まちがえた問題は、解説の○✕をぜんぶ読むと、ほかの選択肢もいっしょに覚えられるよ。",

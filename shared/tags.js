@@ -58,7 +58,7 @@
     }).join("")}</tr>`)).join("");
     box.innerHTML = `<div class="panel">
       <h2>問題タグ</h2>
-      <p class="tg-note">問題を解く画面の「完璧・復習中・要学習」で付けた印がここに集まります。苦手リスト（2回続けて正解で卒業）とは別の、自分用のメモです。</p>
+      <p class="tg-note">問題を解く画面の「完璧・復習中・要学習」で付けた印がここに集まります。苦手リスト（復習日に正解でステージが進み、3回で卒業）とは別の、自分用のメモです。</p>
       <div class="tg-sum">${TAGS.map(([k, name, ic]) => `<div class="tg-s tg${k}"><span><i>${ic}</i>${name}</span><b class="num">${n[k]}</b><button class="btn ${n[k] ? "primary" : ""}" data-tgo="${k}" ${n[k] ? "" : "disabled"}>解く</button></div>`).join("")}</div>
     </div>
     <div class="panel">

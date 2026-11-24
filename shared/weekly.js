@@ -258,7 +258,7 @@
       ${slow.length ? `<p class="wk-sub">時間がかかった問題 トップ${slow.length}</p><div class="wk-qlist">${slow.map(x => qbtn(x.id, `${jtime(x.t)}・${h.ok[x.i] ? "○" : "×"}`)).join("")}</div>` : ""}</div>`);
     // 次の一手
     if (worst && worst.ok < worst.n && worst.f !== "そのほか")
-      blocks.push(`<div class="wk-rv"><h3>次の一手</h3><p>いちばん低かった「${esc(worst.f)}」を10問。苦手リストに入った問題は、2回続けて正解で卒業です。</p><div class="wk-go" style="justify-content:flex-start;margin-top:8px"><a class="btn primary" href="./?field=${encodeURIComponent(h.field)}&theme=${encodeURIComponent(worst.f)}&n=10">このテーマを解く</a></div></div>`);
+      blocks.push(`<div class="wk-rv"><h3>次の一手</h3><p>いちばん低かった「${esc(worst.f)}」を10問。苦手リストに入った問題は、あしたから復習日（あした→3日後→7日後）に正解すると卒業です。</p><div class="wk-go" style="justify-content:flex-start;margin-top:8px"><a class="btn primary" href="./?field=${encodeURIComponent(h.field)}&theme=${encodeURIComponent(worst.f)}&n=10">このテーマを解く</a></div></div>`);
     else if (worst && worst.ok < worst.n)
       blocks.push(`<div class="wk-rv"><h3>次の一手</h3><p>「${esc(h.field)}」から10問解きましょう。</p><div class="wk-go" style="justify-content:flex-start;margin-top:8px"><a class="btn primary" href="./?field=${encodeURIComponent(h.field)}&n=10">この分野を解く</a></div></div>`);
     return `<div class="panel wk-card"><h2>総評</h2><p class="wk-note" style="margin:-6px 0 10px">あなたの今回の結果だけから、決まったルールで作っています。</p>${blocks.join("")}</div>`;
