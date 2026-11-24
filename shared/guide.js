@@ -477,10 +477,10 @@
   function hide(){ bubble.classList.remove("on"); clearTimeout(hideT); setTimeout(() => { if (!bubble.classList.contains("on")) paint("normal"); }, 300); }
   // 好きな場所のときは、はみ出さないように画面の中におさめる（ホームは下タブより上・上のバーより下）
   function freeBox(){
-    const tab = document.querySelector(".tabbar"), bar = document.querySelector(".topbar");
+    const tab = document.querySelector(".kt:not([hidden])") || document.querySelector(".tabbar"), bar = document.querySelector(".topbar");
     const w = root.offsetWidth || 72, h = root.offsetHeight || 80;
     const top = (bar ? bar.getBoundingClientRect().bottom : 0) + 8;
-    const bottom = innerHeight - (tab ? tab.getBoundingClientRect().height : 0) - 8 - h;
+    const bottom = (tab ? tab.getBoundingClientRect().top : innerHeight) - 8 - h;
     return { w, h, x0: 8, x1: innerWidth - 8 - w, y0: top, y1: Math.max(top, bottom) };
   }
   function applyPos(){
