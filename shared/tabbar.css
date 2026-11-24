@@ -1,0 +1,45 @@
+/* 画面の下に浮く丸いタブバー（ホーム／演習／模試／その他）  shared/tabbar.js が作る
+   色は「見た目」（マイページ）の6種類に合わせる。ページ全体の色にはさわらないよう、バーの中だけの変数で持つ。
+   角丸：バーは依頼の「丸型」なので両はしを丸く（999px）。中のボタンは14px。 */
+.kt{
+  --kt-bg:rgba(255,255,255,.92); --kt-line:#dbe2ea; --kt-sub:#5d6a7e; --kt-on:#1d6fd8; --kt-on-bg:#e5effc;
+  --kt-shadow:0 2px 10px rgba(15,27,45,.08);
+  position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;
+  width:min(420px,calc(100% - 32px));display:flex;gap:4px;padding:4px;
+  background:var(--kt-bg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid var(--kt-line);border-radius:999px;box-shadow:var(--kt-shadow);
+  font-family:"BIZ UDPGothic","Hiragino Sans","Noto Sans JP",sans-serif}
+.kt[hidden]{display:none}
+.kt a{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 4px;border-radius:999px;
+  text-decoration:none;color:var(--kt-sub);font-size:11px;font-weight:700;line-height:1;transition:color .15s,background-color .15s}
+.kt svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.kt a[aria-current="page"]{color:var(--kt-on);background:var(--kt-on-bg)}
+.kt a:active{background:var(--kt-on-bg)}
+.kt a:focus-visible{outline:2px solid var(--kt-on);outline-offset:-2px}
+body.kt-on{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+/* 案内キャラ（右下）はバーの上に */
+body.kt-on .kqg:not(.kqg-t):not(.kqg-free){bottom:calc(80px + env(safe-area-inset-bottom,0px))!important}
+@media (prefers-color-scheme:dark){.kt{--kt-bg:rgba(19,27,39,.92);--kt-line:#233044;--kt-sub:#93a1b5;--kt-on:#4fa8ff;--kt-on-bg:#16263d;--kt-shadow:0 2px 10px rgba(0,0,0,.35)}}
+
+/* シンプル：線を細く、強調は文字色だけ＋うすい面 */
+.kt[data-skin="simple"] svg{stroke-width:1.6}
+
+/* A 誌面：墨の線、選んだタブは蛍光ペンの黄色 */
+.kt[data-skin="a"]{--kt-bg:rgba(247,246,241,.94);--kt-line:#151513;--kt-sub:#615e56;--kt-on:#151513;--kt-on-bg:#f1dc33;--kt-shadow:none;font-family:"IBM Plex Sans JP","Hiragino Sans",sans-serif}
+@media (prefers-color-scheme:dark){.kt[data-skin="a"]{--kt-bg:rgba(26,26,24,.94);--kt-line:#efede6;--kt-sub:#a29f96;--kt-on:#121211;--kt-on-bg:#cdb92a}}
+
+/* B 方眼ノート：万年筆の青 */
+.kt[data-skin="b"]{--kt-bg:rgba(255,255,251,.94);--kt-line:#b9bfb2;--kt-sub:#5f6779;--kt-on:#2747b0;--kt-on-bg:#e3e8f6}
+@media (prefers-color-scheme:dark){.kt[data-skin="b"]{--kt-bg:rgba(36,40,47,.94);--kt-line:#4a5160;--kt-sub:#a3a8b3;--kt-on:#8fa8ff;--kt-on-bg:#2a3248}}
+.kt[data-skin="b"] a{font-family:"Klee One","Hiragino Maru Gothic ProN",sans-serif;font-weight:600}
+
+/* C モノ：白黒反転で強調 */
+.kt[data-skin="c"]{--kt-bg:rgba(255,255,255,.94);--kt-line:#cfcfcf;--kt-sub:#6e6e6e;--kt-on:#ffffff;--kt-on-bg:#0b0b0b;--kt-shadow:none;font-family:"IBM Plex Sans JP","Hiragino Sans",sans-serif}
+@media (prefers-color-scheme:dark){.kt[data-skin="c"]{--kt-bg:rgba(17,17,17,.94);--kt-line:#333333;--kt-sub:#8c8c8c;--kt-on:#0a0a0a;--kt-on-bg:#f2f2f2}}
+.kt[data-skin="c"] svg{stroke-width:1.4}
+
+/* D 読影室：フィルムの暗いパネルに、光る水色 */
+.kt[data-skin="d"]{--kt-bg:rgba(12,20,25,.94);--kt-line:#16222a;--kt-sub:#8aa3ae;--kt-on:#9fe6ff;--kt-on-bg:rgba(159,230,255,.12)}
+@media (prefers-color-scheme:dark){.kt[data-skin="d"]{--kt-bg:rgba(13,23,29,.94);--kt-line:#243641;--kt-sub:#7f97a2;--kt-on:#7fd8f2;--kt-on-bg:#0f2129}}
+
+@media (prefers-reduced-motion:reduce){.kt a{transition:none}}

@@ -21,7 +21,8 @@
 - ホーム画面のアイコンは4種類（`icons/a`〜`icons/d`、はじめは c）。トップの「ホーム画面のアイコン」で選ぶと、`shared/update.js` がそのページの apple-touch-icon と manifest（`manifest-<a|b|d>.webmanifest`）を差しかえる。選んだものは端末の localStorage `kq-icon` に保存。
 
 ## アプリ風の画面（下のタブ）
-- トップ `index.html` は下のタブで「ホーム／成績／ブックマーク／マイページ」を切りかえる（`#stats` `#bm` `#me`）。
+- 画面の下に浮く丸いタブバー（`shared/tabbar.js` と `shared/tabbar.css`）で「ホーム／演習（`#drill`）／模試（`#mock`）／その他（`#me`）」を切りかえる。成績（`#stats`）は「その他」、ブックマーク（`#bm`）は「演習」の中から開く。
+- タブバーは過去問型のページ（kakomon／prep／chiryo／chiryo-quiz）にも出る。`tools/add-tabbar.py` で入れている（mksite.py などで作り直したら再実行）。問題を解いている間（`body.in-quiz`）は自動でかくれる。色は「見た目」6種類に合わせて、バーの中だけで切りかえる（問題ページ自体の色はそのまま）。
 - `shared/stats.js` … 日ごとの解答数（成績・連続日数・学習カレンダー用）とブックマークを記録。`account.js` がクラウド保存の時にいっしょに送る。
 - 問題ページの「☆ 保存」ボタン・`?start=bm|weak|random|unsolved`・`?q=問題id`・`?field=分野` は `tools/addbm.py` でつけている。`tools/mksite.py` で作り直した時は、そのあとに `python3 tools/addbm.py` を実行する。
 - 新しいドリルを足す時は、`index.html` の `DRILLS`（成績用）と `EXTRA`（メニュー用）に1行ずつ足す。

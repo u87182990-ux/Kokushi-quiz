@@ -13,6 +13,8 @@
 <script src="shared/plan.js?v=1795500000"></script>
 <script src="shared/guide.js?v=1795300000" defer></script>
 <link rel="stylesheet" href="shared/skins.css?v=1795400000">
+<link rel="stylesheet" href="shared/tabbar.css?v=1795700000">
+<script src="shared/tabbar.js?v=1795700000" data-root="" data-tab="home"></script>
 <script>
 /* 見た目の設定（シンプル）を、画面が出る前に当てる（ちらつき防止） */
 /* 見た目（4種類は書体も）を、画面が出る前に当てる（ちらつき防止） */
@@ -56,7 +58,7 @@ try { applySkin((((window.KQ && KQ.avatar.get()) || {}).look || {}).theme || "")
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75;-webkit-tap-highlight-color:transparent}
-.wrap{max-width:640px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left))}
+.wrap{max-width:640px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right)) 16px max(16px,env(safe-area-inset-left))}
 h1,h2,h3{font-family:var(--f-disp);margin:0;line-height:1.35}
 .num{font-variant-numeric:tabular-nums}
 
@@ -78,8 +80,18 @@ h1,h2,h3{font-family:var(--f-disp);margin:0;line-height:1.35}
 .tabbar a[aria-current="page"]{color:var(--accent)}
 .tabbar a[aria-current="page"] svg{fill:var(--accent-soft)}
 .view[hidden]{display:none}
+/* その他・模試の一覧（1行ずつ） */
+.menu{display:grid;background:var(--sheet);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.menu>a,.menu>div{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:0 10px;padding:10px 16px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}
+.menu>:last-child{border-bottom:0}
+.menu>a::after{content:"›";grid-row:1/3;grid-column:3;font-size:20px;color:var(--sub)}
+.menu .ic{grid-row:1/3;font-size:20px}
+.menu b{font-size:15px}
+.menu small{grid-column:2;font-size:12px;color:var(--sub);line-height:1.5}
+.menu .sc{grid-row:1/3;grid-column:3;font-size:20px;font-weight:700}
+.menu .sc small{font-size:12px}
+.menu .empty-row{display:block;color:var(--sub);font-size:13px}
 /* 案内キャラはタブの上に */
-.kqg:not(.kqg-t):not(.kqg-free){bottom:calc(74px + env(safe-area-inset-bottom,0px))!important}
 .kqg.kqg-t:not(.kqg-free){top:calc(56px + env(safe-area-inset-top,0px))}
 
 /* ホームの見出し */
@@ -470,6 +482,36 @@ body{letter-spacing:.01em}
     </div>
   </section>
 
+  <!-- ============ 演習 ============ -->
+  <section class="view" id="v-drill" hidden>
+    <h2 class="sec">過去問</h2>
+    <div class="modes">
+      <a class="mode" href="kakomon/"><span class="ic">📚</span><b>過去問クイズ</b><span>第67〜78回<br>回ごと・分野ごと</span></a>
+      <a class="mode" href="kakomon/?start=random"><span class="ic">🎲</span><b>ランダム10問</b><span>過去問から<br>サクッと10問</span></a>
+      <a class="mode" href="kakomon/?start=weak"><span class="ic">🔁</span><b>苦手を復習</b><span id="d-weak">2回続けて正解で卒業</span></a>
+      <a class="mode" href="kakomon/?start=unsolved"><span class="ic">✨</span><b>まだ解いてない</b><span id="d-unsolved">はじめての問題から<br>20問</span></a>
+      <a class="mode wide" href="#bm"><span class="ic">🔖</span><b>ブックマーク</b><span id="d-bm">☆で保存した問題を見直す</span></a>
+    </div>
+    <h2 class="sec">分野から解く<small>過去問</small></h2>
+    <div class="chips" id="d-fields"></div>
+    <h2 class="sec">ほかのドリル</h2>
+    <div class="modes">
+      <a class="mode wide" href="prep/"><span class="ic">🎯</span><b>対策問題集</b><span>よく出るポイントのオリジナル270問・22テーマ</span></a>
+    </div>
+    <div class="modes" id="d-extra" style="margin-top:10px" hidden></div>
+    <p class="note" id="d-extra-note" style="margin-top:10px">追加ドリルは、ホームの「追加ドリル」→「えらぶ」で選んだものがここにも出ます。</p>
+  </section>
+
+  <!-- ============ 模試 ============ -->
+  <section class="view" id="v-mock" hidden>
+    <h2 class="sec">模試</h2>
+    <div class="modes">
+      <a class="mode wide" href="kakomon/?start=mock"><span class="ic">⏱️</span><b>200問模試</b><span id="m-mock">本番と同じ200問・タイマーつき・中断しても続きから</span></a>
+    </div>
+    <h2 class="sec">これまでの結果<small>200問模試</small></h2>
+    <div class="menu" id="m-hist"></div>
+  </section>
+
   <!-- ============ 成績 ============ -->
   <section class="view" id="v-stats" hidden>
     <div class="big-card" style="margin-top:16px">
@@ -513,6 +555,10 @@ body{letter-spacing:.01em}
 
   <!-- ============ マイページ ============ -->
   <section class="view" id="v-me" hidden>
+    <div class="menu" style="margin-top:16px">
+      <a href="#stats"><span class="ic">📊</span><b>成績</b><small>正答率・学習カレンダー・分野ごと</small></a>
+      <a href="#bm"><span class="ic">🔖</span><b>ブックマーク</b><small id="me-bm-n">☆で保存した問題</small></a>
+    </div>
     <div class="panel" id="setup-warn" hidden>
       <p class="warn">いまは記録の保存先の準備中です。ログインしなくても問題は解けます（記録はこの端末だけに保存されます）。</p>
     </div>
@@ -612,12 +658,6 @@ body{letter-spacing:.01em}
   </section>
 </div>
 
-<nav class="tabbar" aria-label="メニュー"><div class="in">
-  <a href="#" data-v="home"><svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.5l8.5 7V20a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z"/></svg>ホーム</a>
-  <a href="#stats" data-v="stats"><svg viewBox="0 0 24 24"><rect x="3.5" y="12" width="4" height="8.5" rx="1"/><rect x="10" y="7" width="4" height="13.5" rx="1"/><rect x="16.5" y="3.5" width="4" height="17" rx="1"/></svg>成績</a>
-  <a href="#bm" data-v="bm"><svg viewBox="0 0 24 24"><path d="M6 3.5h12a1 1 0 0 1 1 1v16l-7-4.5-7 4.5v-16a1 1 0 0 1 1-1z"/></svg>ブックマーク</a>
-  <a href="#me" data-v="me"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4"/><path d="M4 20.5c.8-4 4-6 8-6s7.2 2 8 6"/></svg>マイページ</a>
-</div></nav>
 
 <script>
 (() => {
@@ -929,18 +969,50 @@ body{letter-spacing:.01em}
     }, 1200);
   }
 
+  /* ---------- 演習（下のタブ） ---------- */
+  function paintDrill(){
+    const k = drillData(DRILLS[0]);
+    $("#d-weak").innerHTML = k.weak ? `苦手リスト <b class="num">${k.weak}</b>問<br>2回続けて正解で卒業` : "まちがえた問題を<br>2回続けて正解で卒業";
+    $("#d-unsolved").innerHTML = `まだ解いていない<br><b class="num">${fmtN(2400 - k.done)}</b>問から20問`;
+    const nb = KQStats.bm.list().length;
+    $("#d-bm").innerHTML = nb ? `☆で保存した問題 <b class="num" style="font-size:inherit;margin:0">${nb}</b>問を見直す` : "☆で保存した問題を見直す";
+    $("#d-fields").innerHTML = FIELDS.map(([f, n]) => `<a class="chip" href="kakomon/?field=${encodeURIComponent(f)}">${esc(f)} <small class="num">(${n})</small></a>`).join("");
+    const list = EXTRA.filter(x => exGet().includes(x.id));
+    $("#d-extra").innerHTML = list.map(x => `<a class="mode" href="${x.id}/"><span class="ic">${x.ic}</span><b>${esc(x.name)}</b><span>${esc(x.sub)}</span></a>`).join("");
+    $("#d-extra").hidden = !list.length;
+  }
+
+  /* ---------- 模試（下のタブ） ---------- */
+  function paintMock(){
+    const ls = "kokushi-rec-v1" + sfx();
+    const mk = [lsGet(ls + "-mock", null), cloud.kakomon?.mock].filter(x => x && x.at).sort((a, b) => b.at - a.at)[0];
+    $("#m-mock").innerHTML = mk && mk.status === "run" && mk.ids ? `<b class="num" style="font-size:inherit;margin:0">中断中：${Object.keys(mk.ans || {}).length} / ${mk.ids.length}問</b>・タップで続きから` : "本番と同じ200問・タイマーつき・中断しても続きから";
+    let h = []; try { h = JSON.parse(localStorage.getItem(ls + "-mockh") || "[]"); } catch {}
+    if (!Array.isArray(h)) h = [];
+    for (const x of cloud.kakomon?.mockh || []) if (x && x.id && !h.some(y => y.id === x.id)) h.push(x);
+    h.sort((a, b) => b.id - a.id);
+    $("#m-hist").innerHTML = h.length ? h.slice(0, 10).map(x => {
+      const line = Math.ceil(x.n * 0.6), d = new Date(x.id);
+      return `<a href="kakomon/?start=mock"><b>${esc(x.title || "模試")}</b><small>${d.getMonth() + 1}月${d.getDate()}日・${x.score >= line ? "合格ライン超え" : `合格ラインまで あと${line - x.score}点`}</small><span class="sc num pc-c" style="${KQPlan.pcAttr(x.score / x.n)}">${x.score}<small>/${x.n}</small></span></a>`;
+    }).join("") : `<div class="empty-row">まだ結果はありません。模試を最後まで解くと、ここに点数が並びます。</div>`;
+  }
+
   /* ---------- 画面の切りかえ（下のタブ） ---------- */
-  const TITLES = { home: "国試ドリル", stats: "成績", bm: "ブックマーク", me: "マイページ" };
+  const TITLES = { home: "国試ドリル", drill: "演習", mock: "模試", stats: "成績", bm: "ブックマーク", me: "その他" };
+  const TAB_OF = { stats: "me", bm: "drill" };   // 成績は「その他」、ブックマークは「演習」の中
   function route(){
     const v = (location.hash.replace("#", "") || "home");
     const cur = TITLES[v] ? v : "home";
     for (const k of Object.keys(TITLES)) $("#v-" + k).hidden = k !== cur;
-    document.querySelectorAll(".tabbar a").forEach(a => { if (a.dataset.v === cur) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    if (window.KQTab) KQTab.set(TAB_OF[cur] || cur);
     $("#top-title").textContent = TITLES[cur];
     document.querySelector(".topbar .logo i").hidden = cur !== "home";
     if (cur === "home") { paintHome(); loadCloud().then(r => { if (r && location.hash.replace("#", "") === "") paintHome(); }); }
     if (cur === "stats") { paintStats(); loadCloud().then(r => { if (r) paintStats(); }); }
     if (cur === "bm") { paintBm(); loadCloud().then(r => { if (r) paintBm(); }); }
+    if (cur === "drill") { paintDrill(); loadCloud().then(r => { if (r) paintDrill(); }); }
+    if (cur === "mock") { paintMock(); loadCloud().then(r => { if (r) paintMock(); }); }
+    if (cur === "me") $("#me-bm-n").textContent = KQStats.bm.list().length ? `☆で保存した問題 ${KQStats.bm.list().length}問` : "☆で保存した問題";
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", route);
@@ -1021,7 +1093,7 @@ body{letter-spacing:.01em}
   }
   function applyLook(){
     const l = lookGet(), home = $("#v-home");
-    applySkin(l.theme);
+    applySkin(l.theme); if (window.KQTab) KQTab.skin();
     for (const k of l.order) { const b = home.querySelector(`.blk[data-blk="${k}"]`); if (b) { home.appendChild(b); b.hidden = l.hide.includes(k); } }
   }
   function paintLook(){
