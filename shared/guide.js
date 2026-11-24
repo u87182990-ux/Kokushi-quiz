@@ -35,8 +35,8 @@
   ];
   const GOALS = [5, 10, 20, 30, 50, 80, 100];
   const DEF = { type: "neko", color: "#ffc48a", ocolor: "orig", outfit: "hakui", acc: "none", name: "ナビ", goal: 10, pos: "br" };
-  // キャラのいる場所（画面の四すみ）。指でつかんで動かしても、いちばん近いすみに入る
-  const POS = [{ id: "bl", name: "左下" }, { id: "br", name: "右下" }, { id: "tl", name: "左上" }, { id: "tr", name: "右上" }];
+  // キャラのいる場所。四すみか、指でつかんで動かした好きな場所（free：xy に画面の何割の位置かを入れる）
+  const POS = [{ id: "bl", name: "左下" }, { id: "br", name: "右下" }, { id: "tl", name: "左上" }, { id: "tr", name: "右上" }, { id: "free", name: "動かした場所" }];
 
   /* ---------- 絵（SVG） ---------- */
   const L = "#3b2f2f"; // 線の色
@@ -258,6 +258,9 @@
     v.outfit = valid(OUTFITS, v.outfit, DEF.outfit); v.acc = valid(ACCS, v.acc, DEF.acc);
     v.goal = GOALS.includes(+v.goal) ? +v.goal : DEF.goal;
     v.pos = valid(POS, v.pos, DEF.pos);
+    const okXY = Array.isArray(v.xy) && v.xy.length === 2 && v.xy.every(n => typeof n === "number" && n >= 0 && n <= 1);
+    v.xy = okXY ? v.xy : null;
+    if (v.pos === "free" && !v.xy) v.pos = DEF.pos;
     v.name = String(v.name || DEF.name).slice(0, 10);
     v.off = !(a && a.on === true); // 最初はオフ。トップページの「オンにする」で出てくる
     v.isNew = !a;
@@ -300,6 +303,8 @@
   html.kqg-on:not(.kqg-top) body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
   .kqg.kqg-l{right:auto;left:max(12px,env(safe-area-inset-left))}
   .kqg.kqg-t{bottom:auto;top:calc(12px + env(safe-area-inset-top))}
+  .kqg.kqg-free{right:auto;bottom:auto}
+  .kqg.kqg-free .kqg-bubble{max-width:var(--kqg-bw,290px)}
   .kqg.kqg-drag{transition:none;opacity:.9}
   .kqg.kqg-drag .kqg-bubble{display:none}
   .kqg[hidden]{display:none}
@@ -387,18 +392,35 @@
     hideT = setTimeout(hide, ms);
   }
   function hide(){ bubble.classList.remove("on"); clearTimeout(hideT); setTimeout(() => { if (!bubble.classList.contains("on")) paint("normal"); }, 300); }
+  // 好きな場所のときは、はみ出さないように画面の中におさめる（ホームは下タブより上・上のバーより下）
+  function freeBox(){
+    const tab = document.querySelector(".tabbar"), bar = document.querySelector(".topbar");
+    const w = root.offsetWidth || 72, h = root.offsetHeight || 80;
+    const top = (bar ? bar.getBoundingClientRect().bottom : 0) + 8;
+    const bottom = innerHeight - (tab ? tab.getBoundingClientRect().height : 0) - 8 - h;
+    return { w, h, x0: 8, x1: innerWidth - 8 - w, y0: top, y1: Math.max(top, bottom) };
+  }
   function applyPos(){
-    const p = (av && av.pos) || DEF.pos;
+    let p = (av && av.pos) || DEF.pos, free = p === "free" && av.xy;
+    root.classList.toggle("kqg-free", !!free);
+    if (free) {
+      const b = freeBox(), cx = av.xy[0] * innerWidth, cy = av.xy[1] * innerHeight;
+      const x = Math.min(b.x1, Math.max(b.x0, cx - b.w / 2)), y = Math.min(b.y1, Math.max(b.y0, cy - b.h / 2));
+      root.style.left = x + "px"; root.style.top = y + "px";
+      p = (cy < innerHeight / 2 ? "t" : "b") + (cx < innerWidth / 2 ? "l" : "r");
+      // 吹き出しは画面の広いほうへ。はみ出さない幅にする
+      const room = p[1] === "l" ? innerWidth - x - 16 : x + b.w - 16;
+      root.style.setProperty("--kqg-bw", Math.max(180, Math.min(290, room)) + "px");
+    } else { root.style.left = root.style.top = ""; }
     root.classList.toggle("kqg-l", p[1] === "l"); root.classList.toggle("kqg-t", p[0] === "t");
     document.documentElement.classList.toggle("kqg-top", p[0] === "t");
   }
-  function setPos(p){
-    if (p === av.pos) return applyPos();
+  function setPos(p, xy){
     const { isNew, off, ...keep } = av; // eslint-disable-line no-unused-vars
-    KQ.avatar.set(Object.assign(keep, { pos: p, on: true })); av = getAv(); applyPos();
+    KQ.avatar.set(Object.assign(keep, { pos: p, xy: xy || keep.xy || null, on: true })); av = getAv(); applyPos();
     pushCloud();
   }
-  // 指（マウス）でつかんで動かす → はなした場所にいちばん近いすみへ
+  // 指（マウス）でつかんで動かす → はなした場所にそのまま置く
   function dragStart(e){
     if (e.button > 0) return;
     drag = { x: e.clientX, y: e.clientY, on: false };
@@ -417,7 +439,8 @@
     root.style.transform = ""; root.classList.remove("kqg-drag");
     if (e.type === "pointercancel") return;
     dragged = Date.now();
-    setPos((cy < innerHeight / 2 ? "t" : "b") + (cx < innerWidth / 2 ? "l" : "r"));
+    const r3 = n => Math.round(Math.min(1, Math.max(0, n)) * 1000) / 1000;
+    setPos("free", [r3(cx / innerWidth), r3(cy / innerHeight)]);
   }
   function setMin(on){ root.classList.toggle("min", on); lsSet(minKey, on ? 1 : 0); meBtn.setAttribute("aria-label", on ? av.name + "（タップで出す）" : av.name + "（タップで話す・着せかえ）"); }
 
@@ -443,7 +466,7 @@
     "寝る前にちょっと復習すると、次の日に思い出しやすいよ。",
     "同じ問題を3日後にもう一度解くと、記憶に残りやすいよ。",
     "計算問題は、式を紙に書いてから解くとミスがへるよ。",
-    "わたしを指でつかんで動かすと、画面の四すみの好きなところに置けるよ。"
+    "わたしを指でつかんで動かすと、画面の好きなところに置けるよ。"
   ];
   const OK_LINES = ["正解！その調子！", "やったね！", "さすが！", "ばっちり！", "いいね、覚えてる！", "ナイス！"];
   const NG_LINES = ["おしい！解説を読めば、もう覚えたも同然だよ。", "だいじょうぶ、まちがえた問題こそ伸びしろ！", "ドンマイ！次は解けるよ。", "ここで覚えれば本番で解ける！", "むずかしい問題だったね。解説をチェックしよう。"];
@@ -534,7 +557,7 @@
     ni.oninput = () => { draft.name = ni.value; };
     nameRow.append(nl, ni);
     const goalRow = chipRow("1日の目標（問題数）", GOALS.map(g => ({ id: g, name: g + "問" })), "goal");
-    const posRow = chipRow("いる場所（指でつかんで動かしてもOK）", POS, "pos");
+    const posRow = chipRow("いる場所（指でつかんで動かすと、好きな場所に置けます）", draft.xy ? POS : POS.filter(x => x.id !== "free"), "pos");
     const msg = document.createElement("div"); msg.className = "kqg-msg"; msg.setAttribute("role", "status");
     const foot = document.createElement("div"); foot.className = "kqg-foot";
     const cancel = document.createElement("button"); cancel.type = "button"; cancel.className = "kqg-btn"; cancel.textContent = "やめる"; cancel.onclick = closeEditor;
@@ -637,6 +660,7 @@
     root.classList.toggle("min", !!lsGet(minKey, 0));
     meBtn.setAttribute("aria-label", av.name + (root.classList.contains("min") ? "（タップで出す）" : "（タップで話す・着せかえ）"));
     applyOff();
+    window.addEventListener("resize", () => { if (av && av.pos === "free") applyPos(); });
     window.addEventListener("kq-avatar", () => { av = getAv(); paint(curMood); applyOff(); });
     watch();
     setTimeout(() => refresh(), pageApp() ? 900 : 300);
