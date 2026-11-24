@@ -135,6 +135,15 @@ select,input[type=search]{border:1px solid var(--line2);background:var(--sheet);
 .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
 .filters label{display:grid;gap:3px;font-size:12px;color:var(--sub)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* みんなの正答率 */
+.crowd{display:grid;gap:4px;margin-top:4px;padding-top:8px;border-top:1px solid var(--line)}
+.crowd-row{display:flex;align-items:center;gap:8px}
+.crowd-l{font-size:13px;font-weight:700;color:var(--sub)}
+.crowd-n{font-family:var(--f-num);font-weight:600;font-size:20px;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.crowd-bar{flex:1;max-width:160px;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.crowd-bar i{display:block;height:100%;background:var(--sub)}
+.crowd-msg{font-size:13.5px}
+.crowd-src{font-size:11px;color:var(--sub)}
 /* 解説 */
 .exp{margin-top:12px;padding:16px 18px;border-radius:12px;background:var(--paper);font-size:15px;line-height:1.8}
 .exp-h{display:inline-block;font-family:var(--f-disp);font-weight:900;font-size:13px;letter-spacing:.08em;color:var(--accent);margin-bottom:6px}
@@ -806,6 +815,7 @@ function renderQuiz(){
         ${q.answer.length ? `<span>正解は <b>${[q.answer, ...(q.alt || [])].map(a => a.join("・")).join(" または ")}</b>（${q.answer.map(n => esc(q.choices[n - 1])).join("、")}${q.alt ? " など" : ""}）</span>` : ""}
         ${q.note ? `<span style="font-size:13px">※ ${esc(q.note)}</span>` : q.alt ? `<span style="font-size:13px">※ 厚生労働省が複数の答えを正解と発表した問題です</span>` : ""}
         ${weakNote(quiz.wk[quiz.i], ok)}
+        ${crowdHtml(q, ok, need)}
       </div>${expHtml(q)}` : ""}
     <div class="qfoot">
       <button class="btn" id="q-quit">やめる</button>
@@ -813,6 +823,20 @@ function renderQuiz(){
              : `<button class="btn primary" id="q-answer" ${quiz.picked.size === need ? "" : "disabled"}>答え合わせ</button>`}
     </div>`;
   if (done && window.ZukaiMount) ZukaiMount(document.querySelector("#sheet .exp"), q.id);
+}
+/* みんなの正答率（kakomon/rates.json、tools/add-rates.py で作る） */
+let RATES = null;
+fetch("rates.json").then(r => r.ok ? r.json() : null).then(d => { if (d && d.r) { RATES = d; if (view === "quiz" && quiz && quiz.done) renderQuiz(); } }).catch(() => {});
+function crowdHtml(q, ok, need){
+  const p = RATES && q.answer.length ? RATES.r[q.id] : undefined;
+  if (p == null) return "";
+  const msg = ok ? (p < 40 ? "みんなの正答率が低い難しい問題。正解できたのは大きな強みです"
+                   : p < 60 ? "半分近くの人が落とした問題。よく取れました" : "")
+                 : (p >= 70 ? "多くの人が正解している問題。本番で落とすと差がつくので、ここは取りたい"
+                   : p < 40 ? "みんなも苦戦した問題。解説で押さえれば一歩リードできます" : "");
+  return `<div class="crowd"><div class="crowd-row"><span class="crowd-l">みんなの正答率</span><b class="crowd-n">${p}%</b><span class="crowd-bar" aria-hidden="true"><i style="width:${p}%"></i></span></div>
+    ${msg ? `<span class="crowd-msg">${msg}</span>` : ""}
+    <span class="crowd-src">出典：${esc(RATES.src)}${need > 1 ? "。2つ選ぶ問題は、正解の選択肢を選んだ人の割合の小さい方" : ""}</span></div>`;
 }
 function weakNote(w, ok){
   if (!w) return "";
