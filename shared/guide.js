@@ -306,6 +306,7 @@
   .kqg.kqg-free{right:auto;bottom:auto}
   .kqg.kqg-free .kqg-bubble{max-width:var(--kqg-bw,290px)}
   .kqg.kqg-drag{transition:none;opacity:.9}
+  .kqg.kqg-drag .kqg-me{outline:2px dashed var(--g-acc);outline-offset:2px;border-radius:14px}
   .kqg.kqg-drag .kqg-bubble{display:none}
   .kqg[hidden]{display:none}
   .kqg-me{display:block;width:72px;height:80px;padding:0;border:0;background:none;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.22));transition:transform .25s}
@@ -420,25 +421,35 @@
     KQ.avatar.set(Object.assign(keep, { pos: p, xy: xy || keep.xy || null, on: true })); av = getAv(); applyPos();
     pushCloud();
   }
-  // 指（マウス）でつかんで動かす → はなした場所にそのまま置く
+  // 長押し（0.5秒）してから動かす → はなした場所にそのまま置く
+  // ふつうのタップや、キャラの上をさっとなぞっただけでは動かない（うっかり動かさないため）
+  const HOLD_MS = 500;
   function dragStart(e){
     if (e.button > 0) return;
-    drag = { x: e.clientX, y: e.clientY, on: false };
-    try { meBtn.setPointerCapture(e.pointerId); } catch {}
+    const id = e.pointerId;
+    drag = { x: e.clientX, y: e.clientY, on: false, moved: false };
+    drag.t = setTimeout(() => {
+      if (!drag) return;
+      drag.on = true; root.classList.add("kqg-drag"); hide();
+      try { meBtn.setPointerCapture(id); } catch {}
+    }, HOLD_MS);
   }
   function dragMove(e){
     if (!drag) return;
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-    if (!drag.on) { if (Math.hypot(dx, dy) < 10) return; drag.on = true; root.classList.add("kqg-drag"); hide(); }
+    if (!drag.on) { if (Math.hypot(dx, dy) >= 10) { clearTimeout(drag.t); drag = null; } return; } // 長押し前に指が動いた＝動かさない
+    if (Math.hypot(dx, dy) >= 10) drag.moved = true;
     root.style.transform = `translate(${dx}px,${dy}px)`;
   }
   function dragEnd(e){
     const d = drag; drag = null;
-    if (!d || !d.on) return;
+    if (!d) return;
+    clearTimeout(d.t);
+    if (!d.on) return;
+    dragged = Date.now(); // 長押しのあとのタップは「話す」にしない
     const b = root.getBoundingClientRect(), cx = b.left + b.width / 2, cy = b.top + b.height / 2;
     root.style.transform = ""; root.classList.remove("kqg-drag");
-    if (e.type === "pointercancel") return;
-    dragged = Date.now();
+    if (e.type === "pointercancel" || !d.moved) return;
     const r3 = n => Math.round(Math.min(1, Math.max(0, n)) * 1000) / 1000;
     setPos("free", [r3(cx / innerWidth), r3(cy / innerHeight)]);
   }
@@ -466,7 +477,7 @@
     "寝る前にちょっと復習すると、次の日に思い出しやすいよ。",
     "同じ問題を3日後にもう一度解くと、記憶に残りやすいよ。",
     "計算問題は、式を紙に書いてから解くとミスがへるよ。",
-    "わたしを指でつかんで動かすと、画面の好きなところに置けるよ。"
+    "わたしを長押しして（0.5秒）そのまま動かすと、画面の好きなところに置けるよ。"
   ];
   const OK_LINES = ["正解！その調子！", "やったね！", "さすが！", "ばっちり！", "いいね、覚えてる！", "ナイス！"];
   const NG_LINES = ["おしい！解説を読めば、もう覚えたも同然だよ。", "だいじょうぶ、まちがえた問題こそ伸びしろ！", "ドンマイ！次は解けるよ。", "ここで覚えれば本番で解ける！", "むずかしい問題だったね。解説をチェックしよう。"];
@@ -557,7 +568,7 @@
     ni.oninput = () => { draft.name = ni.value; };
     nameRow.append(nl, ni);
     const goalRow = chipRow("1日の目標（問題数）", GOALS.map(g => ({ id: g, name: g + "問" })), "goal");
-    const posRow = chipRow("いる場所（指でつかんで動かすと、好きな場所に置けます）", draft.xy ? POS : POS.filter(x => x.id !== "free"), "pos");
+    const posRow = chipRow("いる場所（キャラを長押ししてから動かすと、好きな場所に置けます）", draft.xy ? POS : POS.filter(x => x.id !== "free"), "pos");
     const msg = document.createElement("div"); msg.className = "kqg-msg"; msg.setAttribute("role", "status");
     const foot = document.createElement("div"); foot.className = "kqg-foot";
     const cancel = document.createElement("button"); cancel.type = "button"; cancel.className = "kqg-btn"; cancel.textContent = "やめる"; cancel.onclick = closeEditor;
@@ -648,6 +659,8 @@
     meBtn.addEventListener("pointerup", dragEnd);
     meBtn.addEventListener("pointercancel", dragEnd);
     meBtn.addEventListener("contextmenu", e => e.preventDefault());
+    // 長押しで動かしているあいだは、画面がスクロールしないようにする
+    document.addEventListener("touchmove", e => { if (drag && drag.on) e.preventDefault(); }, { passive: false });
     meBtn.onclick = () => { if (Date.now() - dragged < 500) return; if (root.classList.contains("min")) { setMin(false); return say("よんだ？", { mood: "happy", anim: "kqg-jump" }); } bubble.classList.contains("on") ? hide() : talk(); };
     root.append(bubble, meBtn);
     sheet = document.createElement("div"); sheet.className = "kqg-sheet"; sheet.hidden = true;
