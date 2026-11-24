@@ -266,8 +266,8 @@
   .wk-note{font-size:12.5px;color:var(--sub);line-height:1.6;margin:10px 0 0}
   .wk-pass{margin:16px 0 0;font-weight:700;text-align:center}
   .wk-rules{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-  .wk-rules li{position:relative;padding:10px 16px 10px 36px;border-radius:14px;background:var(--paper);font-size:13.5px;line-height:1.6}
-  .wk-rules li::before{content:"✓";position:absolute;left:14px;top:10px;color:var(--ok);font-weight:700}
+  .wk-rules li{display:flex;gap:8px;padding:10px 16px;border-radius:14px;background:var(--paper);font-size:13.5px;line-height:1.6}
+  .wk-rules li::before{content:"✓";flex:none;color:var(--ok);font-weight:700}
   .wk-hist{display:grid}
   .wk-hrow{display:flex;align-items:center;gap:10px;padding:10px 4px;border:0;border-top:1px solid var(--line);background:none;text-align:left;width:100%}
   .wk-hrow:first-child{border-top:0}
