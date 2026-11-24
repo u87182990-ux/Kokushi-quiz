@@ -132,17 +132,6 @@ select,input[type=search]{border:1px solid var(--line2);background:var(--sheet);
 .jsrc>span:not(.chip){width:100%;font-size:13px;color:var(--sub)}
 .jprog{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--sub)}
 .jprog+.prog{margin-top:4px}
-.choice .jm{flex:none;width:16px;text-align:center;font-weight:700;margin-top:1px}
-.choice.j-ok{background:var(--ng-soft);border-color:transparent}
-.choice.j-ok .jm{color:var(--ng)}
-.choice.j-ok .bubble{border-color:var(--ng);color:var(--ng);background:transparent}
-.choice.j-ng{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.choice.j-ng .bubble{border-color:var(--accent-ink);color:var(--accent-ink);background:transparent}
-.choice.j-other{background:var(--accent-soft);border-color:transparent;color:var(--sub)}
-.choice.j-other .bubble{border-color:var(--line2);color:var(--sub);background:transparent}
-.choice.j-ok::after{content:"正解";margin-left:auto;flex:none;padding-left:8px;font-size:12px;font-weight:700;color:var(--ng)}
-.choice.j-ng::after{content:"あなたの答え";margin-left:auto;flex:none;padding-left:8px;font-size:12px;font-weight:700}
-.choice.j-ok:disabled,.choice.j-ng:disabled,.choice.j-other:disabled{opacity:1}
 .jres{margin-top:16px;display:grid;gap:4px}
 .jres .jsel{font-size:14px}
 .jres .big{font-family:var(--f-disp);font-weight:900;font-size:20px}
@@ -827,10 +816,9 @@ function renderQuiz(){
   memo.sync(quiz.seq + ":" + quiz.i);
   const choices = q.choices.map((c, i) => {
     const n = i + 1, picked = quiz.picked.has(n), isAns = q.answer.includes(n) || (q.alt || []).some(a => a.includes(n));
-    /*judge*/const cls = done ? (isAns && q.answer.length ? "j-ok" : picked ? "j-ng" : "j-other") : "";
-    const mk = done ? `<span class="jm" aria-hidden="true">${isAns && q.answer.length ? "○" : "×"}</span>` : "";
+    const cls = done ? (isAns ? "correct" : picked ? "wrongpick" : "") : "";
     return `<li><button class="choice ${cls}" data-n="${n}" aria-pressed="${picked}" ${done ? "disabled" : ""}>
-      ${mk}<span class="bubble">${n}</span><span class="jt">${esc(c)}</span></button></li>`;
+      <span class="bubble">${n}</span><span>${esc(c)}</span></button></li>`;
   }).join("");
   const imgs = (q.images || []).map(src => `<img src="${esc(src)}" alt="問題の画像" loading="lazy">`).join("");
   $("#sheet").innerHTML = `
@@ -844,7 +832,7 @@ function renderQuiz(){
     ${need > 1 ? `<span class="howmany">※ ${need}つ選ぶ問題です</span>` : ""}
     ${imgs ? `<div class="qimg">${imgs}</div>` : ""}
     <ol class="choices">${choices}</ol>
-    ${done ? `<div class="jres ${ok ? "ok" : "ng"}">
+    ${done ? `<!--judge--><div class="jres ${ok ? "ok" : "ng"}">
         <span class="jsel">選択：<b class="num">${[...quiz.picked].sort((a, b) => a - b).join("・") || "–"}</b></span>
         <span class="big">${ok ? "○ 正解！" : "✕ まちがい"}</span>
         ${q.answer.length ? `<span>正解は <b>${[q.answer, ...(q.alt || [])].map(a => a.join("・")).join(" または ")}</b>（${q.answer.map(n => esc(q.choices[n - 1])).join("、")}${q.alt ? " など" : ""}）</span>` : ""}
