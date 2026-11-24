@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="shared/skins.css?v=1795400000">
 <link rel="stylesheet" href="shared/tabbar.css?v=1795700000">
 <script src="shared/tabbar.js?v=1795700000" data-root="" data-tab="home"></script>
+<script src="shared/weekly.js?v=1795800000"></script>
 <script>
 /* 見た目の設定（シンプル）を、画面が出る前に当てる（ちらつき防止） */
 /* 見た目（4種類は書体も）を、画面が出る前に当てる（ちらつき防止） */
@@ -91,6 +92,11 @@ h1,h2,h3{font-family:var(--f-disp);margin:0;line-height:1.35}
 .menu .sc{grid-row:1/3;grid-column:3;font-size:20px;font-weight:700}
 .menu .sc small{font-size:12px}
 .menu .empty-row{display:block;color:var(--sub);font-size:13px}
+.menu.flat{border:0;border-radius:0;background:none}
+.menu.flat>a,.menu.flat>div{padding:10px 0;grid-template-columns:1fr auto}
+.menu.flat>a::after{content:none}
+.menu.flat b{grid-column:1} .menu.flat small{grid-column:1} .menu.flat .sc{grid-column:2}
+.wk-go .btn.primary{width:auto;min-width:60%}
 /* 案内キャラはタブの上に */
 .kqg.kqg-t:not(.kqg-free){top:calc(56px + env(safe-area-inset-top,0px))}
 
@@ -504,12 +510,35 @@ body{letter-spacing:.01em}
 
   <!-- ============ 模試 ============ -->
   <section class="view" id="v-mock" hidden>
-    <h2 class="sec">模試</h2>
-    <div class="modes">
-      <a class="mode wide" href="kakomon/?start=mock"><span class="ic">⏱️</span><b>200問模試</b><span id="m-mock">本番と同じ200問・タイマーつき・中断しても続きから</span></a>
+    <!-- 週間模試（コクシル式：1カード1機能） -->
+    <div class="panel wk-card">
+      <h2 class="wk-title">週間模試（<b id="w-label" style="font:inherit">–</b>）<br><span id="w-field"></span></h2>
+      <div class="wk-tiles">
+        <div><b class="num">20</b><span>問題数</span></div>
+        <div><b class="num">30</b><span>制限時間（分）</span></div>
+        <div><b class="num" id="w-me">–</b><span>今週の得点</span></div>
+      </div>
+      <div class="wk-go"><a class="btn primary" id="w-go" href="kakomon/?start=weekly">試験の説明を見る</a></div>
+      <p class="wk-note" id="w-note">毎週月曜に分野が変わります。その週は全員同じ20問です。</p>
     </div>
-    <h2 class="sec">これまでの結果<small>200問模試</small></h2>
-    <div class="menu" id="m-hist"></div>
+    <div class="panel wk-card">
+      <h2>週間模試の記録</h2>
+      <div class="menu flat" id="w-hist"></div>
+    </div>
+    <div class="panel wk-card">
+      <h2 class="wk-title">200問模試<br><span>本番と同じ 午前100問＋午後100問</span></h2>
+      <div class="wk-tiles">
+        <div><b class="num">200</b><span>問題数</span></div>
+        <div><b class="num">5</b><span>時間（目安）</span></div>
+        <div><b class="num" id="m-last">–</b><span>前回の得点</span></div>
+      </div>
+      <div class="wk-go"><a class="btn primary" href="kakomon/?start=mock" id="m-go">模試のページへ</a></div>
+      <p class="wk-note" id="m-mock">タイマーつき・中断しても続きから。合格ラインは6割（120点）です。</p>
+    </div>
+    <div class="panel wk-card">
+      <h2>200問模試の記録</h2>
+      <div class="menu flat" id="m-hist"></div>
+    </div>
   </section>
 
   <!-- ============ 成績 ============ -->
@@ -985,12 +1014,25 @@ body{letter-spacing:.01em}
   /* ---------- 模試（下のタブ） ---------- */
   function paintMock(){
     const ls = "kokushi-rec-v1" + sfx();
+    // 週間模試
+    const inf = KQWeekly.info(), W = KQWeekly.read(ls, cloud.kakomon?.wk), me = W.h.find(h => h.wk === inf.wk);
+    const run = W.cur && W.cur.status === "run" && W.cur.wk === inf.wk && Date.now() < W.cur.start + KQWeekly.LIMIT;
+    $("#w-label").textContent = inf.label; $("#w-field").textContent = "［" + inf.field + "］";
+    $("#w-me").innerHTML = me ? `<span class="pc-c" style="${KQPlan.pcAttr(me.score / me.n)}">${me.score}</span><small>/${me.n}</small>` : "–";
+    $("#w-go").textContent = run ? `続きを解く（残り ${Math.max(0, Math.ceil((W.cur.start + KQWeekly.LIMIT - Date.now()) / 60000))}分）` : me ? "今週のレポートを見る" : "試験の説明を見る";
+    $("#w-note").textContent = me ? `来週の分野は「${inf.next}」です。毎週月曜に変わります。` : "毎週月曜に分野が変わります。その週は全員同じ20問です。始めたら中断できません。";
+    $("#w-hist").innerHTML = W.h.length ? W.h.slice(0, 8).map(h => `<a href="kakomon/?start=weekly"><b>${esc(h.label)}</b><small>${esc(h.field)}・${h.score >= Math.ceil(h.n * KQWeekly.PASS) ? "合格ライン超え" : `合格ラインまで あと${Math.ceil(h.n * KQWeekly.PASS) - h.score}点`}</small><span class="sc num pc-c" style="${KQPlan.pcAttr(h.score / h.n)}">${h.score}<small>/${h.n}</small></span></a>`).join("")
+      : `<div class="empty-row">まだ結果はありません。受けると、週ごとの点数がここに並びます。</div>`;
+    // 200問模試
     const mk = [lsGet(ls + "-mock", null), cloud.kakomon?.mock].filter(x => x && x.at).sort((a, b) => b.at - a.at)[0];
-    $("#m-mock").innerHTML = mk && mk.status === "run" && mk.ids ? `<b class="num" style="font-size:inherit;margin:0">中断中：${Object.keys(mk.ans || {}).length} / ${mk.ids.length}問</b>・タップで続きから` : "本番と同じ200問・タイマーつき・中断しても続きから";
+    const mrun = mk && mk.status === "run" && mk.ids;
+    $("#m-mock").innerHTML = mrun ? `中断中：<b class="num">${Object.keys(mk.ans || {}).length} / ${mk.ids.length}問</b>。続きから解けます。` : "タイマーつき・中断しても続きから。合格ラインは6割（120点）です。";
+    $("#m-go").textContent = mrun ? "模試の続きへ" : "模試のページへ";
     let h = []; try { h = JSON.parse(localStorage.getItem(ls + "-mockh") || "[]"); } catch {}
     if (!Array.isArray(h)) h = [];
     for (const x of cloud.kakomon?.mockh || []) if (x && x.id && !h.some(y => y.id === x.id)) h.push(x);
     h.sort((a, b) => b.id - a.id);
+    $("#m-last").innerHTML = h[0] ? `<span class="pc-c" style="${KQPlan.pcAttr(h[0].score / h[0].n)}">${h[0].score}</span>` : "–";
     $("#m-hist").innerHTML = h.length ? h.slice(0, 10).map(x => {
       const line = Math.ceil(x.n * 0.6), d = new Date(x.id);
       return `<a href="kakomon/?start=mock"><b>${esc(x.title || "模試")}</b><small>${d.getMonth() + 1}月${d.getDate()}日・${x.score >= line ? "合格ライン超え" : `合格ラインまで あと${line - x.score}点`}</small><span class="sc num pc-c" style="${KQPlan.pcAttr(x.score / x.n)}">${x.score}<small>/${x.n}</small></span></a>`;
