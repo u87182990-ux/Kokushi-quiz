@@ -6,7 +6,7 @@
 - `index.html` … トップ（ログイン画面）
 - `kakomon/` … 過去問クイズ
 - `prep/` … 対策問題集
-- `ikougaku/`・`kisoi/`・`sugiura/`・`yamauchi/` … 追加ドリル（トップの「追加ドリル」→「えらぶ」で、使う人だけ自分のメニューに出す。一覧は index.html の EXTRA）
+- `ikougaku/`・`kisoi/`・`sugiura/`・`yamauchi/`・`keisoku/` … 追加ドリル（トップの「追加ドリル」→「えらぶ」で、使う人だけ自分のメニューに出す。一覧は index.html の EXTRA）
 - `shared/config.js` … Supabase の URL と anon キー
 - `shared/account.js` … ニックネームで保存するしくみ
 - `supabase.sql` … Supabase の SQL Editor で1回だけ実行するもの
