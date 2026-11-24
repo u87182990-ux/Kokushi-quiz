@@ -2,6 +2,7 @@
 // 見た目のパーツは下の TYPES / COLORS / OUTFITS / ACCS に1行足すだけで選べるようになります
 (() => {
   if (window.KQGuide) return;
+  const BASE = (document.currentScript && document.currentScript.src || location.href).replace(/[^/]*$/, "");
 
   /* ---------- 見た目のパーツ ---------- */
   const TYPES = [
@@ -12,6 +13,10 @@
     { id: "hiyoko", name: "ひよこ" },
     { id: "robo", name: "ロボ" },
     { id: "hito", name: "ひと" },
+    { id: "nui", name: "ぬいぐるみ" },
+    { id: "mofu", name: "もふもふ" },
+    // 絵（画像）のキャラは、shared/chara/<名前>-normal.png（と -happy / -cheer / -think）を置いて、下のように1行足す
+    // { id: "xxx", name: "なまえ", img: "xxx", moods: ["happy", "cheer", "think"] },
     // ここから下は内臓・細胞キャラ（服はなし。色は OCOLORS から。絵は ORGANS）
     { id: "o-heart", name: "しんぞう" }, { id: "o-brain", name: "のう" }, { id: "o-stomach", name: "い" },
     { id: "o-gut", name: "ちょう" }, { id: "o-lung", name: "はい" }, { id: "o-liver", name: "かんぞう" },
@@ -22,7 +27,8 @@
     { id: "#ffc48a", name: "オレンジ" }, { id: "#ffb3c7", name: "ピンク" }, { id: "#ffe27a", name: "きいろ" },
     { id: "#a8e0a0", name: "みどり" }, { id: "#9fd8f5", name: "みずいろ" }, { id: "#c9b3ff", name: "むらさき" },
     { id: "#f7f4ee", name: "しろ" }, { id: "#c89b74", name: "ちゃいろ" }, { id: "#b8c0cc", name: "グレー" },
-    { id: "#5b4a42", name: "こげちゃ" }
+    { id: "#5b4a42", name: "こげちゃ" },
+    { id: "#f1e6d6", name: "クリーム" }
   ];
   const OUTFITS = [
     { id: "none", name: "なし" }, { id: "hakui", name: "白衣" }, { id: "scrub", name: "スクラブ" },
@@ -34,7 +40,9 @@
     { id: "badge", name: "名札" }
   ];
   const GOALS = [5, 10, 20, 30, 50, 80, 100];
-  const DEF = { type: "neko", color: "#ffc48a", ocolor: "orig", outfit: "hakui", acc: "none", name: "ナビ", goal: 10 };
+  const DEF = { type: "neko", color: "#ffc48a", ocolor: "orig", outfit: "hakui", acc: "none", name: "ナビ", goal: 10, pos: "br" };
+  // キャラのいる場所。四すみか、指でつかんで動かした好きな場所（free：xy に画面の何割の位置かを入れる）
+  const POS = [{ id: "bl", name: "左下" }, { id: "br", name: "右下" }, { id: "tl", name: "左上" }, { id: "tr", name: "右上" }, { id: "free", name: "動かした場所" }];
 
   /* ---------- 絵（SVG） ---------- */
   const L = "#3b2f2f"; // 線の色
@@ -120,19 +128,95 @@
   }
   function acc(a, t){
     switch (a) {
-      case "megane": return `<circle cx="39" cy="53" r="8" fill="#fff" fill-opacity=".18" stroke="${L}" stroke-width="2.2"/><circle cx="61" cy="53" r="8" fill="#fff" fill-opacity=".18" stroke="${L}" stroke-width="2.2"/><path d="M47 52 Q50 50 53 52" fill="none" stroke="${L}" stroke-width="2.2"/>`;
+      case "megane": if (t === "mofu" || t === "nui") return `<circle cx="42" cy="53" r="6.5" fill="#fff" fill-opacity=".15" stroke="${L}" stroke-width="1.8"/><circle cx="58" cy="53" r="6.5" fill="#fff" fill-opacity=".15" stroke="${L}" stroke-width="1.8"/><path d="M48.5 52.5 Q50 51.5 51.5 52.5" fill="none" stroke="${L}" stroke-width="1.8"/>`;
+        return `<circle cx="39" cy="53" r="8" fill="#fff" fill-opacity=".18" stroke="${L}" stroke-width="2.2"/><circle cx="61" cy="53" r="8" fill="#fff" fill-opacity=".18" stroke="${L}" stroke-width="2.2"/><path d="M47 52 Q50 50 53 52" fill="none" stroke="${L}" stroke-width="2.2"/>`;
       case "stetho": return `<path d="M38 82 C34 92 40 102 50 102 C60 102 66 92 62 82" fill="none" stroke="#56606e" stroke-width="2.6" stroke-linecap="round"/><path d="M62 92 C70 96 70 104 66 106" fill="none" stroke="#56606e" stroke-width="2.4" stroke-linecap="round"/><circle cx="65" cy="107" r="4" fill="#c9d3de" stroke="#56606e" stroke-width="2"/>`;
-      case "ribbon": { const y = t === "usagi" ? 30 : 24, x = t === "robo" ? 70 : 72;
+      case "ribbon": { const y = t === "usagi" ? 30 : t === "mofu" ? 20 : t === "nui" ? 30 : 24, x = t === "robo" ? 70 : t === "nui" ? 70 : 72;
         return `<g transform="translate(${x} ${y}) rotate(18)"><path d="M0 0 L-12 -7 L-12 7 Z M0 0 L12 -7 L12 7 Z" fill="#ff6b9a" ${sw} stroke-width="1.8"/><circle r="3.4" fill="#ff4f86" ${sw} stroke-width="1.6"/></g>`; }
-      case "crown": { const y = t === "robo" ? 6 : t === "usagi" ? 8 : 10;
+      case "crown": { const y = t === "robo" ? 6 : t === "usagi" ? 8 : t === "mofu" ? 2 : t === "nui" ? 6 : 10;
         return `<path d="M37 ${y + 14} L35 ${y} L43 ${y + 7} L50 ${y - 3} L57 ${y + 7} L65 ${y} L63 ${y + 14} Z" fill="#ffd23f" ${sw} stroke-width="1.8"/><circle cx="50" cy="${y + 9}" r="2" fill="#e5576b"/>`; }
       case "phones": return `<path d="M20 52 C18 22 82 22 80 52" fill="none" stroke="#4a4f5c" stroke-width="4.5" stroke-linecap="round"/><rect x="13" y="44" width="11" height="18" rx="5" fill="#6c63ff" ${sw}/><rect x="76" y="44" width="11" height="18" rx="5" fill="#6c63ff" ${sw}/>`;
-      case "badge": return `<rect x="31" y="94" width="16" height="10" rx="2" fill="#fff" ${sw} stroke-width="1.4"/><line x1="34" y1="98" x2="44" y2="98" stroke="#1d6fd8" stroke-width="1.6"/><line x1="34" y1="101" x2="41" y2="101" stroke="#8fa6c2" stroke-width="1.4"/>`;
+      case "badge": if (t === "mofu") return `<rect x="56" y="82" width="16" height="10" rx="2" fill="#fff" ${sw} stroke-width="1.4"/><line x1="59" y1="86" x2="69" y2="86" stroke="#1d6fd8" stroke-width="1.6"/><line x1="59" y1="89" x2="66" y2="89" stroke="#8fa6c2" stroke-width="1.4"/>`;
+        return `<rect x="31" y="94" width="16" height="10" rx="2" fill="#fff" ${sw} stroke-width="1.4"/><line x1="34" y1="98" x2="44" y2="98" stroke="#1d6fd8" stroke-width="1.6"/><line x1="34" y1="101" x2="41" y2="101" stroke="#8fa6c2" stroke-width="1.4"/>`;
       default: return "";
     }
   }
+  let uid = 0;
+  function softDefs(c, id){ const skin = "#f7e3d3"; return `<defs>
+      <filter id="${id}f" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter>
+      <filter id="${id}t" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.8 .9" numOctaves="3" seed="2"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 -.18"/><feComposite in2="SourceAlpha" operator="in"/></filter>
+      <filter id="${id}b"><feGaussianBlur stdDeviation="1.6"/></filter>
+      <radialGradient id="${id}g" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="${shade(c, 1.16)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${shade(c, .74)}"/></radialGradient>
+      <radialGradient id="${id}s" cx=".45" cy=".35" r=".75"><stop offset="0" stop-color="#fff6ee"/><stop offset=".7" stop-color="${skin}"/><stop offset="1" stop-color="#e8c6b0"/></radialGradient>
+    </defs>`; }
+  function softFace(mood){
+    const ink = "#2b2230";
+    let eyes, mouth;
+    if (mood === "happy") {
+      eyes = `<path d="M38 53 Q42 48.5 46 53 M54 53 Q58 48.5 62 53" fill="none" stroke="${ink}" stroke-width="2.4" stroke-linecap="round"/>`;
+      mouth = `<path d="M46 59 Q50 65 54 59 Z" fill="#d9536a"/>`;
+    } else if (mood === "cheer") {
+      eyes = `<circle cx="42" cy="53" r="2.8" fill="${ink}"/><circle cx="58" cy="53" r="2.8" fill="${ink}"/><circle cx="43" cy="52" r=".9" fill="#fff"/><circle cx="59" cy="52" r=".9" fill="#fff"/>
+        <path d="M37 46.5 L45 48 M63 46.5 L55 48" stroke="${ink}" stroke-width="1.8" stroke-linecap="round"/>`;
+      mouth = `<path d="M47 60 Q50 62 53 60" fill="none" stroke="${ink}" stroke-width="1.7" stroke-linecap="round"/>`;
+    } else {
+      eyes = `<g class="kqg-eyes"><circle cx="42" cy="53" r="3" fill="${ink}"/><circle cx="58" cy="52" r="3" fill="${ink}"/><circle cx="43.1" cy="51.9" r="1" fill="#fff"/><circle cx="59.1" cy="50.9" r="1" fill="#fff"/></g>`;
+      mouth = mood === "think" ? `<path d="M47 60 L53 59.5" stroke="${ink}" stroke-width="1.7" stroke-linecap="round"/>` : `<path d="M46.5 59 Q50 62.5 53.5 59" fill="none" stroke="${ink}" stroke-width="1.7" stroke-linecap="round"/>`;
+    }
+    return eyes + mouth;
+  }
+  function drawMofu(av, mood){ // ふわふわの毛玉キャラ（毛のふち・やわらかい影つき）
+    const c = av.color, id = "kqm" + (++uid);
+    const defs = softDefs(c, id);
+    const blob = "M50 7 C79 7 92 33 91 62 C90 93 75 111 50 111 C25 111 10 93 9 62 C8 33 21 7 50 7 Z";
+    const eyes = softFace(mood), mouth = "";
+    const top = (av.acc === "crown" || av.acc === "ribbon") ? acc(av.acc, "mofu") : "";
+    const other = (av.acc !== "crown" && av.acc !== "ribbon") ? acc(av.acc, "mofu") : "";
+    return `<svg viewBox="0 -2 100 116" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}
+      <ellipse cx="50" cy="110" rx="30" ry="4" fill="#000" opacity=".12" filter="url(#${id}b)"/>
+      <g filter="url(#${id}f)"><path d="${blob}" fill="url(#${id}g)"/><path d="${blob}" fill="#fff" filter="url(#${id}t)"/></g>
+      <ellipse cx="50" cy="55" rx="21" ry="18" fill="#000" opacity=".16" filter="url(#${id}b)"/>
+      <ellipse cx="50" cy="54" rx="20" ry="17" fill="url(#${id}s)"/>
+      <ellipse cx="50" cy="54" rx="21.5" ry="18.5" fill="none" stroke="${shade(c, 1.05)}" stroke-width="3.5" filter="url(#${id}f)"/>
+      <ellipse cx="36.5" cy="58.5" rx="4.6" ry="3.2" fill="#ff9aa8" opacity=".6" filter="url(#${id}b)"/><ellipse cx="63.5" cy="58.5" rx="4.6" ry="3.2" fill="#ff9aa8" opacity=".6" filter="url(#${id}b)"/>
+      ${eyes}${mouth}${other}${top}</svg>`;
+  }
+  function drawNui(av, mood){ // たて長のぬいぐるみ体型（3頭身・小さな手足・おなかの縫い目）
+    const c = av.color, id = "kqn" + (++uid), defs = softDefs(c, id), lite = shade(c, 1.14), dark = shade(c, .86);
+    const body = "M50 6 C69 6 79 21 79 40 C79 50 77 56 78 64 C81 80 82 98 67 105 C59 109 41 109 33 105 C18 98 19 80 22 64 C23 56 21 50 21 40 C21 21 31 6 50 6 Z";
+    const fur = d => `<g filter="url(#${id}f)"><path d="${d}" fill="url(#${id}g)"/><path d="${d}" fill="#fff" filter="url(#${id}t)"/></g>`;
+    // 手のポーズ：ふつう＝下、よろこぶ＝ばんざい、はげます＝片手でガッツポーズ
+    const armL = mood === "happy" ? "rotate(125 27 64)" : mood === "cheer" ? "rotate(0 27 64)" : "rotate(18 27 64)";
+    const armR = mood === "happy" ? "rotate(-125 73 64)" : mood === "cheer" ? "rotate(-150 73 64)" : "rotate(-18 73 64)";
+    const arm = (x, tr) => `<g transform="${tr}"><g filter="url(#${id}f)"><ellipse cx="${x}" cy="76" rx="6.5" ry="11" fill="${dark}"/><ellipse cx="${x}" cy="76" rx="6.5" ry="11" fill="#fff" filter="url(#${id}t)"/></g></g>`;
+    const top = (av.acc === "crown" || av.acc === "ribbon") ? acc(av.acc, "nui") : "";
+    const other = (av.acc !== "crown" && av.acc !== "ribbon") ? acc(av.acc, "nui") : "";
+    return `<svg viewBox="0 -10 100 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}
+      <ellipse cx="50" cy="110" rx="26" ry="3.6" fill="#000" opacity=".13" filter="url(#${id}b)"/>
+      ${fur("M30 13 m-7 0 a7 7 0 1 0 14 0 a7 7 0 1 0 -14 0")}${fur("M70 13 m-7 0 a7 7 0 1 0 14 0 a7 7 0 1 0 -14 0")}
+      <circle cx="30" cy="13" r="3.4" fill="${dark}" opacity=".7"/><circle cx="70" cy="13" r="3.4" fill="${dark}" opacity=".7"/>
+      ${fur("M30 104 m-10 0 a10 6 0 1 0 20 0 a10 6 0 1 0 -20 0")}${fur("M70 104 m-10 0 a10 6 0 1 0 20 0 a10 6 0 1 0 -20 0")}
+      ${fur(body)}
+      <ellipse cx="50" cy="84" rx="15" ry="13" fill="${lite}" opacity=".85" filter="url(#${id}b)"/>
+      <ellipse cx="50" cy="84" rx="13" ry="11" fill="none" stroke="${dark}" stroke-width="1" stroke-dasharray="2.2 2" opacity=".8"/>
+      ${arm(27, armL)}${arm(73, armR)}
+      <ellipse cx="50" cy="42" rx="17" ry="12" fill="${lite}" opacity=".7" filter="url(#${id}b)"/>
+      <g transform="translate(0 -14)">
+        <ellipse cx="36.5" cy="58.5" rx="4.6" ry="3.2" fill="#ff9aa8" opacity=".65" filter="url(#${id}b)"/><ellipse cx="63.5" cy="58.5" rx="4.6" ry="3.2" fill="#ff9aa8" opacity=".65" filter="url(#${id}b)"/>
+        ${softFace(mood)}
+      </g>
+      <g transform="translate(0 -14)">${other}${top}</g></svg>`;
+  }
+  function drawImg(t, mood){
+    const m = (t.moods || []).includes(mood) ? mood : "normal";
+    return `<svg viewBox="0 -2 100 116" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><image href="${BASE}chara/${t.img}-${m}.png" x="0" y="-2" width="100" height="116" preserveAspectRatio="xMidYMax meet"/></svg>`;
+  }
   function draw(av, mood){
     if (isOrgan(av.type)) return drawOrgan(av, mood);
+    const ti = TYPES.find(x => x.id === av.type);
+    if (ti && ti.img) return drawImg(ti, mood);
+    if (av.type === "mofu") return drawMofu(av, mood);
+    if (av.type === "nui") return drawNui(av, mood);
     const t = av.type, c = av.color;
     const wings = t === "hiyoko" ? `<ellipse cx="23" cy="96" rx="6" ry="10" fill="${c}" ${sw} transform="rotate(25 23 96)"/><ellipse cx="77" cy="96" rx="6" ry="10" fill="${c}" ${sw} transform="rotate(-25 77 96)"/>` : "";
     const top = (av.acc === "crown" || av.acc === "ribbon") ? acc(av.acc, t) : "";
@@ -255,6 +339,10 @@
     v.ocolor = valid(OCOLORS, v.ocolor, DEF.ocolor);
     v.outfit = valid(OUTFITS, v.outfit, DEF.outfit); v.acc = valid(ACCS, v.acc, DEF.acc);
     v.goal = GOALS.includes(+v.goal) ? +v.goal : DEF.goal;
+    v.pos = valid(POS, v.pos, DEF.pos);
+    const okXY = Array.isArray(v.xy) && v.xy.length === 2 && v.xy.every(n => typeof n === "number" && n >= 0 && n <= 1);
+    v.xy = okXY ? v.xy : null;
+    if (v.pos === "free" && !v.xy) v.pos = DEF.pos;
     v.name = String(v.name || DEF.name).slice(0, 10);
     v.off = !(a && a.on === true); // 最初はオフ。トップページの「オンにする」で出てくる
     v.isNew = !a;
@@ -294,13 +382,21 @@
     font-family:"BIZ UDPGothic","Hiragino Sans","Noto Sans JP",sans-serif;-webkit-tap-highlight-color:transparent}
   .kqg-sheet{--g-bg:#ffffff;--g-ink:#1d2433;--g-sub:#5d6a7e;--g-line:#d9e0e8;--g-acc:#1d6fd8;--g-acc-ink:#fff;--g-soft:#eef3f9}
   @media (prefers-color-scheme:dark){.kqg,.kqg-sheet{--g-bg:#1a2331;--g-ink:#e8eef6;--g-sub:#9fb0c6;--g-line:#2e3d54;--g-acc:#5aa2ff;--g-acc-ink:#06121f;--g-soft:#222e40}}
-  html.kqg-on body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+  html.kqg-on:not(.kqg-top) body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+  .kqg.kqg-l{right:auto;left:max(12px,env(safe-area-inset-left))}
+  .kqg.kqg-t{bottom:auto;top:calc(12px + env(safe-area-inset-top))}
+  .kqg.kqg-free{right:auto;bottom:auto}
+  .kqg.kqg-free .kqg-bubble{max-width:var(--kqg-bw,290px)}
+  .kqg.kqg-drag{transition:none;opacity:.9}
+  .kqg.kqg-drag .kqg-me{outline:2px dashed var(--g-acc);outline-offset:2px;border-radius:14px}
+  .kqg.kqg-drag .kqg-bubble{display:none}
   .kqg[hidden]{display:none}
-  .kqg-me{display:block;width:72px;height:80px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 4px 8px rgba(0,0,0,.22));transition:transform .25s}
+  .kqg-me{display:block;width:72px;height:80px;padding:0;border:0;background:none;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.22));transition:transform .25s}
   .kqg-me svg{width:100%;height:100%;overflow:visible}
   .kqg-me:focus-visible{outline:3px solid var(--g-acc);outline-offset:2px;border-radius:16px}
   .kqg.min .kqg-me{width:40px;height:44px;transform:translateX(18px);opacity:.85}
   .kqg.min .kqg-bubble{display:none}
+  .kqg.kqg-l.min .kqg-me{transform:translateX(-18px)}
   .kqg-bob{animation:kqg-bob 3.2s ease-in-out infinite}
   .kqg-jump{animation:kqg-jump .7s ease-out 2}
   .kqg-shake{animation:kqg-tilt .9s ease-in-out 1}
@@ -314,6 +410,10 @@
     border:1.5px solid var(--g-line);border-radius:16px 16px 4px 16px;padding:10px 14px;font-size:14px;line-height:1.6;box-shadow:0 6px 20px rgba(0,0,0,.16);
     opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .2s,transform .2s}
   .kqg-bubble.on{opacity:1;transform:none;pointer-events:auto}
+  .kqg-l .kqg-bubble{right:auto;left:4px;border-radius:16px 16px 16px 4px}
+  .kqg-t .kqg-bubble{bottom:auto;top:86px;border-radius:16px 4px 16px 16px;transform:translateY(-6px)}
+  .kqg-t.kqg-l .kqg-bubble{border-radius:4px 16px 16px 16px}
+  .kqg-t .kqg-bubble.on{transform:none}
   .kqg-bubble b.kqg-who{display:block;font-size:11.5px;color:var(--g-sub);margin-bottom:1px}
   .kqg-bubble p{margin:0;white-space:pre-line}
   .kqg-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
@@ -341,6 +441,7 @@
   .kqg-foot .kqg-btn{flex:1;padding:11px;font-size:15px}
   .kqg-msg{font-size:13px;font-weight:700;min-height:1.4em;margin-top:6px}`;
 
+  let drag = null, dragged = 0;
   let root, meBtn, bubble, sheet, hideT = 0, curMood = "normal", av = null, streak = 0, lastKey = "", draft = null;
   const minKey = "kq-guide-min";
 
@@ -374,6 +475,66 @@
     hideT = setTimeout(hide, ms);
   }
   function hide(){ bubble.classList.remove("on"); clearTimeout(hideT); setTimeout(() => { if (!bubble.classList.contains("on")) paint("normal"); }, 300); }
+  // 好きな場所のときは、はみ出さないように画面の中におさめる（ホームは下タブより上・上のバーより下）
+  function freeBox(){
+    const tab = document.querySelector(".tabbar"), bar = document.querySelector(".topbar");
+    const w = root.offsetWidth || 72, h = root.offsetHeight || 80;
+    const top = (bar ? bar.getBoundingClientRect().bottom : 0) + 8;
+    const bottom = innerHeight - (tab ? tab.getBoundingClientRect().height : 0) - 8 - h;
+    return { w, h, x0: 8, x1: innerWidth - 8 - w, y0: top, y1: Math.max(top, bottom) };
+  }
+  function applyPos(){
+    let p = (av && av.pos) || DEF.pos, free = p === "free" && av.xy;
+    root.classList.toggle("kqg-free", !!free);
+    if (free) {
+      const b = freeBox(), cx = av.xy[0] * innerWidth, cy = av.xy[1] * innerHeight;
+      const x = Math.min(b.x1, Math.max(b.x0, cx - b.w / 2)), y = Math.min(b.y1, Math.max(b.y0, cy - b.h / 2));
+      root.style.left = x + "px"; root.style.top = y + "px";
+      p = (cy < innerHeight / 2 ? "t" : "b") + (cx < innerWidth / 2 ? "l" : "r");
+      // 吹き出しは画面の広いほうへ。はみ出さない幅にする
+      const room = p[1] === "l" ? innerWidth - x - 16 : x + b.w - 16;
+      root.style.setProperty("--kqg-bw", Math.max(180, Math.min(290, room)) + "px");
+    } else { root.style.left = root.style.top = ""; }
+    root.classList.toggle("kqg-l", p[1] === "l"); root.classList.toggle("kqg-t", p[0] === "t");
+    document.documentElement.classList.toggle("kqg-top", p[0] === "t");
+  }
+  function setPos(p, xy){
+    const { isNew, off, ...keep } = av; // eslint-disable-line no-unused-vars
+    KQ.avatar.set(Object.assign(keep, { pos: p, xy: xy || keep.xy || null, on: true })); av = getAv(); applyPos();
+    pushCloud();
+  }
+  // 長押し（0.5秒）してから動かす → はなした場所にそのまま置く
+  // ふつうのタップや、キャラの上をさっとなぞっただけでは動かない（うっかり動かさないため）
+  const HOLD_MS = 500;
+  function dragStart(e){
+    if (e.button > 0) return;
+    const id = e.pointerId;
+    drag = { x: e.clientX, y: e.clientY, on: false, moved: false };
+    drag.t = setTimeout(() => {
+      if (!drag) return;
+      drag.on = true; root.classList.add("kqg-drag"); hide();
+      try { meBtn.setPointerCapture(id); } catch {}
+    }, HOLD_MS);
+  }
+  function dragMove(e){
+    if (!drag) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.on) { if (Math.hypot(dx, dy) >= 10) { clearTimeout(drag.t); drag = null; } return; } // 長押し前に指が動いた＝動かさない
+    if (Math.hypot(dx, dy) >= 10) drag.moved = true;
+    root.style.transform = `translate(${dx}px,${dy}px)`;
+  }
+  function dragEnd(e){
+    const d = drag; drag = null;
+    if (!d) return;
+    clearTimeout(d.t);
+    if (!d.on) return;
+    dragged = Date.now(); // 長押しのあとのタップは「話す」にしない
+    const b = root.getBoundingClientRect(), cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+    root.style.transform = ""; root.classList.remove("kqg-drag");
+    if (e.type === "pointercancel" || !d.moved) return;
+    const r3 = n => Math.round(Math.min(1, Math.max(0, n)) * 1000) / 1000;
+    setPos("free", [r3(cx / innerWidth), r3(cy / innerHeight)]);
+  }
   function setMin(on){ root.classList.toggle("min", on); lsSet(minKey, on ? 1 : 0); meBtn.setAttribute("aria-label", on ? av.name + "（タップで出す）" : av.name + "（タップで話す・着せかえ）"); }
 
   /* ---------- セリフ ---------- */
@@ -397,7 +558,8 @@
     "10問ずつ区切ると、集中が続きやすいよ。",
     "寝る前にちょっと復習すると、次の日に思い出しやすいよ。",
     "同じ問題を3日後にもう一度解くと、記憶に残りやすいよ。",
-    "計算問題は、式を紙に書いてから解くとミスがへるよ。"
+    "計算問題は、式を紙に書いてから解くとミスがへるよ。",
+    "わたしを長押しして（0.5秒）そのまま動かすと、画面の好きなところに置けるよ。"
   ];
   const OK_LINES = ["正解！その調子！", "やったね！", "さすが！", "ばっちり！", "いいね、覚えてる！", "ナイス！"];
   const NG_LINES = ["おしい！解説を読めば、もう覚えたも同然だよ。", "だいじょうぶ、まちがえた問題こそ伸びしろ！", "ドンマイ！次は解けるよ。", "ここで覚えれば本番で解ける！", "むずかしい問題だったね。解説をチェックしよう。"];
@@ -488,6 +650,7 @@
     ni.oninput = () => { draft.name = ni.value; };
     nameRow.append(nl, ni);
     const goalRow = chipRow("1日の目標（問題数）", GOALS.map(g => ({ id: g, name: g + "問" })), "goal");
+    const posRow = chipRow("いる場所（キャラを長押ししてから動かすと、好きな場所に置けます）", draft.xy ? POS : POS.filter(x => x.id !== "free"), "pos");
     const msg = document.createElement("div"); msg.className = "kqg-msg"; msg.setAttribute("role", "status");
     const foot = document.createElement("div"); foot.className = "kqg-foot";
     const cancel = document.createElement("button"); cancel.type = "button"; cancel.className = "kqg-btn"; cancel.textContent = "やめる"; cancel.onclick = closeEditor;
@@ -495,7 +658,7 @@
     ok.onclick = async () => {
       draft.name = (ni.value || "").trim().slice(0, 10) || DEF.name;
       const { isNew, off, ...keep } = draft; // eslint-disable-line no-unused-vars
-      KQ.avatar.set(Object.assign(keep, { on: true })); av = getAv();
+      KQ.avatar.set(Object.assign(keep, { on: true })); av = getAv(); applyPos();
       ok.disabled = true; msg.textContent = S() ? "保存中…" : "";
       const r = await pushCloud();
       ok.disabled = false;
@@ -506,7 +669,7 @@
     offB.textContent = "キャラをオフにする（画面から消す）"; offB.onclick = () => { closeEditor(); setOff(true); };
     foot.append(cancel, ok);
     p.append(h, note, pv, nameRow, chipRow("種類", TYPES, "type"), chipRow(draft.type === "hito" ? "かみの色" : "色", COLORS, "color", true), chipRow("色", OCOLORS, "ocolor", true),
-      chipRow("服", OUTFITS, "outfit"), chipRow("小物", ACCS, "acc"), goalRow, msg, foot, offB);
+      chipRow("服（もふもふ・ぬいぐるみは服なし）", OUTFITS, "outfit"), chipRow("小物", ACCS, "acc"), goalRow, posRow, msg, foot, offB);
     // 「ひと」を選ぶと色の見出しを「かみの色」にする
     // 内臓・細胞キャラのときは「色」「服」の行をかくし、内臓用の「色」（もとの色つき）を出す
     const rowsFix = () => {
@@ -519,6 +682,7 @@
     setTimeout(() => ok.focus({ preventScroll: true }), 50);
   }
   function applyOff(){
+    applyPos();
     root.hidden = av.off; document.documentElement.classList.toggle("kqg-on", !av.off);
     if (av.off) { sheet.hidden = true; clearTimeout(hideT); bubble.classList.remove("on"); }
     try { window.dispatchEvent(new CustomEvent("kq-guide")); } catch {}
@@ -572,7 +736,14 @@
     bubble = document.createElement("div"); bubble.className = "kqg-bubble"; bubble.setAttribute("role", "status"); bubble.setAttribute("aria-live", "polite");
     bubble.onclick = hide;
     meBtn = document.createElement("button"); meBtn.type = "button"; meBtn.className = "kqg-me kqg-bob";
-    meBtn.onclick = () => { if (root.classList.contains("min")) { setMin(false); return say("よんだ？", { mood: "happy", anim: "kqg-jump" }); } bubble.classList.contains("on") ? hide() : talk(); };
+    meBtn.addEventListener("pointerdown", dragStart);
+    meBtn.addEventListener("pointermove", dragMove);
+    meBtn.addEventListener("pointerup", dragEnd);
+    meBtn.addEventListener("pointercancel", dragEnd);
+    meBtn.addEventListener("contextmenu", e => e.preventDefault());
+    // 長押しで動かしているあいだは、画面がスクロールしないようにする
+    document.addEventListener("touchmove", e => { if (drag && drag.on) e.preventDefault(); }, { passive: false });
+    meBtn.onclick = () => { if (Date.now() - dragged < 500) return; if (root.classList.contains("min")) { setMin(false); return say("よんだ？", { mood: "happy", anim: "kqg-jump" }); } bubble.classList.contains("on") ? hide() : talk(); };
     root.append(bubble, meBtn);
     sheet = document.createElement("div"); sheet.className = "kqg-sheet"; sheet.hidden = true;
     sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true"); sheet.setAttribute("aria-label", "キャラの着せかえ");
@@ -584,6 +755,7 @@
     root.classList.toggle("min", !!lsGet(minKey, 0));
     meBtn.setAttribute("aria-label", av.name + (root.classList.contains("min") ? "（タップで出す）" : "（タップで話す・着せかえ）"));
     applyOff();
+    window.addEventListener("resize", () => { if (av && av.pos === "free") applyPos(); });
     window.addEventListener("kq-avatar", () => { av = getAv(); paint(curMood); applyOff(); });
     watch();
     setTimeout(() => refresh(), pageApp() ? 900 : 300);
