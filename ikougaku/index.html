@@ -76,6 +76,46 @@ figure img{display:block;margin:0 auto;max-width:100%;height:auto}
 .foot{font-size:.75rem;color:var(--muted)}
 @media (prefers-reduced-motion:no-preference){.exp{animation:in .25s ease-out}@keyframes in{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}}
 .top{font-size:.85rem;color:var(--muted);text-decoration:none}.top:hover{color:var(--ink)}
+/* 図解（解説の中で手順ごとに進む図） */
+.zk{border:1px solid var(--rule);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--sheet)}
+.zk-h{display:flex;justify-content:space-between;align-items:baseline}
+.zk-ttl{font-size:.8rem;font-weight:700;letter-spacing:.12em}
+.zk-n{font-family:var(--f-num);font-size:.75rem;color:var(--muted)}
+.zk-svg{display:block;width:100%;max-width:520px;height:auto;margin:0 auto;overflow:visible}
+.zk-t{margin:0;min-height:5.1em;font-size:.92rem}
+.zk-b{display:flex;gap:8px;justify-content:flex-end}
+.zk-btn{font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--rule);background:var(--chip);color:var(--ink);border-radius:999px;padding:4px 16px;cursor:pointer}
+.zk-btn.pri{border-color:var(--ink)}
+.zk-btn:disabled{opacity:.4;cursor:default}
+.zk-btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.zk [data-s]{opacity:0;transition:opacity .2s}
+.zk [data-s].on{opacity:1}
+.zk [data-s].on.dim{opacity:.3}
+.zk path{fill:none}
+.zk .ax{stroke:var(--muted);stroke-width:1}
+.zk .axh{fill:var(--muted)}
+.zk .gd{stroke:var(--rule);stroke-width:1}
+.zk .gd2{stroke:var(--muted);stroke-dasharray:3 3}
+.zk .gd3{stroke:var(--red);stroke-dasharray:4 3;stroke-width:1.5}
+.zk .dsh{stroke:var(--muted);stroke-dasharray:4 4;stroke-width:1.2}
+.zk .cv{stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+.zk .cvm{stroke:var(--muted);stroke-width:1.5}
+.zk .cvb{stroke:var(--focus);stroke-width:2}
+.zk .cvo{stroke:var(--ok);stroke-width:1.5}
+.zk .fl{fill:var(--red-soft)} .zk .fl2{fill:var(--ok-soft)}
+.zk .pt{fill:var(--ink)} .zk .pt3{fill:var(--red)} .zk .pt0{fill:var(--sheet);stroke:var(--muted);stroke-width:1.5}
+.zk text{font-family:var(--f-body);font-size:11px;fill:var(--muted)}
+.zk .lbi{fill:var(--ink);font-weight:500}
+.zk .lb2{font-size:10px}
+.zk .ans{fill:var(--red);font-weight:700;font-size:12px}
+.zk .ok{fill:var(--ok);font-weight:700}
+.zk .blu{fill:var(--focus);font-weight:700}
+.zk .vec path,.zk .vecm path,.zk .vecr path,.zk .vec0 path{stroke-width:2}
+.zk .vec path{stroke:var(--ink)} .zk .vec .hd{fill:var(--ink);stroke:none}
+.zk .vecm path{stroke:var(--muted)} .zk .vecm .hd{fill:var(--muted);stroke:none}
+.zk .vecr path{stroke:var(--red)} .zk .vecr .hd{fill:var(--red);stroke:none}
+.zk .vec0 path{stroke:var(--muted);stroke-width:1} .zk .vec0 .hd{fill:var(--muted);stroke:none}
+.zk sup{font-size:.7em}
 </style>
 <link rel="manifest" href="../manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="../icons/apple-touch-icon.png"><script src="../shared/update.js" defer></script><script src="../shared/zoom.js?v=1795500000" defer></script></head><body>
 <div class="wrap">
@@ -106,6 +146,7 @@ figure img{display:block;margin:0 auto;max-width:100%;height:auto}
 
 <script src="../shared/memo.js?v=1795300000"></script>
 <script src="data.js?v=1794900000"></script>
+<script src="zukai.js?v=1795600000"></script>
 <script>
 (()=>{
 const Q = window.QUIZ || [];
@@ -190,6 +231,7 @@ function show(q,pick){
   const ok=pick===q.a;
   $("after").innerHTML=`<p class="verdict ${ok?"ok":"ng"}">${ok?"正解":"不正解"}　正答は ${"12345"[q.a]}（${q.o[q.a]}）</p>
     <div class="exp"><h3>解説</h3>${q.e}</div>`;
+  if(window.ZukaiMount) ZukaiMount($("after").querySelector(".exp"), q.id);   // 図解（ある問題だけ）
 }
 $("shuffleBtn").onclick=()=>{st.shuffle=!st.shuffle;st.pos=0;build()};
 $("wrongBtn").onclick=()=>{st.wrong=!st.wrong;st.pos=0;build()};
