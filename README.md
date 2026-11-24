@@ -25,6 +25,7 @@
 - 週間模試（`shared/weekly.js`）：週替わりで1分野・20問・30分。分野は `ROT` の順に毎週月曜で回り、問題は週番号を種にした並べかえで選ぶので全員同じ。過去問ページへの組みこみは `tools/add-weekly.py`（`?start=weekly`、記録は `<LS>-wk` とクラウドの `data.wk`）。トップの「模試」タブは `KQWeekly.info()/read()` で表示だけ。
 - 判定画面（答え合わせのあと）の並びは `tools/add-judge.py` で入れている：出典・分野 → 進捗 → 問題 → 選択肢（色は今までどおり：正解＝緑＋「正解」、自分のまちがい＝赤＋「あなたの回答」、ほかは無地）→ 選択と判定 → みんなの正答率 → 解説。mksite.py で作り直したら再実行。
 - 問題タグ（`shared/tags.js`）：完璧／復習中／要学習の手動の印。過去問ページへは `tools/add-tags.py`（add-weekly・add-judge のあと）。上のタブ「タグ」と `?start=tags`、`?start=tag1|tag2|tag3` でそのタグを出題。記録は `<LS>-tag`、クラウドは kakomon の `data.tag`。苦手リストとは別。
+- ホームの学習レポート（index.html の data-blk="study|score|field30|cal"）：ログイン日数・総学習時間・連続日数／総回答・正答率・正解数（成績と同じ計算）／分野別正答率（過去問・直近30日に解いた問題の最後の答え）／月の学習カレンダー。開いた日は `kq-visit-v1`、学習時間は `kq-time-v1`（`shared/stats.js` が問題のページで、画面が見えていて90秒以内に操作があるときだけ数える）。どちらもクラウド保存の `visit`・`time` に入り、日ごとに大きいほうを残す。
 - 難易度（AI推定）：みんなの正答率がない問題（第67〜69回など約600問）に5段階の難易度を `kakomon/difficulty.json` に別データとして持つ。`python3 tools/difficulty.py` で、正答率のある問題から「特徴→正答率」の式を学習して推定（rates.json や questions.json を変えたら再実行）。表示は「難易度（AI推定）」と明記し、正答率の数字とは混ぜない。
 - タブバーは過去問型のページ（kakomon／prep／chiryo／chiryo-quiz）にも出る。`tools/add-tabbar.py` で入れている（mksite.py などで作り直したら再実行）。問題を解いている間（`body.in-quiz`）は自動でかくれる。色は「見た目」6種類に合わせて、バーの中だけで切りかえる（問題ページ自体の色はそのまま）。
 - `shared/stats.js` … 日ごとの解答数（成績・連続日数・学習カレンダー用）とブックマークを記録。`account.js` がクラウド保存の時にいっしょに送る。

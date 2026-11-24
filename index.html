@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
 <script src="shared/config.js?v=1795000000"></script>
 <script src="shared/account.js?v=1795300000"></script>
-<script src="shared/stats.js?v=1795000000"></script>
+<script src="shared/stats.js?v=1796000000"></script>
 <script src="shared/plan.js?v=1795500000"></script>
 <script src="shared/guide.js?v=1795300000" defer></script>
 <link rel="stylesheet" href="shared/skins.css?v=1795400000">
@@ -98,6 +98,19 @@ h1,h2,h3{font-family:var(--f-disp);margin:0;line-height:1.35}
 .menu.flat>a::after{content:none}
 .menu.flat b{grid-column:1} .menu.flat small{grid-column:1} .menu.flat .sc{grid-column:2}
 .wk-go .btn.primary{width:auto;min-width:60%}
+/* ホームの学習レポート */
+.rp .wk-go .btn{width:auto;min-width:60%}
+#r-time{font-size:22px;white-space:nowrap}
+.rc-head{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin-bottom:10px;text-align:center}
+.rc-head b{font-size:16px}
+.rc-head .btn{width:40px;padding:4px 0}
+.rc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.rc-grid>span{font-size:11px;color:var(--sub);text-align:center}
+.rc-grid button{aspect-ratio:1;border:0;border-radius:8px;background:var(--h0);color:var(--ink);font:inherit;font-family:var(--f-num);font-size:12px;cursor:pointer;padding:0}
+.rc-grid button.l1{background:var(--h1)} .rc-grid button.l2{background:var(--h2)} .rc-grid button.l3{background:var(--h3);color:#fff} .rc-grid button.l4{background:var(--h4);color:#fff}
+.rc-grid button.today{outline:2px solid var(--ink);outline-offset:-2px}
+.rc-grid button.fut{opacity:.4;cursor:default}
+.rc-grid button.on{outline:2px solid var(--accent);outline-offset:-2px}
 /* 案内キャラはタブの上に */
 .kqg.kqg-t:not(.kqg-free){top:calc(56px + env(safe-area-inset-top,0px))}
 
@@ -457,6 +470,40 @@ body{letter-spacing:.01em}
       <p class="exam-msg" id="ex-msg"></p>
     </div>
 
+    <!-- 学習レポート（コクシルのダッシュボード式：1カード1機能を積む） -->
+    <div class="blk panel wk-card rp" data-blk="study">
+      <h2 class="wk-title">学習状況</h2>
+      <div class="wk-tiles">
+        <div><b class="num" id="r-login">0<small>日</small></b><span>ログイン日数</span></div>
+        <div><b class="num" id="r-time">0<small>分</small></b><span>総学習時間</span></div>
+        <div><b class="num" id="r-streak">0<small>日</small></b><span>連続学習日数</span></div>
+      </div>
+      <p class="wk-note" id="r-time-note">学習時間は、問題のページで操作している時間を自動で数えます（90秒さわらないと止まる）。</p>
+    </div>
+    <div class="blk panel wk-card rp" data-blk="score">
+      <h2 class="wk-title">演習スコア</h2>
+      <div class="wk-tiles">
+        <div><b class="num" id="r-att">0</b><span>総回答数</span></div>
+        <div><b class="num pc-c" id="r-pct">–</b><span>正答率</span></div>
+        <div><b class="num" id="r-ok">0</b><span>正解数</span></div>
+      </div>
+      <div class="wk-go"><a class="btn" href="#stats">成績をくわしく見る</a></div>
+    </div>
+    <div class="blk panel wk-card rp" data-blk="field30">
+      <h2 class="wk-title">分野別正答率<br><span>過去問・直近30日</span></h2>
+      <div class="wk-fields" id="r-fields"></div>
+      <p class="wk-note" id="r-fields-note">直近30日に解いた過去問の、最後の答えで出しています。縦の線が合格ラインの60%。</p>
+    </div>
+    <div class="blk panel wk-card rp" data-blk="cal">
+      <h2 class="wk-title">学習カレンダー</h2>
+      <div class="rc-head"><button type="button" class="btn" id="rc-prev" aria-label="前の月">‹</button><b class="num" id="rc-mon"></b><button type="button" class="btn" id="rc-next" aria-label="次の月">›</button></div>
+      <div class="rc-grid" id="rc-grid"></div>
+      <div class="cal-foot">
+        <span class="cal-pick num" id="rc-pick">日付をタップで、その日の数</span>
+        <span class="lg">少<i style="background:var(--h0)"></i><i style="background:var(--h1)"></i><i style="background:var(--h2)"></i><i style="background:var(--h3)"></i><i style="background:var(--h4)"></i>多</span>
+      </div>
+    </div>
+
     <div class="blk" data-blk="modes">
     <h2 class="sec">演習モード</h2>
     <div class="modes">
@@ -812,14 +859,83 @@ body{letter-spacing:.01em}
     paintPlan(k, m);
     $("#h-fields").innerHTML = FIELDS.map(([f, n]) => `<a class="chip" href="kakomon/?field=${encodeURIComponent(f)}">${esc(f)} <small class="num">(${n})</small></a>`).join("");
     paintExtra();
+    paintReport(m);
   }
 
+  /* ---------- 学習レポート（ホームのカード） ---------- */
+  function totals(){
+    const list = DRILLS.filter(d => !d.extra || exGet().includes(d.id) || drillData(d).done > 0);
+    let done = 0, att = 0, okc = 0, total = 0;
+    for (const d of list) { const x = drillData(d); if (x.card) continue; done += x.done; att += x.att; okc += x.okc; total += d.n; }
+    return { list, done, att, okc, total };
+  }
+  const unit = (n, u) => `${n}<small>${u}</small>`;
+  let rcMon = null;
+  function paintReport(m){
+    m = m || dayMap();
+    // 学習状況
+    const vis = KQStats.visits ? KQStats.visits() : {}, tm = KQStats.times ? KQStats.times() : {};
+    const opened = new Set([...Object.keys(vis), ...Object.keys(m).filter(k => m[k][0] > 0)]);
+    $("#r-login").innerHTML = unit(fmtN(opened.size), "日");
+    const sec = Object.values(tm).reduce((a, v) => a + (+v || 0), 0), h = Math.floor(sec / 3600), mi = Math.floor(sec % 3600 / 60);
+    $("#r-time").innerHTML = h >= 100 ? unit(fmtN(h), "時間") : h ? unit(h, "時間") + unit(mi, "分") : unit(mi, "分");
+    $("#r-streak").innerHTML = unit(streakOf(m), "日");
+    const tk = Object.keys(tm).sort()[0];
+    if (tk) { const [, tmo, tda] = tk.split("-").map(Number); $("#r-time-note").textContent = `学習時間は${tmo}月${tda}日から、問題のページで操作している時間を自動で数えています（90秒さわらないと止まる）。`; }
+    // 演習スコア（成績と同じ計算）
+    const T = totals();
+    $("#r-att").textContent = fmtN(T.att);
+    $("#r-ok").textContent = fmtN(T.okc);
+    const p = T.att ? T.okc / T.att : null;
+    $("#r-pct").innerHTML = p == null ? "–" : unit(Math.round(p * 100), "%");
+    $("#r-pct").setAttribute("style", p == null ? "" : KQPlan.pcAttr(p));
+    // 分野別（過去問・直近30日に解いた問題の最後の答え）
+    if (!META) { $("#r-fields").innerHTML = `<p class="wk-note" style="margin:0">読みこみ中…</p>`; loadMeta().then(x => { if (x) paintReport(); }); }
+    else {
+      const rec = drillData(DRILLS[0]).rec, since = Date.now() - 30 * 864e5, g = {};
+      for (const q of META) { const r = rec[q.id]; if (r && r.t >= since) { const v = g[q.f] || (g[q.f] = [0, 0]); v[0]++; if (r.r === 1) v[1]++; } }
+      const rows = FIELDS.map(([f]) => [f, g[f]]).filter(x => x[1]);
+      const all = rows.reduce((a, [, v]) => [a[0] + v[0], a[1] + v[1]], [0, 0]);
+      const row = (f, v, cls) => `<div class="wk-frow${cls}"><span class="wk-fn">${esc(f)}</span><em class="num">${v[1]}/${v[0]}問</em><b class="num pc-c" style="${KQPlan.pcAttr(v[1] / v[0])}">${Math.round(v[1] / v[0] * 100)}%</b><span class="wk-fbar"><i class="pc-bg" style="width:${v[1] / v[0] * 100}%;${KQPlan.pcAttr(v[1] / v[0])}"></i><u></u></span></div>`;
+      const rest = FIELDS.filter(([f]) => !g[f]).length;
+      $("#r-fields").innerHTML = rows.length ? row("全体", all, " all") + rows.map(([f, v]) => row(f, v, "")).join("") : `<p class="wk-note" style="margin:0">直近30日に解いた過去問はまだありません。</p>`;
+      $("#r-fields-note").textContent = `直近30日に解いた過去問の、最後の答えで出しています。縦の線が合格ラインの60%。${rows.length && rest ? `この30日で解いていない分野（${rest}分野）は出していません。` : ""}`;
+    }
+    paintMonth(m);
+  }
+  function paintMonth(m){
+    const ymd = KQStats.ymd, today = dayStart(Date.now());
+    if (!rcMon) rcMon = new Date(today.getFullYear(), today.getMonth(), 1);
+    const y = rcMon.getFullYear(), mo = rcMon.getMonth(), first = new Date(y, mo, 1), nd = new Date(y, mo + 1, 0).getDate();
+    let html = "日月火水木金土".split("").map(w => `<span>${w}</span>`).join("") + "<span></span>".repeat(first.getDay());
+    let dn = 0, qn = 0;
+    for (let i = 1; i <= nd; i++) {
+      const d = new Date(y, mo, i), k = ymd(d), v = m[k] || [0, 0], n = v[0];
+      const lv = n === 0 ? 0 : n < 10 ? 1 : n < 20 ? 2 : n < 40 ? 3 : 4;
+      if (n) { dn++; qn += n; }
+      html += `<button type="button" class="${lv ? "l" + lv : ""}${+d === +today ? " today" : ""}${d > today ? " fut" : ""}" data-d="${k}" data-n="${n}" data-c="${v[1]}" aria-label="${mo + 1}月${i}日 ${n}問">${i}</button>`;
+    }
+    $("#rc-mon").textContent = `${y}年${mo + 1}月`;
+    $("#rc-grid").innerHTML = html;
+    $("#rc-pick").textContent = dn ? `この月：${dn}日・${fmtN(qn)}問` : "この月の記録はまだありません";
+    $("#rc-next").disabled = y === today.getFullYear() && mo === today.getMonth();
+  }
+  $("#rc-prev").onclick = () => { rcMon = new Date(rcMon.getFullYear(), rcMon.getMonth() - 1, 1); paintMonth(dayMap()); };
+  $("#rc-next").onclick = () => { rcMon = new Date(rcMon.getFullYear(), rcMon.getMonth() + 1, 1); paintMonth(dayMap()); };
+  $("#rc-grid").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b || b.classList.contains("fut")) return;
+    $("#rc-grid").querySelectorAll("button.on").forEach(x => x.classList.remove("on")); b.classList.add("on");
+    const [, mo, da] = b.dataset.d.split("-").map(Number), n = +b.dataset.n, c = +b.dataset.c;
+    $("#rc-pick").textContent = `${mo}月${da}日：${n ? `${n}問（正解 ${c}問）` : "おやすみ"}`;
+  });
+
   /* ---------- 今日やること・今日のおすすめ（shared/plan.js と kakomon/plan.json） ---------- */
-  let META = null, metaTried = false;
-  async function loadMeta(){
-    if (META || metaTried) return META; metaTried = true;
-    try { const j = await (await fetch("kakomon/plan.json")).json(); META = j.q.map(([id, f, t]) => ({ id, f: j.f[f], t: t >= 0 ? j.t[t] : null })); } catch {}
-    return META;
+  let META = null, metaP = null;
+  function loadMeta(){   // 何か所から呼ばれても読むのは1回（みんな同じ結果を待つ）
+    return metaP || (metaP = (async () => {
+      try { const j = await (await fetch("kakomon/plan.json")).json(); META = j.q.map(([id, f, t]) => ({ id, f: j.f[f], t: t >= 0 ? j.t[t] : null })); } catch {}
+      return META;
+    })());
   }
   function cardsDue(){
     const S = lsGet("kc_state" + sfx(), {}), now = Date.now();
@@ -887,9 +1003,7 @@ body{letter-spacing:.01em}
   /* ---------- 成績 ---------- */
   let calSel = null;
   function paintStats(){
-    const list = DRILLS.filter(d => !d.extra || exGet().includes(d.id) || drillData(d).done > 0);
-    let done = 0, att = 0, okc = 0, total = 0;
-    for (const d of list) { const x = drillData(d); if (x.card) continue; done += x.done; att += x.att; okc += x.okc; total += d.n; }
+    const { list, done, att, okc, total } = totals();
     $("#s-pct").textContent = att ? Math.round(okc / att * 100) + "%" : "–";
     $("#s-line").textContent = done ? `解いた問題 ${fmtN(done)} / ${fmtN(total)}問 ・ のべ${fmtN(att)}回答で正解${fmtN(okc)}回` : `まだ記録がありません（全${fmtN(total)}問）`;
     $("#s-meter").style.width = (total ? Math.min(100, done / total * 100) : 0) + "%";
@@ -1062,7 +1176,7 @@ body{letter-spacing:.01em}
     window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", route);
-  window.addEventListener("kq-stats", () => { const v = location.hash.replace("#", ""); if (v === "bm") paintBm(); if (v === "stats") paintStats(); });
+  window.addEventListener("kq-stats", () => { const v = location.hash.replace("#", ""); if (v === "bm") paintBm(); if (v === "stats") paintStats(); if (v === "" || v === "home") paintReport(); });
   // ほかのページから戻ってきた時（iPhone の「戻る」はページを作り直さないことがある）
   window.addEventListener("pageshow", e => { if (e.persisted) route(); });
 
@@ -1121,7 +1235,7 @@ body{letter-spacing:.01em}
 
 
   /* ---------- 見た目とホームの並び（案内キャラの設定といっしょに保存＝クラウドにも入る） ---------- */
-  const BLKS = { today: "今日やること・おすすめ", nums: "全問題数・連続日数", exam: "国試までのカウントダウン", modes: "演習モード", fields: "カテゴリー別（分野）", extra: "追加ドリル" };
+  const BLKS = { today: "今日やること・おすすめ", nums: "全問題数・連続日数", exam: "国試までのカウントダウン", study: "学習状況（ログイン日数・学習時間）", score: "演習スコア", field30: "分野別正答率（直近30日）", cal: "学習カレンダー（月）", modes: "演習モード", fields: "カテゴリー別（分野）", extra: "追加ドリル" };
   const BLK_DEF = Object.keys(BLKS);
   function lookGet(){
     const l = avGet().look || {};
