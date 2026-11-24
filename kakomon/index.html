@@ -125,6 +125,19 @@ select,input[type=search]{border:1px solid var(--line2);background:var(--sheet);
 .choice.wrongpick{border-color:var(--ng);background:var(--ng-soft)}
 .choice.wrongpick .bubble{background:var(--ng);border-color:var(--ng);color:var(--sheet)}
 .choice:disabled{cursor:default}
+/* 判定画面（tools/add-judge.py）：コクシルの判定画面の並び */
+.jhead{display:flex;align-items:flex-start;gap:8px}
+.jsrc{flex:1;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-width:0}
+.jsrc .qno{font-size:15px}
+.jsrc>span:not(.chip){width:100%;font-size:13px;color:var(--sub)}
+.jprog{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--sub)}
+.jprog+.prog{margin-top:4px}
+.jres{margin-top:16px;display:grid;gap:4px}
+.jres .jsel{font-size:14px}
+.jres .big{font-family:var(--f-disp);font-weight:900;font-size:20px}
+.jres.ok .big{color:var(--ok)} .jres.ng .big{color:var(--ng)}
+.jcrowd{margin-top:16px;padding-top:10px;border-top:1px solid var(--line)}
+.jcrowd .crowd{margin:0;padding:0;border:0}
 .verdict{margin-top:18px;padding:14px 16px;border-radius:12px;display:grid;gap:4px}
 .verdict.ok{background:var(--ok-soft)} .verdict.ng{background:var(--ng-soft)}
 .verdict .big{font-family:var(--f-disp);font-weight:900;font-size:21px}
@@ -809,24 +822,23 @@ function renderQuiz(){
   }).join("");
   const imgs = (q.images || []).map(src => `<img src="${esc(src)}" alt="問題の画像" loading="lazy">`).join("");
   $("#sheet").innerHTML = `
-    <div class="qhead">
-      <span class="qno">第${q.kai}回 ${esc(q.session || "")} ${q.session ? "" : "問"}${q.no}</span>
-      <span class="chip">${esc(q.field)}</span>${todayTag(q.id)}
-      <span class="num" style="color:var(--sub);font-size:13px">${esc(quiz.title)}　${quiz.i + 1} / ${quiz.ids.length}</span>
+    <div class="jhead">
+      <div class="jsrc"><b class="qno">第${q.kai}回 ${esc(q.session || "")} ${q.session ? "" : "問"}${q.no}</b><span>${esc(q.field)}</span>${todayTag(q.id)}</div>
       <button class="bmk" id="q-bm" data-id="${esc(q.id)}" aria-pressed="${isBm(q.id)}" aria-label="ブックマーク">${isBm(q.id) ? "★ 保存ずみ" : "☆ 保存"}</button>
     </div>
+    <div class="jprog num"><span>${esc(quiz.title)}　${quiz.i + 1} / ${quiz.ids.length}問</span><span>${Math.round((quiz.i + (done ? 1 : 0)) / quiz.ids.length * 100)}%</span></div>
     <div class="prog"><i style="width:${(quiz.i + (done ? 1 : 0)) / quiz.ids.length * 100}%"></i></div>
     <div class="qtext">${fmt(q.question)}</div>
     ${need > 1 ? `<span class="howmany">※ ${need}つ選ぶ問題です</span>` : ""}
     ${imgs ? `<div class="qimg">${imgs}</div>` : ""}
     <ol class="choices">${choices}</ol>
-    ${done ? `<div class="verdict ${ok ? "ok" : "ng"}">
+    ${done ? `<!--judge--><div class="jres ${ok ? "ok" : "ng"}">
+        <span class="jsel">選択：<b class="num">${[...quiz.picked].sort((a, b) => a - b).join("・") || "–"}</b></span>
         <span class="big">${ok ? "○ 正解！" : "✕ まちがい"}</span>
         ${q.answer.length ? `<span>正解は <b>${[q.answer, ...(q.alt || [])].map(a => a.join("・")).join(" または ")}</b>（${q.answer.map(n => esc(q.choices[n - 1])).join("、")}${q.alt ? " など" : ""}）</span>` : ""}
         ${q.note ? `<span style="font-size:13px">※ ${esc(q.note)}</span>` : q.alt ? `<span style="font-size:13px">※ 厚生労働省が複数の答えを正解と発表した問題です</span>` : ""}
         ${weakNote(quiz.wk[quiz.i], ok)}
-        ${crowdHtml(q, ok, need)}
-      </div>${expHtml(q)}` : ""}
+      </div>${crowdHtml(q, ok, need) ? `<div class="jcrowd">${crowdHtml(q, ok, need)}</div>` : ""}${expHtml(q)}` : ""}
     <div class="qfoot">
       <button class="btn" id="q-quit">やめる</button>
       ${done ? `<button class="btn primary" id="q-next">${quiz.i + 1 < quiz.ids.length ? "次の問題へ" : "結果を見る"}</button>`
