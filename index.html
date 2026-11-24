@@ -323,6 +323,11 @@ body{letter-spacing:.01em}
 .chip small{font-variant-numeric:tabular-nums}
 .nudge{border-radius:var(--r-card);margin-top:0;margin-bottom:16px;transition:transform .16s var(--ease)}
 .nudge:active{transform:scale(.98)}
+.nudge-w{position:relative}
+.nudge-w .nudge{padding-right:40px}
+.nudge-w .nudge::after{content:none}
+.nudge-x{position:absolute;top:0;right:0;width:40px;height:40px;border:0;background:none;color:var(--sub);font:700 18px/1 system-ui,sans-serif;cursor:pointer;border-radius:14px}
+.nudge-x:active{opacity:.6}
 .btn{transition:transform .12s var(--ease),background-color .15s}
 .btn:active{transform:scale(.97)}
 /* 付箋は1か所だけ：苦手を復習の件数（色は既存の --warm、文字は --box） */
@@ -393,7 +398,7 @@ body{letter-spacing:.01em}
 .simple .tile b,.simple .big-card .pct b{font-weight:700}
 .simple .nudge{border-radius:12px}
 </style>
-<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><script src="shared/update.js" defer></script>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><script src="shared/update.js" defer></script><script src="shared/notice.js?v=1795600000" defer></script>
 </head>
 <body>
 <div class="topbar" id="topbar"><span class="logo"><i></i><span id="top-title">国試ドリル</span></span></div>
@@ -401,7 +406,7 @@ body{letter-spacing:.01em}
 <div class="wrap">
   <!-- ============ ホーム ============ -->
   <section class="view" id="v-home">
-    <a class="nudge" id="h-login" href="#me" hidden><span><b>ニックネームでログイン</b>記録がクラウドに残って、どの端末でも続きから使えます</span></a>
+    <div class="nudge-w" id="h-login" hidden><a class="nudge" href="#me"><span><b>ニックネームでログイン</b>記録がクラウドに残って、どの端末でも続きから使えます</span></a><button type="button" class="nudge-x" id="h-login-x" aria-label="この案内を閉じる">×</button></div>
     <div class="blk" data-blk="today">
     <a class="todo night" id="h-night" href="kakomon/?start=weak" hidden><span class="ic">☾</span><b>夜は苦手の復習から</b><small id="h-night-sub"></small></a>
     <a class="todo" id="h-today-go" href="kakomon/?start=today"><span class="ic">▶</span><b>今日やること</b><small id="h-today-sub">復習 → 弱点分野 → 新しい問題の順に、今日の分を自動で組みます</small></a>
@@ -612,6 +617,9 @@ body{letter-spacing:.01em}
 <script>
 (() => {
   const $ = s => document.querySelector(s);
+  /* ホームの「ニックネームでログイン」案内：× で閉じたら、その端末では二度と出さない */
+  const loginNudgeOff = () => { try { return localStorage.getItem("kq-login-nudge-off") === "1"; } catch { return false; } };
+  $("#h-login-x").onclick = () => { try { localStorage.setItem("kq-login-nudge-off", "1"); } catch {} $("#h-login").hidden = true; };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const fmtN = n => n.toLocaleString("ja-JP");
   const sfx = () => KQ.session() ? "@" + KQ.session().nick.toLowerCase() : "";
@@ -719,7 +727,7 @@ body{letter-spacing:.01em}
     try { localStorage.setItem(seenKey, String(k.weak)); } catch {}
     $("#h-weak").innerHTML = k.weak ? `苦手リスト <b class="num">${k.weak}</b>問<br>どこで解いても2回続けて正解で卒業` : "まちがえた問題を<br>どこで解いても2回続けて正解で卒業";
     $("#h-unsolved").innerHTML = `まだ解いていない<br><b class="num">${fmtN(2400 - k.done)}</b>問から20問`;
-    $("#h-login").hidden = !!KQ.session();
+    $("#h-login").hidden = !!KQ.session() || loginNudgeOff();
     const mk = [lsGet("kokushi-rec-v1" + sfx() + "-mock", null), cloud.kakomon?.mock].filter(x => x && x.at).sort((a, b) => b.at - a.at)[0];
     $("#h-mock").innerHTML = mk && mk.status === "run" && mk.ids ? `<b class="num" style="font-size:inherit;margin:0">中断中：${Object.keys(mk.ans || {}).length} / ${mk.ids.length}問</b>・タップで続きから` : "本番と同じ200問・タイマーつき・中断しても続きから";
     paintExam(k.done + drillData(DRILLS[1]).done);
@@ -949,7 +957,7 @@ body{letter-spacing:.01em}
     if (s) $("#me-nick").textContent = s.nick;
     $("#setup-warn").hidden = KQ.ready();
     $("#move-login").hidden = !!s; $("#move-go").disabled = !s; $("#move-code").disabled = !s;
-    $("#h-login").hidden = !!s;
+    $("#h-login").hidden = !!s || loginNudgeOff();
   }
   $("#mode-login").onclick = () => setMode(false);
   $("#mode-new").onclick = () => setMode(true);
