@@ -33,6 +33,42 @@
     return ch;
   }
 
+  /* ---------- 開いた日と学習時間（ホームの学習レポート用） ----------
+     kq-visit-v1 = { "2026-11-25": 1 }  サイトを開いた日
+     kq-time-v1  = { "2026-11-25": 秒 }  問題のページ（ホーム以外）を開いていて、さわっている時間。
+     画面が見えていて、最後の操作から90秒以内のときだけ数える（放置した時間は入れない）。
+     端末をまたぐと日ごとに大きいほうを残す（同じ日に2台で使うと少なめに出る） */
+  const vKey = () => "kq-visit-v1" + sfx(), tKey = () => "kq-time-v1" + sfx();
+  const visits = () => get(vKey(), {}), times = () => get(tKey(), {});
+  function markVisit(){ const v = visits(), k = ymd(Date.now()); if (!v[k]) { v[k] = 1; put(vKey(), v); } }
+  const IDLE = 90e3, TICK = 15e3;
+  let lastAct = Date.now(), lastTick = Date.now();
+  const isHome = () => !!document.getElementById("v-home");   // ホーム（index.html）は数えない
+  function tick(){
+    const now = Date.now(), dt = Math.min(now - lastTick, TICK * 2); lastTick = now;
+    if (document.hidden || now - lastAct > IDLE || dt <= 0 || isHome()) return;
+    const t = times(), k = ymd(now); t[k] = Math.round((+t[k] || 0) + dt / 1000); put(tKey(), t);
+  }
+  function mergeNum(key, cur, add){
+    if (!add || typeof add !== "object") return false;
+    let ch = false;
+    for (const [k, v] of Object.entries(add)) {
+      if (!/^\d{4}-\d\d-\d\d$/.test(k) || !(+v > 0)) continue;
+      if (+v > (+cur[k] || 0)) { cur[k] = +v; ch = true; }
+    }
+    if (ch) put(key, cur);
+    return ch;
+  }
+  try {
+    markVisit();
+    {
+      for (const ev of ["pointerdown", "keydown", "scroll", "touchstart"]) addEventListener(ev, () => { if (Date.now() - lastAct > IDLE) lastTick = Date.now(); lastAct = Date.now(); }, { passive: true, capture: true });
+      document.addEventListener("visibilitychange", () => { if (document.hidden) tick(); else { lastTick = Date.now(); lastAct = Date.now(); } });
+      addEventListener("pagehide", tick);
+      setInterval(tick, TICK);
+    }
+  } catch {}
+
   /* ---------- ブックマーク { app: { id: {t, l, s} or {t, x:1}(消した印) } } ---------- */
   const bKey = () => "kq-bm-v1" + sfx();
   const bms = () => get(bKey(), {});
@@ -69,13 +105,13 @@
   }
 
   window.KQStats = {
-    ymd, hit, days, bm,
+    ymd, hit, days, bm, visits, times,
     // account.js から呼ばれる：クラウドに送るデータにつける／クラウドから来たデータを取りこむ
-    forSave(data){ return Object.assign({}, data, { days: days(), bm: bms() }); },
+    forSave(data){ return Object.assign({}, data, { days: days(), bm: bms(), visit: visits(), time: times() }); },
     fromLoad(data){
       if (!data) return;
-      const a = mergeDays(data.days), b = mergeBm(data.bm);
-      if (a || b) { try { window.dispatchEvent(new CustomEvent("kq-stats")); } catch {} }
+      const a = mergeDays(data.days), b = mergeBm(data.bm), c = mergeNum(vKey(), visits(), data.visit), e = mergeNum(tKey(), times(), data.time);
+      if (a || b || c || e) { try { window.dispatchEvent(new CustomEvent("kq-stats")); } catch {} }
     }
   };
 })();

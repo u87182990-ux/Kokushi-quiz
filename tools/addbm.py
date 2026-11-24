@@ -7,7 +7,7 @@
 # 使い方: python3 tools/addbm.py   （リポジトリのいちばん上で）
 import re
 
-V = "1795000000"
+V = "1796000000"
 CSS = (".bmk{margin-left:auto;flex:none;border:1px solid var(--line);background:var(--sheet);color:var(--sub);border-radius:999px;"
        "padding:3px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;line-height:1.6}"
        ".bmk[aria-pressed=\"true\"]{color:#d99a00;border-color:#e8b730;background:rgba(232,183,48,.12)}"
