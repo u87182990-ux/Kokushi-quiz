@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="shared/tabbar.css?v=1795700000">
 <script src="shared/tabbar.js?v=1795700000" data-root="" data-tab="home"></script>
 <script src="shared/weekly.js?v=1795800000"></script>
+<script src="shared/tags.js?v=1795900000"></script>
 <script>
 /* 見た目の設定（シンプル）を、画面が出る前に当てる（ちらつき防止） */
 /* 見た目（4種類は書体も）を、画面が出る前に当てる（ちらつき防止） */
@@ -497,6 +498,7 @@ body{letter-spacing:.01em}
       <a class="mode" href="kakomon/?start=weak"><span class="ic">🔁</span><b>苦手を復習</b><span id="d-weak">2回続けて正解で卒業</span></a>
       <a class="mode" href="kakomon/?start=unsolved"><span class="ic">✨</span><b>まだ解いてない</b><span id="d-unsolved">はじめての問題から<br>20問</span></a>
       <a class="mode wide" href="#bm"><span class="ic">🔖</span><b>ブックマーク</b><span id="d-bm">☆で保存した問題を見直す</span></a>
+      <a class="mode wide" href="kakomon/?start=tags"><span class="ic">🏷️</span><b>問題タグ</b><span id="d-tags">完璧・復習中・要学習の印をつけた問題と一覧</span></a>
     </div>
     <h2 class="sec">分野から解く<small>過去問</small></h2>
     <div class="chips" id="d-fields"></div>
@@ -1005,6 +1007,8 @@ body{letter-spacing:.01em}
     $("#d-unsolved").innerHTML = `まだ解いていない<br><b class="num">${fmtN(2400 - k.done)}</b>問から20問`;
     const nb = KQStats.bm.list().length;
     $("#d-bm").innerHTML = nb ? `☆で保存した問題 <b class="num" style="font-size:inherit;margin:0">${nb}</b>問を見直す` : "☆で保存した問題を見直す";
+    const tg = KQTags.count("kokushi-rec-v1" + sfx(), cloud.kakomon?.tag), tn = tg[1] + tg[2] + tg[3];
+    $("#d-tags").innerHTML = tn ? `完璧 <b class="num" style="font-size:inherit;margin:0">${tg[1]}</b>・復習中 <b class="num" style="font-size:inherit;margin:0">${tg[2]}</b>・要学習 <b class="num" style="font-size:inherit;margin:0">${tg[3]}</b>問` : "完璧・復習中・要学習の印をつけた問題と一覧";
     $("#d-fields").innerHTML = FIELDS.map(([f, n]) => `<a class="chip" href="kakomon/?field=${encodeURIComponent(f)}">${esc(f)} <small class="num">(${n})</small></a>`).join("");
     const list = EXTRA.filter(x => exGet().includes(x.id));
     $("#d-extra").innerHTML = list.map(x => `<a class="mode" href="${x.id}/"><span class="ic">${x.ic}</span><b>${esc(x.name)}</b><span>${esc(x.sub)}</span></a>`).join("");

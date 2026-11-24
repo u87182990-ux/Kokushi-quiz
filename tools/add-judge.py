@@ -44,6 +44,9 @@ if MARK not in s:
       </div>${expHtml(q)}` : ""}''',
         '''        ${weakNote(quiz.wk[quiz.i], ok)}
       </div>${crowdHtml(q, ok, need) ? `<div class="jcrowd">${crowdHtml(q, ok, need)}</div>` : ""}${expHtml(q)}` : ""}''')
+    # ブックマークの見出し（出典・分野）を新しい上の段から読む
+    rep('''const h = b.closest(".qhead"), lab = h ? [...h.querySelectorAll(".qno,.chip")]''',
+        '''const h = b.closest(".qhead,.jhead"), lab = h ? [...h.querySelectorAll(".qno,.chip,.jsrc>span")]''')
     css = '''
 /* 判定画面（tools/add-judge.py）：コクシルの判定画面の並び */
 .jhead{display:flex;align-items:flex-start;gap:8px}
@@ -60,5 +63,7 @@ if MARK not in s:
 .jcrowd .crowd{margin:0;padding:0;border:0}
 '''
     rep('.verdict{margin-top:18px;', css.strip() + '\n.verdict{margin-top:18px;')
+if 'b.closest(".qhead"), lab' in s:
+    s = s.replace('const h = b.closest(".qhead"), lab = h ? [...h.querySelectorAll(".qno,.chip")]', 'const h = b.closest(".qhead,.jhead"), lab = h ? [...h.querySelectorAll(".qno,.chip,.jsrc>span")]', 1)
 p.write_text(s, encoding="utf-8")
 print("ok kakomon")

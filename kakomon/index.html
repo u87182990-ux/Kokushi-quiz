@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}.bmk{margin-left:auto;flex:none;border:1px solid var(--line);background:var(--sheet);color:var(--sub);border-radius:999px;padding:3px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;line-height:1.6}.bmk[aria-pressed="true"]{color:#d99a00;border-color:#e8b730;background:rgba(232,183,48,.12)}.choice.correct::after,.choice.wrongpick::after{margin-left:auto;flex:none;padding-left:8px;font-size:12.5px;font-weight:700;white-space:nowrap}.choice.correct::after{content:"✓ 正解";color:var(--ok)}.choice.wrongpick::after{content:"× あなたの回答";color:var(--ng)}.trap{display:block;margin-top:10px;padding:8px 12px;border-radius:10px;background:rgba(232,183,48,.14);border-left:4px solid #e8b730}.trap b{display:block;font-size:12.5px;color:#a77700}</style><script src="../shared/config.js?v=1795000000"></script><script src="../shared/account.js?v=1795300000"></script><script src="../shared/stats.js?v=1795000000"></script><script src="../shared/plan.js?v=1795500000"></script><script src="../shared/zoom.js?v=1795500000" defer></script><script src="../shared/zukai.js?v=1795700000"></script><script src="../shared/guide.js?v=1795300000" defer></script><link rel="manifest" href="../manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="../icons/apple-touch-icon.png"><link rel="stylesheet" href="../shared/tabbar.css?v=1795700000"><script src="../shared/tabbar.js?v=1795700000" data-root="../" data-tab="drill"></script><script src="../shared/weekly.js?v=1795800000"></script><script src="../shared/update.js" defer></script></head><body>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}.bmk{margin-left:auto;flex:none;border:1px solid var(--line);background:var(--sheet);color:var(--sub);border-radius:999px;padding:3px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;line-height:1.6}.bmk[aria-pressed="true"]{color:#d99a00;border-color:#e8b730;background:rgba(232,183,48,.12)}.choice.correct::after,.choice.wrongpick::after{margin-left:auto;flex:none;padding-left:8px;font-size:12.5px;font-weight:700;white-space:nowrap}.choice.correct::after{content:"✓ 正解";color:var(--ok)}.choice.wrongpick::after{content:"× あなたの回答";color:var(--ng)}.trap{display:block;margin-top:10px;padding:8px 12px;border-radius:10px;background:rgba(232,183,48,.14);border-left:4px solid #e8b730}.trap b{display:block;font-size:12.5px;color:#a77700}</style><script src="../shared/config.js?v=1795000000"></script><script src="../shared/account.js?v=1795300000"></script><script src="../shared/stats.js?v=1795000000"></script><script src="../shared/plan.js?v=1795500000"></script><script src="../shared/zoom.js?v=1795500000" defer></script><script src="../shared/zukai.js?v=1795700000"></script><script src="../shared/guide.js?v=1795300000" defer></script><link rel="manifest" href="../manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="../icons/apple-touch-icon.png"><link rel="stylesheet" href="../shared/tabbar.css?v=1795700000"><script src="../shared/tabbar.js?v=1795700000" data-root="../" data-tab="drill"></script><script src="../shared/weekly.js?v=1795800000"></script><script src="../shared/tags.js?v=1795900000"></script><script src="../shared/update.js" defer></script></head><body>
 <title>放射線技師 国試ドリル</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -127,6 +127,7 @@ select,input[type=search]{border:1px solid var(--line2);background:var(--sheet);
 .choice:disabled{cursor:default}
 /* 判定画面（tools/add-judge.py）：コクシルの判定画面の並び */
 .jhead{display:flex;align-items:flex-start;gap:8px}
+.jtools{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 .jsrc{flex:1;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-width:0}
 .jsrc .qno{font-size:15px}
 .jsrc>span:not(.chip){width:100%;font-size:13px;color:var(--sub)}
@@ -268,6 +269,7 @@ select,input[type=search]{border:1px solid var(--line2);background:var(--sheet);
     <nav class="tabs" aria-label="ページ">
       <button id="tab-home" data-view="home">ホーム</button>
       <button id="tab-list" data-view="list">問題一覧</button>
+      <button id="tab-tags" data-view="tags">タグ</button>
       <button id="tab-review" data-view="review">復習<span class="badge" id="badge-review" hidden>0</span></button>
     </nav>
   </header>
@@ -414,6 +416,11 @@ select,input[type=search]{border:1px solid var(--line2);background:var(--sheet);
     <div id="wk-box"></div>
   </section>
 
+  <!-- 問題タグ（shared/tags.js） -->
+  <section class="view" id="view-tags" hidden>
+    <div id="tg-box"></div>
+  </section>
+
   <!-- 結果 -->
   <section class="view" id="view-result" hidden>
     <div class="panel" id="result"></div>
@@ -436,6 +443,7 @@ let view = "home";
 const KQS = window.KQ && KQ.session();
 const LS = "kokushi-rec-v1" + (KQS ? "@" + KQS.nick.toLowerCase() : "");
 /*wk*/if (window.KQWeekly) KQWeekly.boot(LS);
+/*tag*/if (window.KQTags) KQTags.boot(LS);
 try { rec = JSON.parse(localStorage.getItem(LS) || "{}") || {}; } catch { rec = {}; }
 let cloud = null, uid = null;
 const dirty = new Set(); let flushing = false;
@@ -471,7 +479,7 @@ function flush(){
 async function doSave(){
   if (flushing) { saveTimer = setTimeout(doSave, 1000); return; }
   flushing = true; dirty.clear(); weakDirty = false;
-  const r = await KQ.save(APP, { v: 1, at: Date.now(), rec, weak, mock, mockh: mockH, /*wk*/wk: window.KQWeekly ? KQWeekly.dump() : undefined });
+  const r = await KQ.save(APP, { v: 1, at: Date.now(), rec, weak, mock, mockh: mockH, /*wk*/wk: window.KQWeekly ? KQWeekly.dump() : undefined, /*tag*/tag: window.KQTags ? KQTags.dump() : undefined });
   flushing = false;
   if (r.ok) setSync(`☁ ${KQS.nick} さんの記録として保存しました（どの端末でも続きから）`);
   else { setSync(navigator.onLine === false ? "📴 オフライン中：記録はこの端末に保存しています。つながったら自動でクラウドに送ります" : "クラウド保存に失敗しました（この端末には保存されています）" + (r.msg ? "：" + r.msg : "")); weakDirty = true; clearTimeout(saveTimer); saveTimer = setTimeout(doSave, 15000); }
@@ -502,6 +510,7 @@ async function connectCloud(){
   const d = r.data || {};
   const mch = mergeMock(d.mock, d.mockh);
   /*wk*/if (window.KQWeekly) KQWeekly.merge(d.wk);
+  /*tag*/if (window.KQTags) KQTags.merge(d.tag);
   if (mergeIn(d.rec, d.weak) || mch) { saveLocal(); saveWeak(); if (!(view === "mock" && mockScreen === "exam")) render(); }
   cloud = true;
   setSync(`☁ ${KQS.nick} さんの記録（どの端末でも続きから）`);
@@ -618,6 +627,7 @@ function render(){
   const b = $("#badge-review"); const wkB = Q.filter(q => isWeak(q.id)).length; b.hidden = !wkB; b.textContent = wkB;
   if (view === "home") renderHome(ngIds);
   /*wk*/if (view === "weekly" && window.KQWeekly) KQWeekly.render();
+  /*tag*/if (view === "tags" && window.KQTags) KQTags.render();
   if (view === "list") renderList();
   if (view === "review") renderReview(ngIds);
   if (view === "review") renderWeak();
@@ -804,7 +814,7 @@ const isBm = id => !!(window.KQStats && KQStats.bm.has(APP, id));
 function toggleBm(b){
   if (!window.KQStats) return;
   const q = byId[b.dataset.id]; if (!q) return;
-  const h = b.closest(".qhead"), lab = h ? [...h.querySelectorAll(".qno,.chip")].map(x => x.textContent.trim()).filter(Boolean).join(" · ") : String(q.id);
+  const h = b.closest(".qhead,.jhead"), lab = h ? [...h.querySelectorAll(".qno,.chip,.jsrc>span")].map(x => x.textContent.trim()).filter(Boolean).join(" · ") : String(q.id);
   const on = KQStats.bm.toggle(APP, q.id, { l: lab, s: String(q.question || "").replace(/\*\*/g, "").slice(0, 70) });
   b.setAttribute("aria-pressed", on); b.textContent = on ? "★ 保存ずみ" : "☆ 保存";
   dirty.add("bm"); flush();
@@ -824,7 +834,7 @@ function renderQuiz(){
   $("#sheet").innerHTML = `
     <div class="jhead">
       <div class="jsrc"><b class="qno">第${q.kai}回 ${esc(q.session || "")} ${q.session ? "" : "問"}${q.no}</b><span>${esc(q.field)}</span>${todayTag(q.id)}</div>
-      <button class="bmk" id="q-bm" data-id="${esc(q.id)}" aria-pressed="${isBm(q.id)}" aria-label="ブックマーク">${isBm(q.id) ? "★ 保存ずみ" : "☆ 保存"}</button>
+      <div class="jtools"><button class="bmk" id="q-bm" data-id="${esc(q.id)}" aria-pressed="${isBm(q.id)}" aria-label="ブックマーク">${isBm(q.id) ? "★ 保存ずみ" : "☆ 保存"}</button>${window.KQTags ? KQTags.btns(q.id) : ""}</div>
     </div>
     <div class="jprog num"><span>${esc(quiz.title)}　${quiz.i + 1} / ${quiz.ids.length}問</span><span>${Math.round((quiz.i + (done ? 1 : 0)) / quiz.ids.length * 100)}%</span></div>
     <div class="prog"><i style="width:${(quiz.i + (done ? 1 : 0)) / quiz.ids.length * 100}%"></i></div>
@@ -1227,6 +1237,7 @@ function load(data){
   $("#review-field").innerHTML = opts("すべての分野", FIELDS);
   $("#weak-field").innerHTML = opts("すべての分野", FIELDS);
   /*wk*/if (window.KQWeekly) KQWeekly.init(window.KQPage);
+  /*tag*/if (window.KQTags) KQTags.init(window.KQPage);
   show("home");
   startFromUrl();
 }
@@ -1241,6 +1252,8 @@ function startFromUrl(){
   if (st === "weak") return startQuiz("苦手な問題", Q.filter(q => isWeak(q.id)).map(q => q.id), { shuffle: true, weak: true });
   if (st === "mock") return show("mock");
   /*wk*/if (st === "weekly") return show("weekly");
+  /*tag*/if (st === "tags") return show("tags");
+  if (/^tag[123]$/.test(st || "") && window.KQTags && KQTags.startTag(+st.slice(3))) return;
   if (st === "today") return startToday(Math.max(0, +P.get("n") || 0), Math.max(0, +P.get("c") || 0));
   if (f && (th || pn)) return startTheme(f, th, pn);
   if (st === "random") return startQuiz("ランダム10問", shuffle(Q.map(q => q.id)).slice(0, 10));
@@ -1251,7 +1264,7 @@ fetch("questions.json").then(r => r.ok ? r.json() : Promise.reject())
   .then(load)
   .catch(() => { setSync("問題データを読み込めませんでした。ページを開き直してください。"); });
 // 案内キャラ（shared/guide.js）が記録を読むための窓口
-window.KQPage = { app: APP, /*wk*/show, startQuiz, record, weakRecord, needOf, fmt, memo, get byId(){ return byId; }, dirtyWk: () => { dirty.add("wk"); flush(); }, get rec(){ return rec; }, get Q(){ return Q; }, isWeak, get quiz(){ return quiz; }, get view(){ return view; }, get cloud(){ return cloud; }, doSave };
+window.KQPage = { app: APP, /*tag*/dirtyTag: () => { dirty.add("tag"); flush(); }, /*wk*/show, startQuiz, record, weakRecord, needOf, fmt, memo, get byId(){ return byId; }, dirtyWk: () => { dirty.add("wk"); flush(); }, get rec(){ return rec; }, get Q(){ return Q; }, isWeak, get quiz(){ return quiz; }, get view(){ return view; }, get cloud(){ return cloud; }, doSave };
 connectCloud();
 /* オフラインから復帰した時：まだつながっていなければつなぎ直す（たまった記録もまとめて送る） */
 let reconnecting = false;
