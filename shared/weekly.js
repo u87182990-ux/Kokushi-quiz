@@ -51,7 +51,7 @@
   /* =========================================================
      ここから下は過去問ページ（KQPage がある時）だけ
      ========================================================= */
-  let P = null, S = blank(), KEY = "", screen = "top", showH = null, ask = false, timer = null, seen = null, RATES = null, TH = null;
+  let P = null, S = blank(), KEY = "", screen = "top", showH = null, ask = false, timer = null, seen = null, RATES = null, TH = null, DIFF = null;
   const $ = s => document.querySelector(s);
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const pcA = p => window.KQPlan ? KQPlan.pcAttr(p) : "";
@@ -64,6 +64,7 @@
   function init(page){
     P = page;
     fetch("rates.json").then(r => r.ok ? r.json() : null).then(d => { RATES = d; if (P.view === "weekly") render(); }).catch(() => {});
+    fetch("difficulty.json").then(r => r.ok ? r.json() : null).then(d => { DIFF = d; if (P.view === "weekly" && screen === "result") render(); }).catch(() => {});
     fetch("themes.json").then(r => r.ok ? r.json() : null).then(d => { TH = d || {}; if (P.view === "weekly" && screen === "result") render(); }).catch(() => {});
     document.addEventListener("visibilitychange", () => { if (document.hidden) stopSeen(); else if (P.view === "weekly" && screen === "exam") startSeen(); });
     document.addEventListener("click", onClick);
@@ -107,7 +108,7 @@
       <div class="wk-tiles">
         <div><b class="num">${N}</b><span>問題数</span></div>
         <div><b class="num">30</b><span>制限時間（分）</span></div>
-        <div><b class="num">${avg == null ? "–" : avg + "%"}</b><span>みんなの正答率</span></div>
+        <div><b class="num">${avg == null ? "–" : avg + "%"}</b><span>平均正答率<br>（データあり ${rs.length}/${ids.length}問）</span></div>
       </div>
       <div class="wk-go">${run ? `<button class="btn primary" id="wk-resume">続きを解く（残り ${mmss(left())}）</button>`
         : done ? `<button class="btn primary" data-wkh="${done.wk}">今週の結果を見る（${done.score}/${done.n}点）</button>`
@@ -117,7 +118,7 @@
     <div class="panel wk-card">
       <h2>注意事項</h2>
       <ul class="wk-rules">${notes.map(n => `<li>${n}</li>`).join("")}</ul>
-      <p class="wk-note">来週の分野：${esc(inf.next)}　出典：過去問（第67〜78回）。みんなの正答率はコクシルの利用者データ（2026年11月取得）の平均です。</p>
+      <p class="wk-note">来週の分野：${esc(inf.next)}　出典：過去問（第67〜78回）。平均正答率は、コクシルの利用者データ（2026年11月取得）がある問題だけの平均です（第67〜69回などデータのない問題は入っていません）。</p>
     </div>
     <div class="panel wk-card">
       <h2>これまでの週間模試</h2>
@@ -197,8 +198,10 @@
       rows.push(...[...g.values()].sort((a, b) => a.ok / a.n - b.ok / b.n || b.n - a.n));
     }
     const bar = r => { const p = r.ok / r.n; return `<div class="wk-frow${r.all ? " all" : ""}" style="${pcA(p)}"><span class="wk-fn">${esc(r.f)}</span><b class="pc-c num">${Math.round(p * 100)}%</b><em class="num">${r.ok}/${r.n}</em><span class="wk-fbar"><i class="pc-bg" style="width:${p * 100}%"></i><u></u></span></div>`; };
-    const crowd = id => RATES && RATES.r[id] != null ? RATES.r[id] + "%" : "–";
-    const table = h.ids.map((id, i) => { const q = P.byId[id], a = h.ans[i] || []; return q ? `<tr data-wkq="${esc(id)}"><td class="num">${i + 1}</td><td>${esc(src(q))}</td><td class="${h.ok[i] ? "o" : "x"}">${h.ok[i] ? "○" : a.length ? "×" : "－"}</td><td class="num">${crowd(id)}</td><td class="num">${h.tm && h.tm[i] ? (h.tm[i] < 1000 ? "1秒未満" : jtime(h.tm[i])) : "–"}</td></tr>` : ""; }).join("");
+    const rate = id => RATES && RATES.r[id] != null ? RATES.r[id] : null;
+    const LV = (DIFF && DIFF.levels) || ["やさしい", "やややさしい", "ふつう", "やや難しい", "難しい"];
+    const crowd = id => rate(id) != null ? `<span class="num">${rate(id)}%</span>` : DIFF && DIFF.d[id] ? `<span class="wk-ai"><small>難易度（AI推定）</small>${LV[DIFF.d[id] - 1]}</span>` : "–";
+    const table = h.ids.map((id, i) => { const q = P.byId[id], a = h.ans[i] || []; return q ? `<tr data-wkq="${esc(id)}"><td class="num">${i + 1}</td><td>${esc(src(q))}</td><td class="${h.ok[i] ? "o" : "x"}">${h.ok[i] ? "○" : a.length ? "×" : "－"}</td><td>${crowd(id)}</td><td class="num">${h.tm && h.tm[i] ? (h.tm[i] < 1000 ? "1秒未満" : jtime(h.tm[i])) : "–"}</td></tr>` : ""; }).join("");
     const wrong = h.ids.filter((id, i) => !h.ok[i] && P.byId[id]);
     box.innerHTML = `<div class="panel wk-card">
       <h2 class="wk-title">週間模試レポート（${esc(h.label)}）<br><span>［${esc(h.field)}］</span></h2>
@@ -210,6 +213,7 @@
       <p class="wk-pass" style="color:${diff >= 0 ? "var(--ok)" : "var(--ng)"}">${diff >= 0 ? `合格ライン（6割＝${line}点）を ${diff}点 上回りました` : `合格ライン（6割＝${line}点）まで あと ${-diff}点`}</p>
       ${h.auto ? `<p class="wk-note" style="margin:0">時間になったので、自動で提出しました。</p>` : ""}
     </div>
+    ${review(h, rows.slice(1), rate)}
     <div class="panel wk-card">
       <h2>分野別成績</h2>
       <p class="wk-note" style="margin:-6px 0 10px">縦の線が合格ライン（60%）。下はテーマごと、低い（苦手な）順です。</p>
@@ -217,13 +221,47 @@
     </div>
     <div class="panel wk-card">
       <h2>問題分析表</h2>
-      <p class="wk-note" style="margin:-6px 0 10px">行をタップすると、その問題を解説つきで開きます。正答率はコクシルの利用者データ（2026年11月取得）。</p>
+      <p class="wk-note" style="margin:-6px 0 10px">行をタップすると、その問題を解説つきで開きます。正答率はコクシルの利用者データ（2026年11月取得）。データのない問題（第67〜69回など）は、かわりに<b>難易度（AI推定・5段階）</b>を出しています。これは正答率の数字ではありません。</p>
       <div class="wk-tw"><table class="wk-table"><thead><tr><th>問</th><th>出典</th><th>正誤</th><th>正答率</th><th>解答時間</th></tr></thead><tbody>${table}</tbody></table></div>
       <div class="row" style="margin-top:16px">
         ${wrong.length ? `<button class="btn primary" id="wk-wrong">まちがえた${wrong.length}問を解説つきで解き直す</button>` : ""}
         <button class="btn" id="wk-back">週間模試のページへ</button>
       </div>
     </div>`;
+  }
+  // 総評：自分のデータだけからルールで作る（順位・得点分布・みんなの平均時間はデータがないので出さない）
+  function review(h, themes, rate){
+    const qbtn = (id, extra) => { const q = P.byId[id]; return q ? `<button class="wk-qlink" data-wkq="${esc(id)}"><span>${esc(src(q))}</span><small>${extra}</small></button>` : ""; };
+    const blocks = [];
+    // 強み・改善点（テーマ）
+    const ts = themes.filter(t => t.n > 0), byP = (a, b) => a.ok / a.n - b.ok / b.n || b.n - a.n;
+    const named = ts.filter(t => !/^(その他|そのほか)$/.test(t.f)), pool = named.length ? named : ts;
+    const best = [...pool].sort((a, b) => -byP(a, b))[0], worst = [...pool].sort(byP)[0];
+    if (best && best.ok > 0) blocks.push(`<div class="wk-rv"><h3>強み</h3><p><b>${esc(best.f)}</b>　${best.ok}/${best.n}問（${Math.round(best.ok / best.n * 100)}%）。今週の中でいちばん取れたテーマです。</p></div>`);
+    const trap = h.ids.map((id, i) => ({ id, i, r: rate(id) })).filter(x => !h.ok[x.i] && x.r != null && x.r >= 70);
+    let imp = "";
+    if (worst && worst !== best && worst.ok < worst.n) imp += `<p><b>${esc(worst.f)}</b>　${worst.ok}/${worst.n}問（${Math.round(worst.ok / worst.n * 100)}%）。今週いちばん低かったテーマです。</p>`;
+    else if (!worst || worst.ok === worst.n) imp += `<p>どのテーマも取れていました。</p>`;
+    imp += trap.length ? `<p>みんなの正答率が<b>70%以上なのにまちがえた問題：${trap.length}問</b>。本番で落とすと差がつく問題です（タップで解説つきで開きます）。</p><div class="wk-qlist">${trap.map(x => qbtn(x.id, `正答率 ${x.r}%`)).join("")}</div>`
+      : `<p>みんなの正答率が70%以上の問題は、全部取れていました（正答率のデータがある問題で判定）。</p>`;
+    blocks.push(`<div class="wk-rv"><h3>改善点</h3>${imp}</div>`);
+    // 回答時間
+    const tm = h.ids.map((id, i) => ({ id, i, t: (h.tm && h.tm[i]) || 0 })), sum = tm.reduce((a, x) => a + x.t, 0);
+    const per = sum / h.n, slow = tm.filter(x => x.t > 0).sort((a, b) => b.t - a.t).slice(0, 3), use = h.used / LIMIT;
+    const pace = h.auto ? "時間切れでした。1問90秒（本番も200問を5時間＝1問90秒）を目安に、迷った問題は後回しにしましょう。"
+      : use < 0.5 ? "かなり余裕があります。のこった時間で、迷った問題を見直せます。"
+      : use < 0.85 ? "ちょうどよいペースです。本番も1問90秒が目安です。"
+      : "時間ぎりぎりでした。迷う問題で止まりすぎていないか、下の3問を見直しましょう。";
+    blocks.push(`<div class="wk-rv"><h3>回答時間の分析</h3>
+      <p>1問あたり <b class="num">${jtime(per)}</b>（目安は90秒）・全体 ${jtime(h.used)} / 30分（${Math.round(use * 100)}%）</p>
+      <p>${pace}</p>
+      ${slow.length ? `<p class="wk-sub">時間がかかった問題 トップ${slow.length}</p><div class="wk-qlist">${slow.map(x => qbtn(x.id, `${jtime(x.t)}・${h.ok[x.i] ? "○" : "×"}`)).join("")}</div>` : ""}</div>`);
+    // 次の一手
+    if (worst && worst.ok < worst.n && worst.f !== "そのほか")
+      blocks.push(`<div class="wk-rv"><h3>次の一手</h3><p>いちばん低かった「${esc(worst.f)}」を10問。苦手リストに入った問題は、2回続けて正解で卒業です。</p><div class="wk-go" style="justify-content:flex-start;margin-top:8px"><a class="btn primary" href="./?field=${encodeURIComponent(h.field)}&theme=${encodeURIComponent(worst.f)}&n=10">このテーマを解く</a></div></div>`);
+    else if (worst && worst.ok < worst.n)
+      blocks.push(`<div class="wk-rv"><h3>次の一手</h3><p>「${esc(h.field)}」から10問解きましょう。</p><div class="wk-go" style="justify-content:flex-start;margin-top:8px"><a class="btn primary" href="./?field=${encodeURIComponent(h.field)}&n=10">この分野を解く</a></div></div>`);
+    return `<div class="panel wk-card"><h2>総評</h2><p class="wk-note" style="margin:-6px 0 10px">あなたの今回の結果だけから、決まったルールで作っています。</p>${blocks.join("")}</div>`;
   }
   function onClick(e){
     if (!P || P.view !== "weekly") return;
@@ -288,6 +326,14 @@
   .wk-fbar i{display:block;height:100%;border-radius:4px}
   .wk-fbar u{position:absolute;left:60%;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.55}
   .wk-tw{overflow-x:auto;margin:0 -4px}
+  .wk-ai{display:grid;font-size:12px;line-height:1.4;white-space:nowrap} .wk-ai small{font-size:10px;color:var(--sub)}
+  .wk-rv{padding:10px 0;border-top:1px solid var(--line)} .wk-rv:first-of-type{border-top:0;padding-top:0}
+  .wk-rv h3{font-size:14px;margin:0 0 4px}
+  .wk-rv p{margin:4px 0;font-size:13.5px;line-height:1.6}
+  .wk-rv .wk-sub{font-size:12px;color:var(--sub);margin-top:8px}
+  .wk-qlist{display:grid;gap:4px;margin-top:8px}
+  .wk-qlink{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:14px;background:var(--paper);font-size:13px;text-align:left}
+  .wk-qlink small{color:var(--sub);font-size:12px}
   .wk-table{width:100%;border-collapse:collapse;font-size:13px}
   .wk-table th{font-size:12px;font-weight:700;color:var(--sub);text-align:left;padding:8px 4px;border-bottom:1px solid var(--line2);white-space:nowrap}
   .wk-table td{padding:10px 4px;border-bottom:1px solid var(--line);white-space:nowrap}
