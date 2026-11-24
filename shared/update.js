@@ -34,6 +34,12 @@
       .catch(function () {});
   }
 
+  // オフラインで使うしくみ（shared/offline.js）
+  var off = document.createElement("script");
+  off.src = new URL("shared/offline.js", root).href;
+  off.async = true;
+  (document.head || document.documentElement).appendChild(off);
+
   if (!window.fetch || !window.performance || !performance.getEntriesByType) return;
 
   var AWAY_RELOAD_MS = 5 * 60 * 1000;

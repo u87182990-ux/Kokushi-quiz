@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style><script src="../shared/config.js?v=1795000000"></script><script src="../shared/account.js?v=1795200000"></script>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style><script src="../shared/config.js?v=1795000000"></script><script src="../shared/account.js?v=1795300000"></script>
 <script src="../shared/stats.js?v=1795000000"></script>
 <title>基礎医 暗記カード</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -130,6 +130,8 @@ let S = store.get("state", {});          // id -> {due, ivl, ease, reps, lapses}
 let log = store.get("log", { day: today(), done: 0, newSeen: 0 });
 if (log.day !== today()) log = { day: today(), done: 0, newSeen: 0 };
 let newPerDay = store.get("newPerDay", 20);
+// ?start=due&n=12 … トップの「今日やること」から：復習期限が来たカードだけ（新しいカードは出さない）
+const P0 = new URLSearchParams(location.search); let dueOnly = P0.get("start") === "due", dueN = +P0.get("n") || 0;
 let mode = "srs", sec = "", lvMin = 0, typing = store.get("typing", false);
 let queue = [], cur = null, flipped = false, typed = "";
 const SECS = [...new Set(CARDS.map((c) => c.sec))];
@@ -141,9 +143,9 @@ function buildQueue() {
   const t = now(); let list = filtered();
   if (mode === "srs") {
     const due = list.filter((c) => S[c.id] && S[c.id].due <= t).sort((a, b) => S[a.id].due - S[b.id].due);
-    const left = Math.max(0, newPerDay - log.newSeen);
+    const left = dueOnly ? 0 : Math.max(0, newPerDay - log.newSeen);
     const fresh = list.filter((c) => !S[c.id]).sort((a, b) => a.lv - b.lv || 0).slice(0, left);
-    queue = [...due, ...shuffle(fresh)];
+    queue = [...(dueOnly && dueN ? due.slice(0, dueN) : due), ...shuffle(fresh)];
   } else if (mode === "oni") {
     queue = shuffle(list.filter((c) => c.lv === 3 || (c.lv === 2 && (c.type === "diff" || c.type === "reverse"))));
   } else if (mode === "weak") {
@@ -230,7 +232,7 @@ $("typeChk").checked = typing;
 $("typeChk").addEventListener("change", (e) => { typing = e.target.checked; store.set("typing", typing); render(); });
 $("newSel").value = String(newPerDay);
 $("newSel").addEventListener("change", (e) => { newPerDay = +e.target.value; store.set("newPerDay", newPerDay); if (mode === "srs") { buildQueue(); next(); } else renderQueue(); });
-document.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+document.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => { dueOnly = false; setMode(b.dataset.mode); }));
 let armed = false;
 $("resetBtn").addEventListener("click", () => {
   if (!armed) { armed = true; $("resetBtn").textContent = "本当にリセットする"; $("resetMsg").textContent = "もう一度押すと全カードの記録が消える。"; return; }

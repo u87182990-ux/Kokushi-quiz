@@ -1,0 +1,240 @@
+/* 国試ドリルの「見た目」4種類（マイページ「見た目とホームの並び」で選ぶ）
+   html[data-skin="a|b|c|d"] のときだけ効く。並び・導線・機能はそのまま、色・書体・形だけ変える。
+   書体は index.html の SKIN_FONTS で、選んだ人だけ読みこむ。 */
+
+/* =========================================================
+   A 誌面（Editorial）… 雑誌の誌面。明朝の大きな数字と罫線、蛍光ペンの線
+   ========================================================= */
+html[data-skin="a"]{
+  --paper:#eeece6; --sheet:#f7f6f1; --ink:#151513; --sub:#615e56; --line:#d3d0c6; --line2:#151513;
+  --accent:#151513; --accent-ink:#f7f6f1; --accent-soft:#e3e0d6; --hi:#f1dc33; --warm:#151513;
+  --box:#151513; --box-ink:#f7f6f1; --glow:#f1dc33; --bar:rgba(238,236,230,.94);
+  --h0:#dedbd2; --h1:#c9c49f; --h2:#b4ab63; --h3:#8f8430; --h4:#151513;
+  --f-disp:"Shippori Mincho B1","Hiragino Mincho ProN",serif; --f-body:"IBM Plex Sans JP","Hiragino Sans",sans-serif;
+}
+@media (prefers-color-scheme:dark){html[data-skin="a"]{
+  --paper:#121211; --sheet:#1a1a18; --ink:#efede6; --sub:#a29f96; --line:#2f2e2a; --line2:#efede6;
+  --accent:#efede6; --accent-ink:#121211; --accent-soft:#26251f; --hi:#cdb92a; --warm:#efede6;
+  --box:#efede6; --box-ink:#121211; --bar:rgba(18,18,17,.94);
+  --h0:#24231f; --h1:#4a4524; --h2:#7a6f2a; --h3:#a8992d; --h4:#efede6}}
+html[data-skin="a"] .topbar{color:var(--ink);font-family:var(--f-disp);font-weight:800;letter-spacing:.18em;border-bottom:1px solid var(--ink)}
+html[data-skin="a"] .topbar .logo i{display:none}
+html[data-skin="a"] .tabbar{border-top:1px solid var(--ink)}
+html[data-skin="a"] .tabbar a[aria-current="page"]{color:var(--ink)}
+html[data-skin="a"] .tabbar a[aria-current="page"] svg{fill:var(--hi)}
+html[data-skin="a"] .ic{display:none!important}
+html[data-skin="a"] .todo{grid-template-columns:1fr auto;border-radius:0;box-shadow:none;background:var(--ink);color:var(--paper);padding:20px 16px}
+html[data-skin="a"] .todo b{font-family:var(--f-disp);font-size:19px;font-weight:800}
+html[data-skin="a"] .todo b .num{font-size:30px;background:linear-gradient(transparent 62%,var(--hi) 62%);color:var(--paper);padding:0 2px}
+html[data-skin="a"] .todo small{grid-column:1}
+html[data-skin="a"] .todo::after{grid-column:2;content:"→";font-size:22px}
+html[data-skin="a"] .todo.done{background:var(--ink)}
+html[data-skin="a"] .todo.night{background:var(--hi);color:#151513;box-shadow:none}
+html[data-skin="a"] .todo.night b .num{color:#151513;background:none}
+html[data-skin="a"] .meter{background:var(--line);border-radius:0;height:3px}
+html[data-skin="a"] .meter i{background:var(--ink);border-radius:0}
+html[data-skin="a"] .reco{border-radius:0;background:transparent;border:0;border-top:1px solid var(--ink);border-bottom:1px solid var(--line);padding:14px 0}
+html[data-skin="a"] .reco-main .go{border-radius:0;background:var(--ink);color:var(--paper)}
+html[data-skin="a"] .hero{text-align:left;padding:28px 0 4px}
+html[data-skin="a"] .hero h1{font-size:46px;font-weight:800;color:var(--ink);letter-spacing:.02em;line-height:1.1}
+html[data-skin="a"] .hero h1::after{content:"Vol.79 — 診療放射線技師";display:block;font:500 11px/1.6 var(--f-body);letter-spacing:.2em;color:var(--sub);margin-top:8px}
+html[data-skin="a"] .hero p{font-size:13px}
+html[data-skin="a"] .hero-nums{border-top:2px solid var(--ink);border-bottom:1px solid var(--ink)}
+html[data-skin="a"] .hero-nums div+div{border-left:1px solid var(--line)}
+html[data-skin="a"] .hero-nums b,html[data-skin="a"] .hero-nums b.warm{font-family:var(--f-disp);font-weight:800;font-size:40px;color:var(--ink)}
+html[data-skin="a"] .panel{border-radius:0;background:transparent;border:0;border-top:2px solid var(--ink);padding:16px 0}
+html[data-skin="a"] .exam-top b,html[data-skin="a"] .exam-pace b{font-family:var(--f-disp);font-weight:800;color:var(--ink)}
+html[data-skin="a"] .exam-pace em{color:var(--ink);background:linear-gradient(transparent 60%,var(--hi) 60%)}
+html[data-skin="a"] .exam-row input,html[data-skin="a"] .exam-row select{border-radius:0;border-color:var(--ink);background:transparent}
+html[data-skin="a"] .sec{font-family:var(--f-disp);font-weight:800;font-size:22px;letter-spacing:.06em;border-top:1px solid var(--ink);padding-top:12px}
+html[data-skin="a"] .sec::before{display:none}
+html[data-skin="a"] .modes{gap:0;border-top:1px solid var(--ink)}
+html[data-skin="a"] .mode{border-radius:0;background:transparent;border:0;border-bottom:1px solid var(--line);justify-items:start;text-align:left;min-height:0;padding:16px 8px 16px 0}
+html[data-skin="a"] .modes .mode:nth-child(odd):not(.wide){border-right:1px solid var(--line)}
+html[data-skin="a"] .modes .mode:nth-child(even):not(.wide){padding-left:16px}
+html[data-skin="a"] .mode b{font-family:var(--f-disp);font-weight:800;font-size:19px}
+html[data-skin="a"] .mode .num{font-family:var(--f-disp);font-weight:800}
+html[data-skin="a"] .mode.wide{grid-template-columns:1fr auto}
+html[data-skin="a"] .mode.wide::after{content:"→";color:var(--ink)}
+html[data-skin="a"] .mode br{display:none}
+html[data-skin="a"] .mode .fusen{background:var(--hi);color:#151513;border-radius:0;transform:none;top:12px;right:8px}
+html[data-skin="a"] .chips{gap:0 16px}
+html[data-skin="a"] .chip{border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;padding:6px 0;font-weight:500}
+html[data-skin="a"] .nudge{border-radius:0;background:var(--accent-soft)}
+html[data-skin="a"] .btn{border-radius:0;border-color:var(--ink)}
+
+/* =========================================================
+   B 方眼ノート … 勉強ノートと紙。手書き風の見出し、万年筆の青と赤ペン
+   ========================================================= */
+html[data-skin="b"]{
+  --paper:#f3f4ef; --sheet:#fffffb; --ink:#1f2a44; --sub:#5f6779; --line:#d9ddd3; --line2:#b9bfb2;
+  --accent:#2747b0; --accent-ink:#fffffb; --accent-soft:#e3e8f6; --warm:#d0432f; --ng:#d0432f; --ok:#2f7a4f;
+  --box:#1f2a44; --box-ink:#fffffb; --glow:#f3cf4d; --bar:rgba(243,244,239,.94); --grid:#e2e5dc; --marker:rgba(243,207,77,.55);
+  --h0:#e5e7df; --h1:#c4cdea; --h2:#8fa2dc; --h3:#4f6cc6; --h4:#2747b0;
+  --f-disp:"Klee One","Hiragino Maru Gothic ProN",sans-serif; --f-body:"BIZ UDPGothic","Hiragino Sans",sans-serif;
+}
+@media (prefers-color-scheme:dark){html[data-skin="b"]{
+  --paper:#1b1e23; --sheet:#24282f; --ink:#ebe8de; --sub:#a3a8b3; --line:#343a44; --line2:#4a5160;
+  --accent:#8fa8ff; --accent-ink:#141821; --accent-soft:#2a3248; --warm:#ff8a75; --ng:#ff8a75; --ok:#7fd3a0;
+  --box:#ebe8de; --box-ink:#1b1e23; --bar:rgba(27,30,35,.94); --grid:#23272d; --marker:rgba(243,207,77,.28);
+  --h0:#2a2f37; --h1:#33416b; --h2:#4a60a8; --h3:#6f88e0; --h4:#a6baff}}
+html[data-skin="b"] body{background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:20px 20px}
+html[data-skin="b"] .topbar{font-family:var(--f-disp);font-weight:600;font-size:18px;color:var(--ink)}
+html[data-skin="b"] .topbar .logo i{background:var(--warm);border-radius:50%}
+html[data-skin="b"] .topbar .logo i::after{display:none}
+html[data-skin="b"] .todo{background:var(--sheet);color:var(--ink);border-radius:4px;border:1px solid var(--line2);box-shadow:4px 4px 0 var(--line);
+  background-image:linear-gradient(90deg,transparent 52px,var(--warm) 52px,var(--warm) 53px,transparent 53px),repeating-linear-gradient(transparent 0 27px,var(--line) 27px 28px)}
+html[data-skin="b"] .todo .ic{background:none;color:var(--accent);font-size:20px}
+html[data-skin="b"] .todo b{font-family:var(--f-disp);font-weight:600;font-size:19px;color:var(--accent)}
+html[data-skin="b"] .todo b .num{font-family:var(--f-disp);font-size:32px;color:var(--warm)}
+html[data-skin="b"] .todo small{opacity:1;color:var(--sub)}
+html[data-skin="b"] .todo::after{color:var(--accent)}
+html[data-skin="b"] .todo.done{background-color:var(--sheet)}
+html[data-skin="b"] .todo.night{background:var(--box);color:var(--box-ink);background-image:none;box-shadow:4px 4px 0 var(--line);border-color:var(--box)}
+html[data-skin="b"] .todo.night b{color:var(--box-ink)} html[data-skin="b"] .todo.night small{color:var(--box-ink);opacity:.8}
+html[data-skin="b"] .todo.night .ic{color:var(--glow)}
+html[data-skin="b"] .meter{background:var(--line);height:6px;border-radius:0}
+html[data-skin="b"] .meter i{background:repeating-linear-gradient(-45deg,var(--accent) 0 3px,transparent 3px 6px);border-radius:0}
+html[data-skin="b"] .reco,html[data-skin="b"] .panel,html[data-skin="b"] .mode{border-radius:4px;border:1px solid var(--line2);box-shadow:3px 3px 0 var(--line);background:var(--sheet)}
+html[data-skin="b"] .reco-main .go{border-radius:4px}
+html[data-skin="b"] .hero h1{font-family:var(--f-disp);font-weight:600;font-size:36px;color:var(--ink);display:inline;background:linear-gradient(transparent 58%,var(--marker) 58%)}
+html[data-skin="b"] .hero-nums{border-color:var(--line2);border-style:dashed}
+html[data-skin="b"] .hero-nums div+div{border-left:1px dashed var(--line2)}
+html[data-skin="b"] .hero-nums b{font-family:var(--f-disp);font-weight:600;font-size:38px;color:var(--accent)}
+html[data-skin="b"] .hero-nums b.warm{color:var(--warm)}
+html[data-skin="b"] .exam-top>div:first-child b{font-family:var(--f-disp);font-weight:600;color:var(--warm);position:relative}
+html[data-skin="b"] .exam-top>div:first-child b::after{content:"";position:absolute;inset:-4px -8px -2px -8px;border:2px solid var(--warm);border-radius:50% 46% 52% 48%/56% 50% 50% 46%;transform:rotate(-5deg);opacity:.7}
+html[data-skin="b"] .exam-pace b,html[data-skin="b"] .exam-pace em{font-family:var(--f-disp);font-weight:600;color:var(--accent)}
+html[data-skin="b"] .sec{font-family:var(--f-disp);font-weight:600;font-size:19px}
+html[data-skin="b"] .sec::before{display:none}
+html[data-skin="b"] .sec{background:linear-gradient(transparent 60%,var(--marker) 60%);display:inline-flex;width:auto;padding-right:8px}
+html[data-skin="b"] .sec small{margin-left:12px}
+html[data-skin="b"] .mode:nth-child(3n+1){transform:rotate(-.6deg)} html[data-skin="b"] .mode:nth-child(3n+2){transform:rotate(.5deg)}
+html[data-skin="b"] .mode b{font-family:var(--f-disp);font-weight:600;font-size:17px}
+html[data-skin="b"] .mode .num{font-family:var(--f-disp);color:var(--warm)}
+html[data-skin="b"] .mode .fusen{background:var(--warm);color:#fff;border-radius:2px}
+html[data-skin="b"] .chip{border-radius:4px;border-style:dashed;background:var(--sheet)}
+html[data-skin="b"] .nudge{border-radius:4px;border:1px dashed var(--accent);background:var(--accent-soft)}
+
+/* =========================================================
+   C モノ（Minimal Mono）… 白と黒だけ。等幅の数字と細い罫線で締める
+   ========================================================= */
+html[data-skin="c"]{
+  --paper:#fafafa; --sheet:#ffffff; --ink:#0b0b0b; --sub:#6e6e6e; --line:#e4e4e4; --line2:#cfcfcf;
+  --accent:#0b0b0b; --accent-ink:#ffffff; --accent-soft:#f0f0f0; --warm:#0b0b0b; --ok:#0b0b0b;
+  --box:#0b0b0b; --box-ink:#fafafa; --glow:#fafafa; --bar:rgba(250,250,250,.94);
+  --h0:#ececec; --h1:#c8c8c8; --h2:#9a9a9a; --h3:#5a5a5a; --h4:#0b0b0b;
+  --f-disp:"IBM Plex Sans JP","Hiragino Sans",sans-serif; --f-body:"IBM Plex Sans JP","Hiragino Sans",sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){html[data-skin="c"]{
+  --paper:#0a0a0a; --sheet:#111111; --ink:#f2f2f2; --sub:#8c8c8c; --line:#232323; --line2:#333333;
+  --accent:#f2f2f2; --accent-ink:#0a0a0a; --accent-soft:#1a1a1a; --warm:#f2f2f2; --ok:#f2f2f2;
+  --box:#f2f2f2; --box-ink:#0a0a0a; --glow:#0a0a0a; --bar:rgba(10,10,10,.94);
+  --h0:#1c1c1c; --h1:#3a3a3a; --h2:#6a6a6a; --h3:#a5a5a5; --h4:#f2f2f2}}
+html[data-skin="c"] .topbar{color:var(--ink);font-weight:700;font-size:14px;letter-spacing:.08em;border-bottom-color:var(--line)}
+html[data-skin="c"] .topbar .logo i{width:8px;height:8px;border-radius:0;background:var(--ink)} html[data-skin="c"] .topbar .logo i::after{display:none}
+html[data-skin="c"] .tabbar a[aria-current="page"]{color:var(--ink)} html[data-skin="c"] .tabbar a[aria-current="page"] svg{fill:none;stroke-width:2.4}
+html[data-skin="c"] .tabbar svg{stroke-width:1.4}
+html[data-skin="c"] .ic{display:none!important}
+html[data-skin="c"] .num{font-family:var(--f-mono)!important;letter-spacing:-.02em}
+html[data-skin="c"] .todo{grid-template-columns:1fr auto;border-radius:6px;box-shadow:none;background:var(--ink);color:var(--paper);padding:20px}
+html[data-skin="c"] .todo b{font-weight:700;font-size:16px;letter-spacing:.04em}
+html[data-skin="c"] .todo b .num{font-size:28px;font-weight:600;margin:0 2px 0 8px}
+html[data-skin="c"] .todo small{grid-column:1;font-size:11.5px}
+html[data-skin="c"] .todo::after{grid-column:2;content:"↗";font-size:20px}
+html[data-skin="c"] .todo.done{background:var(--ink)}
+html[data-skin="c"] .todo.night{background:var(--sheet);color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+html[data-skin="c"] .meter{height:2px;background:var(--line);border-radius:0} html[data-skin="c"] .meter i{background:var(--ink);border-radius:0}
+html[data-skin="c"] .reco,html[data-skin="c"] .panel{border-radius:6px;border:1px solid var(--line);background:var(--sheet)}
+html[data-skin="c"] .reco-main .go{border-radius:6px;background:var(--ink);color:var(--paper)}
+html[data-skin="c"] .reco-main small,html[data-skin="c"] .exam-top .lab,html[data-skin="c"] .hero-nums span,html[data-skin="c"] .sec small{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+html[data-skin="c"] .hero{text-align:left;padding-top:24px}
+html[data-skin="c"] .hero h1{font-size:30px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+html[data-skin="c"] .hero p{font-size:12px}
+html[data-skin="c"] .hero-nums{justify-items:start;border-top:1px solid var(--ink);border-bottom:0;padding-bottom:0}
+html[data-skin="c"] .hero-nums div{justify-items:start;padding-left:10px}
+html[data-skin="c"] .hero-nums div:first-child{padding-left:0}
+html[data-skin="c"] .hero-nums b,html[data-skin="c"] .hero-nums b.warm{font-size:34px;font-weight:600;color:var(--ink)}
+html[data-skin="c"] .exam-top b,html[data-skin="c"] .exam-pace b,html[data-skin="c"] .exam-pace em{color:var(--ink);font-weight:600}
+html[data-skin="c"] .exam-row input,html[data-skin="c"] .exam-row select{border-radius:6px}
+html[data-skin="c"] .sec{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--sub);text-transform:uppercase;border-bottom:1px solid var(--line);padding-bottom:8px}
+html[data-skin="c"] .sec::before{display:none}
+html[data-skin="c"] .modes{gap:0;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--line);gap:1px}
+html[data-skin="c"] .mode{border:0;border-radius:0;background:var(--sheet);justify-items:start;text-align:left;min-height:104px;padding:16px;align-content:space-between}
+html[data-skin="c"] .mode b{font-size:15px;font-weight:700;order:-1}
+html[data-skin="c"] .mode span{font-size:11px}
+html[data-skin="c"] .mode .num{font-size:20px;font-weight:600;color:var(--ink)}
+html[data-skin="c"] .mode br{display:none}
+html[data-skin="c"] .mode.wide{grid-template-columns:1fr auto;min-height:0}
+html[data-skin="c"] .mode.wide::after{content:"→";color:var(--ink);font-size:18px}
+html[data-skin="c"] .mode .fusen{background:var(--ink);color:var(--paper);transform:none;border-radius:999px;top:16px;right:16px;font-family:var(--f-mono);font-weight:600}
+html[data-skin="c"] .chip{border-radius:6px;font-weight:500;padding:6px 10px}
+html[data-skin="c"] .chip small{font-family:var(--f-mono)}
+html[data-skin="c"] .nudge{border-radius:6px;background:var(--sheet);border:1px solid var(--line)}
+html[data-skin="c"] .nudge::after{color:var(--ink)}
+html[data-skin="c"] .btn{border-radius:6px}
+
+/* =========================================================
+   D 読影室（Lightbox）… シャウカステンに貼ったフィルム。暗いパネルに白く光る数字
+   ========================================================= */
+html[data-skin="d"]{
+  --paper:#e6ecf0; --sheet:#f6f9fb; --ink:#0f1a20; --sub:#56656f; --line:#c9d4db; --line2:#a9b8c2;
+  --accent:#0a7f9e; --accent-ink:#f6f9fb; --accent-soft:#d5e8ee; --warm:#e0892b;
+  --film:#0c1419; --film-2:#16222a; --film-ink:#e6f4f8; --film-sub:#8aa3ae; --lum:#9fe6ff;
+  --box:#0c1419; --box-ink:#e6f4f8; --glow:#9fe6ff; --bar:rgba(230,236,240,.94);
+  --h0:#d6dfe5; --h1:#a9d4e1; --h2:#6cb7cd; --h3:#2b93b2; --h4:#0a6680;
+  --f-disp:"Zen Kaku Gothic New","Hiragino Sans",sans-serif; --f-num:"Barlow Condensed","Zen Kaku Gothic New",sans-serif;
+}
+@media (prefers-color-scheme:dark){html[data-skin="d"]{
+  --paper:#05090c; --sheet:#0b1318; --ink:#dfeef3; --sub:#7f97a2; --line:#18252d; --line2:#243641;
+  --accent:#7fd8f2; --accent-ink:#05090c; --accent-soft:#0f2129;
+  --film:#0d171d; --film-2:#132029; --film-ink:#e6f4f8; --film-sub:#7f97a2; --lum:#9fe6ff;
+  --box:#0d171d; --bar:rgba(5,9,12,.94);
+  --h0:#111c22; --h1:#123847; --h2:#1a5a72; --h3:#2c8aac; --h4:#7fd8f2}}
+html[data-skin="d"] .topbar{color:var(--ink);font-weight:900;letter-spacing:.12em}
+html[data-skin="d"] .topbar .logo i{background:var(--film);border-radius:3px}
+html[data-skin="d"] .num{font-family:var(--f-num)!important;letter-spacing:.01em}
+html[data-skin="d"] .todo,html[data-skin="d"] .mode,html[data-skin="d"] .reco{background:var(--film);color:var(--film-ink);border:1px solid var(--film-2);border-radius:6px;box-shadow:inset 0 1px 0 rgba(159,230,255,.12)}
+html[data-skin="d"] .todo{background:radial-gradient(120% 140% at 0% 0%,#1d3340 0%,var(--film) 60%)}
+html[data-skin="d"] .todo .ic{background:rgba(159,230,255,.12);color:var(--lum)}
+html[data-skin="d"] .todo b{font-size:17px}
+html[data-skin="d"] .todo b .num{font-size:34px;font-weight:600;color:var(--lum);text-shadow:0 0 18px rgba(159,230,255,.45)}
+html[data-skin="d"] .todo small{color:var(--film-sub);opacity:1}
+html[data-skin="d"] .todo::after{color:var(--lum)}
+html[data-skin="d"] .todo.done{background:radial-gradient(120% 140% at 0% 0%,#1d3a30 0%,var(--film) 60%)}
+html[data-skin="d"] .todo.night{background:radial-gradient(120% 140% at 100% 0%,#3a2a12 0%,var(--film) 65%);box-shadow:inset 0 1px 0 rgba(224,137,43,.3)}
+html[data-skin="d"] .todo.night .ic{background:rgba(224,137,43,.18);color:var(--warm)}
+html[data-skin="d"] .todo.night b .num{color:var(--warm);text-shadow:0 0 18px rgba(224,137,43,.45)}
+html[data-skin="d"] .today-prog{font-family:var(--f-num);letter-spacing:.06em}
+html[data-skin="d"] .meter{background:var(--line);height:3px} html[data-skin="d"] .meter i{background:var(--accent)}
+html[data-skin="d"] .reco-main{color:var(--film-ink)} html[data-skin="d"] .reco-main small{color:var(--film-sub)}
+html[data-skin="d"] .reco-main b{color:var(--film-ink)!important} html[data-skin="d"] .reco-main b span{color:var(--film-sub)!important}
+html[data-skin="d"] .reco-main .go{background:var(--lum);color:var(--film);border-radius:4px}
+html[data-skin="d"] .hero h1{font-weight:900;letter-spacing:.2em;color:var(--ink);font-size:24px}
+html[data-skin="d"] .hero h1::before{content:"R  /  79";display:block;font:600 12px/1.4 var(--f-num);letter-spacing:.3em;color:var(--accent);margin-bottom:4px}
+html[data-skin="d"] .hero-nums{border:1px solid var(--line2);border-radius:6px;background:var(--sheet)}
+html[data-skin="d"] .hero-nums b,html[data-skin="d"] .hero-nums b.warm{font-size:44px;font-weight:600;color:var(--ink)}
+html[data-skin="d"] .hero-nums b.warm{color:var(--warm)}
+html[data-skin="d"] .hero-nums span{font-family:var(--f-num);font-size:12px;letter-spacing:.08em}
+html[data-skin="d"] .panel{border-radius:6px;border-color:var(--line2)}
+html[data-skin="d"] .exam-top b{font-size:52px;font-weight:600;color:var(--accent)}
+html[data-skin="d"] .exam-pace b,html[data-skin="d"] .exam-pace em{color:var(--accent)}
+html[data-skin="d"] .exam-row input,html[data-skin="d"] .exam-row select{border-radius:4px}
+html[data-skin="d"] .sec{font-weight:900;letter-spacing:.14em;font-size:13px}
+html[data-skin="d"] .sec::before{width:14px;height:2px;border-radius:0;background:var(--accent)}
+html[data-skin="d"] .sec small{font-family:var(--f-num);letter-spacing:.1em}
+html[data-skin="d"] .mode b{color:var(--film-ink);font-weight:700}
+html[data-skin="d"] .mode span{color:var(--film-sub)}
+html[data-skin="d"] .mode .num{color:var(--lum);font-size:22px;font-weight:600}
+html[data-skin="d"] .mode .ic{filter:grayscale(1) brightness(1.6) contrast(.9);opacity:.85}
+html[data-skin="d"] .mode.wide::after{color:var(--lum)}
+html[data-skin="d"] .mode .fusen{background:var(--warm);color:var(--film);border-radius:2px;transform:none;font-family:var(--f-num);font-size:14px;letter-spacing:.04em}
+html[data-skin="d"] .chip{border-radius:4px;background:var(--sheet);border-color:var(--line2)}
+html[data-skin="d"] .chip small{font-family:var(--f-num);font-size:12px}
+html[data-skin="d"] .nudge{border-radius:6px}
+html[data-skin="d"] .btn{border-radius:4px}
+html[data-skin="a"] .mode{align-content:start}
+html[data-skin="a"] .todo b .num{background:none;color:inherit;box-shadow:inset 0 -6px 0 var(--hi)}
+html[data-skin="a"] .todo.night b .num{box-shadow:inset 0 -6px 0 rgba(0,0,0,.15)}
+html[data-skin="b"] .todo.night b{font-size:17px}
+html[data-skin="b"] .todo.night b .num{font-size:28px}

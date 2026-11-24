@@ -39,8 +39,10 @@
     { id: "ribbon", name: "リボン" }, { id: "crown", name: "王冠" }, { id: "phones", name: "ヘッドホン" },
     { id: "badge", name: "名札" }
   ];
-  const GOALS = [5, 10, 20, 30, 50];
-  const DEF = { type: "neko", color: "#ffc48a", ocolor: "orig", outfit: "hakui", acc: "none", name: "ナビ", goal: 10 };
+  const GOALS = [5, 10, 20, 30, 50, 80, 100];
+  const DEF = { type: "neko", color: "#ffc48a", ocolor: "orig", outfit: "hakui", acc: "none", name: "ナビ", goal: 10, pos: "br" };
+  // キャラのいる場所。四すみか、指でつかんで動かした好きな場所（free：xy に画面の何割の位置かを入れる）
+  const POS = [{ id: "bl", name: "左下" }, { id: "br", name: "右下" }, { id: "tl", name: "左上" }, { id: "tr", name: "右上" }, { id: "free", name: "動かした場所" }];
 
   /* ---------- 絵（SVG） ---------- */
   const L = "#3b2f2f"; // 線の色
@@ -337,6 +339,10 @@
     v.ocolor = valid(OCOLORS, v.ocolor, DEF.ocolor);
     v.outfit = valid(OUTFITS, v.outfit, DEF.outfit); v.acc = valid(ACCS, v.acc, DEF.acc);
     v.goal = GOALS.includes(+v.goal) ? +v.goal : DEF.goal;
+    v.pos = valid(POS, v.pos, DEF.pos);
+    const okXY = Array.isArray(v.xy) && v.xy.length === 2 && v.xy.every(n => typeof n === "number" && n >= 0 && n <= 1);
+    v.xy = okXY ? v.xy : null;
+    if (v.pos === "free" && !v.xy) v.pos = DEF.pos;
     v.name = String(v.name || DEF.name).slice(0, 10);
     v.off = !(a && a.on === true); // 最初はオフ。トップページの「オンにする」で出てくる
     v.isNew = !a;
@@ -376,13 +382,21 @@
     font-family:"BIZ UDPGothic","Hiragino Sans","Noto Sans JP",sans-serif;-webkit-tap-highlight-color:transparent}
   .kqg-sheet{--g-bg:#ffffff;--g-ink:#1d2433;--g-sub:#5d6a7e;--g-line:#d9e0e8;--g-acc:#1d6fd8;--g-acc-ink:#fff;--g-soft:#eef3f9}
   @media (prefers-color-scheme:dark){.kqg,.kqg-sheet{--g-bg:#1a2331;--g-ink:#e8eef6;--g-sub:#9fb0c6;--g-line:#2e3d54;--g-acc:#5aa2ff;--g-acc-ink:#06121f;--g-soft:#222e40}}
-  html.kqg-on body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+  html.kqg-on:not(.kqg-top) body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+  .kqg.kqg-l{right:auto;left:max(12px,env(safe-area-inset-left))}
+  .kqg.kqg-t{bottom:auto;top:calc(12px + env(safe-area-inset-top))}
+  .kqg.kqg-free{right:auto;bottom:auto}
+  .kqg.kqg-free .kqg-bubble{max-width:var(--kqg-bw,290px)}
+  .kqg.kqg-drag{transition:none;opacity:.9}
+  .kqg.kqg-drag .kqg-me{outline:2px dashed var(--g-acc);outline-offset:2px;border-radius:14px}
+  .kqg.kqg-drag .kqg-bubble{display:none}
   .kqg[hidden]{display:none}
-  .kqg-me{display:block;width:72px;height:80px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 4px 8px rgba(0,0,0,.22));transition:transform .25s}
+  .kqg-me{display:block;width:72px;height:80px;padding:0;border:0;background:none;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.22));transition:transform .25s}
   .kqg-me svg{width:100%;height:100%;overflow:visible}
   .kqg-me:focus-visible{outline:3px solid var(--g-acc);outline-offset:2px;border-radius:16px}
   .kqg.min .kqg-me{width:40px;height:44px;transform:translateX(18px);opacity:.85}
   .kqg.min .kqg-bubble{display:none}
+  .kqg.kqg-l.min .kqg-me{transform:translateX(-18px)}
   .kqg-bob{animation:kqg-bob 3.2s ease-in-out infinite}
   .kqg-jump{animation:kqg-jump .7s ease-out 2}
   .kqg-shake{animation:kqg-tilt .9s ease-in-out 1}
@@ -396,6 +410,10 @@
     border:1.5px solid var(--g-line);border-radius:16px 16px 4px 16px;padding:10px 14px;font-size:14px;line-height:1.6;box-shadow:0 6px 20px rgba(0,0,0,.16);
     opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .2s,transform .2s}
   .kqg-bubble.on{opacity:1;transform:none;pointer-events:auto}
+  .kqg-l .kqg-bubble{right:auto;left:4px;border-radius:16px 16px 16px 4px}
+  .kqg-t .kqg-bubble{bottom:auto;top:86px;border-radius:16px 4px 16px 16px;transform:translateY(-6px)}
+  .kqg-t.kqg-l .kqg-bubble{border-radius:4px 16px 16px 16px}
+  .kqg-t .kqg-bubble.on{transform:none}
   .kqg-bubble b.kqg-who{display:block;font-size:11.5px;color:var(--g-sub);margin-bottom:1px}
   .kqg-bubble p{margin:0;white-space:pre-line}
   .kqg-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
@@ -423,6 +441,7 @@
   .kqg-foot .kqg-btn{flex:1;padding:11px;font-size:15px}
   .kqg-msg{font-size:13px;font-weight:700;min-height:1.4em;margin-top:6px}`;
 
+  let drag = null, dragged = 0;
   let root, meBtn, bubble, sheet, hideT = 0, curMood = "normal", av = null, streak = 0, lastKey = "", draft = null;
   const minKey = "kq-guide-min";
 
@@ -456,6 +475,66 @@
     hideT = setTimeout(hide, ms);
   }
   function hide(){ bubble.classList.remove("on"); clearTimeout(hideT); setTimeout(() => { if (!bubble.classList.contains("on")) paint("normal"); }, 300); }
+  // 好きな場所のときは、はみ出さないように画面の中におさめる（ホームは下タブより上・上のバーより下）
+  function freeBox(){
+    const tab = document.querySelector(".tabbar"), bar = document.querySelector(".topbar");
+    const w = root.offsetWidth || 72, h = root.offsetHeight || 80;
+    const top = (bar ? bar.getBoundingClientRect().bottom : 0) + 8;
+    const bottom = innerHeight - (tab ? tab.getBoundingClientRect().height : 0) - 8 - h;
+    return { w, h, x0: 8, x1: innerWidth - 8 - w, y0: top, y1: Math.max(top, bottom) };
+  }
+  function applyPos(){
+    let p = (av && av.pos) || DEF.pos, free = p === "free" && av.xy;
+    root.classList.toggle("kqg-free", !!free);
+    if (free) {
+      const b = freeBox(), cx = av.xy[0] * innerWidth, cy = av.xy[1] * innerHeight;
+      const x = Math.min(b.x1, Math.max(b.x0, cx - b.w / 2)), y = Math.min(b.y1, Math.max(b.y0, cy - b.h / 2));
+      root.style.left = x + "px"; root.style.top = y + "px";
+      p = (cy < innerHeight / 2 ? "t" : "b") + (cx < innerWidth / 2 ? "l" : "r");
+      // 吹き出しは画面の広いほうへ。はみ出さない幅にする
+      const room = p[1] === "l" ? innerWidth - x - 16 : x + b.w - 16;
+      root.style.setProperty("--kqg-bw", Math.max(180, Math.min(290, room)) + "px");
+    } else { root.style.left = root.style.top = ""; }
+    root.classList.toggle("kqg-l", p[1] === "l"); root.classList.toggle("kqg-t", p[0] === "t");
+    document.documentElement.classList.toggle("kqg-top", p[0] === "t");
+  }
+  function setPos(p, xy){
+    const { isNew, off, ...keep } = av; // eslint-disable-line no-unused-vars
+    KQ.avatar.set(Object.assign(keep, { pos: p, xy: xy || keep.xy || null, on: true })); av = getAv(); applyPos();
+    pushCloud();
+  }
+  // 長押し（0.5秒）してから動かす → はなした場所にそのまま置く
+  // ふつうのタップや、キャラの上をさっとなぞっただけでは動かない（うっかり動かさないため）
+  const HOLD_MS = 500;
+  function dragStart(e){
+    if (e.button > 0) return;
+    const id = e.pointerId;
+    drag = { x: e.clientX, y: e.clientY, on: false, moved: false };
+    drag.t = setTimeout(() => {
+      if (!drag) return;
+      drag.on = true; root.classList.add("kqg-drag"); hide();
+      try { meBtn.setPointerCapture(id); } catch {}
+    }, HOLD_MS);
+  }
+  function dragMove(e){
+    if (!drag) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.on) { if (Math.hypot(dx, dy) >= 10) { clearTimeout(drag.t); drag = null; } return; } // 長押し前に指が動いた＝動かさない
+    if (Math.hypot(dx, dy) >= 10) drag.moved = true;
+    root.style.transform = `translate(${dx}px,${dy}px)`;
+  }
+  function dragEnd(e){
+    const d = drag; drag = null;
+    if (!d) return;
+    clearTimeout(d.t);
+    if (!d.on) return;
+    dragged = Date.now(); // 長押しのあとのタップは「話す」にしない
+    const b = root.getBoundingClientRect(), cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+    root.style.transform = ""; root.classList.remove("kqg-drag");
+    if (e.type === "pointercancel" || !d.moved) return;
+    const r3 = n => Math.round(Math.min(1, Math.max(0, n)) * 1000) / 1000;
+    setPos("free", [r3(cx / innerWidth), r3(cy / innerHeight)]);
+  }
   function setMin(on){ root.classList.toggle("min", on); lsSet(minKey, on ? 1 : 0); meBtn.setAttribute("aria-label", on ? av.name + "（タップで出す）" : av.name + "（タップで話す・着せかえ）"); }
 
   /* ---------- セリフ ---------- */
@@ -472,14 +551,15 @@
   function weakLine(s){
     const app = pageApp(), w = app ? s.weak[app] : (s.weak.kakomon && s.weak.kakomon.n ? s.weak.kakomon : s.weak.prep);
     if (!w || !w.n) return null;
-    return `苦手な分野は「${w.f}」みたい（苦手リストに${w.n}問）。苦手モードで2回続けて正解すると卒業だよ。`;
+    return `苦手な分野は「${w.f}」みたい（苦手リストに${w.n}問）。どこで解いても2回続けて正解すると卒業だよ。`;
   }
   const TIPS = [
     "まちがえた問題は、解説の○✕をぜんぶ読むと、ほかの選択肢もいっしょに覚えられるよ。",
     "10問ずつ区切ると、集中が続きやすいよ。",
     "寝る前にちょっと復習すると、次の日に思い出しやすいよ。",
     "同じ問題を3日後にもう一度解くと、記憶に残りやすいよ。",
-    "計算問題は、式を紙に書いてから解くとミスがへるよ。"
+    "計算問題は、式を紙に書いてから解くとミスがへるよ。",
+    "わたしを長押しして（0.5秒）そのまま動かすと、画面の好きなところに置けるよ。"
   ];
   const OK_LINES = ["正解！その調子！", "やったね！", "さすが！", "ばっちり！", "いいね、覚えてる！", "ナイス！"];
   const NG_LINES = ["おしい！解説を読めば、もう覚えたも同然だよ。", "だいじょうぶ、まちがえた問題こそ伸びしろ！", "ドンマイ！次は解けるよ。", "ここで覚えれば本番で解ける！", "むずかしい問題だったね。解説をチェックしよう。"];
@@ -570,6 +650,7 @@
     ni.oninput = () => { draft.name = ni.value; };
     nameRow.append(nl, ni);
     const goalRow = chipRow("1日の目標（問題数）", GOALS.map(g => ({ id: g, name: g + "問" })), "goal");
+    const posRow = chipRow("いる場所（キャラを長押ししてから動かすと、好きな場所に置けます）", draft.xy ? POS : POS.filter(x => x.id !== "free"), "pos");
     const msg = document.createElement("div"); msg.className = "kqg-msg"; msg.setAttribute("role", "status");
     const foot = document.createElement("div"); foot.className = "kqg-foot";
     const cancel = document.createElement("button"); cancel.type = "button"; cancel.className = "kqg-btn"; cancel.textContent = "やめる"; cancel.onclick = closeEditor;
@@ -577,7 +658,7 @@
     ok.onclick = async () => {
       draft.name = (ni.value || "").trim().slice(0, 10) || DEF.name;
       const { isNew, off, ...keep } = draft; // eslint-disable-line no-unused-vars
-      KQ.avatar.set(Object.assign(keep, { on: true })); av = getAv();
+      KQ.avatar.set(Object.assign(keep, { on: true })); av = getAv(); applyPos();
       ok.disabled = true; msg.textContent = S() ? "保存中…" : "";
       const r = await pushCloud();
       ok.disabled = false;
@@ -588,7 +669,7 @@
     offB.textContent = "キャラをオフにする（画面から消す）"; offB.onclick = () => { closeEditor(); setOff(true); };
     foot.append(cancel, ok);
     p.append(h, note, pv, nameRow, chipRow("種類", TYPES, "type"), chipRow(draft.type === "hito" ? "かみの色" : "色", COLORS, "color", true), chipRow("色", OCOLORS, "ocolor", true),
-      chipRow("服（もふもふ・ぬいぐるみは服なし）", OUTFITS, "outfit"), chipRow("小物", ACCS, "acc"), goalRow, msg, foot, offB);
+      chipRow("服（もふもふ・ぬいぐるみは服なし）", OUTFITS, "outfit"), chipRow("小物", ACCS, "acc"), goalRow, posRow, msg, foot, offB);
     // 「ひと」を選ぶと色の見出しを「かみの色」にする
     // 内臓・細胞キャラのときは「色」「服」の行をかくし、内臓用の「色」（もとの色つき）を出す
     const rowsFix = () => {
@@ -601,6 +682,7 @@
     setTimeout(() => ok.focus({ preventScroll: true }), 50);
   }
   function applyOff(){
+    applyPos();
     root.hidden = av.off; document.documentElement.classList.toggle("kqg-on", !av.off);
     if (av.off) { sheet.hidden = true; clearTimeout(hideT); bubble.classList.remove("on"); }
     try { window.dispatchEvent(new CustomEvent("kq-guide")); } catch {}
@@ -654,7 +736,14 @@
     bubble = document.createElement("div"); bubble.className = "kqg-bubble"; bubble.setAttribute("role", "status"); bubble.setAttribute("aria-live", "polite");
     bubble.onclick = hide;
     meBtn = document.createElement("button"); meBtn.type = "button"; meBtn.className = "kqg-me kqg-bob";
-    meBtn.onclick = () => { if (root.classList.contains("min")) { setMin(false); return say("よんだ？", { mood: "happy", anim: "kqg-jump" }); } bubble.classList.contains("on") ? hide() : talk(); };
+    meBtn.addEventListener("pointerdown", dragStart);
+    meBtn.addEventListener("pointermove", dragMove);
+    meBtn.addEventListener("pointerup", dragEnd);
+    meBtn.addEventListener("pointercancel", dragEnd);
+    meBtn.addEventListener("contextmenu", e => e.preventDefault());
+    // 長押しで動かしているあいだは、画面がスクロールしないようにする
+    document.addEventListener("touchmove", e => { if (drag && drag.on) e.preventDefault(); }, { passive: false });
+    meBtn.onclick = () => { if (Date.now() - dragged < 500) return; if (root.classList.contains("min")) { setMin(false); return say("よんだ？", { mood: "happy", anim: "kqg-jump" }); } bubble.classList.contains("on") ? hide() : talk(); };
     root.append(bubble, meBtn);
     sheet = document.createElement("div"); sheet.className = "kqg-sheet"; sheet.hidden = true;
     sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true"); sheet.setAttribute("aria-label", "キャラの着せかえ");
@@ -666,14 +755,12 @@
     root.classList.toggle("min", !!lsGet(minKey, 0));
     meBtn.setAttribute("aria-label", av.name + (root.classList.contains("min") ? "（タップで出す）" : "（タップで話す・着せかえ）"));
     applyOff();
-    // 下にタブのバーがあるページでは、その上にのせる
-    const lift = () => { const tb = document.querySelector(".tabbar"); if (tb && tb.offsetHeight) root.style.bottom = (tb.offsetHeight + 10) + "px"; };
-    lift(); window.addEventListener("resize", lift); setTimeout(lift, 800);
+    window.addEventListener("resize", () => { if (av && av.pos === "free") applyPos(); });
     window.addEventListener("kq-avatar", () => { av = getAv(); paint(curMood); applyOff(); });
     watch();
     setTimeout(() => refresh(), pageApp() ? 900 : 300);
   }
-  window.KQGuide = { refresh: () => root && refresh(), open: () => { if (!root) return; if (av.off) setOff(false); openEditor(); },
+  window.KQGuide = { push: () => pushCloud(), refresh: () => root && refresh(), open: () => { if (!root) return; if (av.off) setOff(false); openEditor(); },
     isOff: () => !!(av && av.off), setOff: on => root && setOff(on), draw, parts: { TYPES, COLORS, OUTFITS, ACCS } };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
