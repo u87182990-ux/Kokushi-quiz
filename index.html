@@ -256,6 +256,8 @@ body.modal-open{overflow:hidden}
 .steps li{margin-bottom:4px}
 .code{width:100%;min-height:90px;font:12px ui-monospace,monospace;color:var(--ink);background:var(--paper);border:1px solid var(--line2);border-radius:12px;padding:8px 10px;word-break:break-all}
 .row-btns{display:flex;flex-wrap:wrap;gap:8px}
+.look-sum{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#look-body{margin-top:10px}
 .off-row{display:flex;justify-content:space-between;gap:12px;margin:0 0 8px;font-size:14px}
 .off-row b{text-align:right;white-space:nowrap}
 .off-row b.ok{color:var(--ok)}
@@ -543,6 +545,8 @@ body{letter-spacing:.01em}
 
     <div class="panel" id="look-box">
       <h2>見た目とホームの並び</h2>
+      <div class="look-sum"><span>いまの見た目：<b id="look-now">にぎやか</b></span><button class="btn" id="look-open" type="button" aria-expanded="false" aria-controls="look-body">変える</button></div>
+      <div id="look-body" hidden>
       <p class="note">自分の好きな見た目にできます。えらんだ設定は、ログインしていればほかの端末でも同じになります。</p>
       <div class="look-pick" id="look-theme" role="group" aria-label="見た目">
         <button type="button" data-theme=""><b>にぎやか</b><small>いまの見た目（ふつう）</small></button>
@@ -556,6 +560,7 @@ body{letter-spacing:.01em}
       <ul class="blk-list" id="look-blks"></ul>
       <div class="row-btns"><button class="btn" id="look-reset" type="button">もとの並びにもどす</button></div>
       <div class="msg ok" id="look-msg" role="status" aria-live="polite"></div>
+      </div>
     </div>
 
     <div class="panel" id="guide-box">
@@ -1022,8 +1027,10 @@ body{letter-spacing:.01em}
   function paintLook(){
     const l = lookGet();
     document.querySelectorAll("#look-theme button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.theme === l.theme)));
+    const cur = document.querySelector(`#look-theme button[data-theme="${l.theme}"] b`); $("#look-now").textContent = cur ? cur.textContent : "にぎやか";
     $("#look-blks").innerHTML = l.order.map((k, i) => `<li class="${l.hide.includes(k) ? "off" : ""}"><label><input type="checkbox" data-k="${k}"${l.hide.includes(k) ? "" : " checked"}>${BLKS[k]}</label><button type="button" data-up="${k}" aria-label="${BLKS[k]}を上へ"${i ? "" : " disabled"}>↑</button><button type="button" data-down="${k}" aria-label="${BLKS[k]}を下へ"${i < l.order.length - 1 ? "" : " disabled"}>↓</button></li>`).join("");
   }
+  $("#look-open").onclick = () => { const body = $("#look-body"), open = body.hidden; body.hidden = !open; $("#look-open").textContent = open ? "とじる" : "変える"; $("#look-open").setAttribute("aria-expanded", String(open)); };
   $("#look-theme").addEventListener("click", e => {
     const b = e.target.closest("button[data-theme]"); if (!b) return;
     lookPut(Object.assign(lookGet(), { theme: b.dataset.theme }));
