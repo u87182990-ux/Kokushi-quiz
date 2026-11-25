@@ -46,43 +46,66 @@
 
   /* ずれ直し：iPad / iPhone（iOS 26 の Safari・ホーム画面アプリ）で、ページの一番下までスクロールしたときなどに
      position:fixed のバーが画面の下からはなれて、ページの途中に残ることがある（Safari 側の不具合）。
-     スクロールが止まるたびに「バーの下はしが、画面の下から決めた位置にあるか」をはかり、
-     ずれていたら ①描き直させる ②それでもずれていたら、ずれた分だけ動かして画面の下にもどす。
-     小さなずれ（Safari のツールバーぶん程度）や、ピンチで拡大しているときは動かさない。 */
-  let dy = 0, raf = 0, tm = 0;
+     スクロールが止まって指もはなれているときだけ、バーの位置をはかる。
+       ① まず描き直させる
+       ② それでも「上に60px以上」ずれていて、200ms あけて2回はかっても同じなら、その分だけ下へ動かす
+     まちがって動かさないための決まり（v2）：
+       ・指がふれている間・ページの上下はし（ゴムのようにのびる所）をこえている間・ピンチ拡大中ははからない
+       ・動かすのは下向きだけ。動かしたあとバーが画面の外に出たら、すぐ元にもどす
+       ・動かしている間は、スクロール中も毎フレーム見はり、画面の外に出たらすぐ元にもどす */
+  let dy = 0, raf = 0, tm = 0, touching = false, first = null, guard = 0;
   function gap(){ const b = parseFloat(getComputedStyle(nav).bottom); return isFinite(b) ? b : 10; }
-  function off(){
-    // 見えている画面の下はし（visualViewport）から決めた位置と、バーの下はしの差（＋ならバーが上にずれている）
+  function vh(){ return window.innerHeight || document.documentElement.clientHeight; }
+  // ＋ならバーが上にずれている
+  function off(){ return (vh() - gap()) - nav.getBoundingClientRect().bottom; }
+  function calm(){
     const vv = window.visualViewport;
-    const H = vv ? vv.offsetTop + vv.height : (window.innerHeight || document.documentElement.clientHeight);
-    return (H - gap()) - nav.getBoundingClientRect().bottom;
+    if (vv && (vv.scale > 1.05 || Math.abs(vv.offsetTop) > 1)) return false;
+    const y = window.scrollY, max = document.documentElement.scrollHeight - vh();
+    if (y < 0 || y > max + 1) return false;
+    return !touching;
   }
-  const bad = d => d > 60 || d < -20; // 上に60px以上、または画面の外へ20px以上
+  function setDy(v){
+    dy = v;
+    if (dy) nav.style.setProperty("--kt-dy", dy + "px"); else nav.style.removeProperty("--kt-dy");
+    if (dy && !guard) guard = requestAnimationFrame(watchDy);
+  }
+  function watchDy(){
+    // 動かしている間だけ：バーが画面の下からはみ出したら、すぐ元にもどす
+    guard = 0;
+    if (!dy || !nav || nav.hidden) return;
+    if (nav.getBoundingClientRect().bottom > vh() + 2) { setDy(0); later(); return; }
+    guard = requestAnimationFrame(watchDy);
+  }
   function fix(){
     raf = 0;
-    if (!nav || nav.hidden) return;
-    const vv = window.visualViewport;
-    if (vv && vv.scale > 1.05) return;
-    // ① 描き直し：スクロールが止まるたびにバーを描き直させる（同じフレーム内なのでちらつかない）
+    if (!nav || nav.hidden) { first = null; return; }
+    if (!calm()) { first = null; later(); return; }
+    // ① 描き直し（同じフレーム内なのでちらつかない）
     nav.style.display = "none"; void nav.offsetHeight; nav.style.display = "";
     const d = off();
-    if (!bad(d)) return;
-    // ② それでもずれていたら、ずれた分だけ動かす
-    dy += d;
-    if (Math.abs(dy) > window.innerHeight) dy = 0; // ありえない値になったら元にもどす
-    nav.style.setProperty("--kt-dy", dy + "px");
+    if (dy && d < -2) { setDy(Math.max(0, dy + d)); first = null; return; } // 動かしすぎ → もどす
+    if (d <= 60) { first = null; return; }
+    // ② 2回はかって同じときだけ動かす
+    if (first === null || Math.abs(first - d) > 2) { first = d; clearTimeout(tm); tm = setTimeout(now, 200); return; }
+    first = null;
+    const v = Math.min(dy + d, vh());
+    setDy(v);
+    if (nav.getBoundingClientRect().bottom > vh() + 2) setDy(0); // 画面の外に出たら元にもどす
   }
   function reset(){
     // 画面の大きさが変わったら、いったん動かした分をもどしてからはかり直す
-    if (dy && nav) { dy = 0; nav.style.removeProperty("--kt-dy"); }
-    later();
+    if (dy && nav) setDy(0);
+    first = null; later();
   }
   function now(){ if (!raf) raf = requestAnimationFrame(fix); }
-  function later(){ clearTimeout(tm); tm = setTimeout(now, 150); }
+  function later(){ clearTimeout(tm); tm = setTimeout(now, 200); }
   function watch(){
-    addEventListener("scroll", later, { passive: true });
-    addEventListener("scrollend", now, { passive: true });
-    addEventListener("touchend", later, { passive: true });
+    addEventListener("scroll", () => { first = null; later(); }, { passive: true });
+    addEventListener("scrollend", later, { passive: true });
+    addEventListener("touchstart", () => { touching = true; first = null; }, { passive: true });
+    addEventListener("touchend", () => { touching = false; later(); }, { passive: true });
+    addEventListener("touchcancel", () => { touching = false; later(); }, { passive: true });
     addEventListener("resize", reset);
     addEventListener("orientationchange", reset);
     if (window.visualViewport) { visualViewport.addEventListener("resize", reset); visualViewport.addEventListener("scroll", later); }

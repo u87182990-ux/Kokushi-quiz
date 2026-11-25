@@ -4,7 +4,7 @@ mksite.py などでページを作り直したあとにも実行する。その�
 問題を解いている間（body.in-quiz）はバーが自動でかくれる。"""
 import pathlib, re
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-V = "1796100000"
+V = "1796200000"
 PAGES = ["kakomon", "prep", "chiryo", "chiryo-quiz"]
 for d in PAGES:
     p = ROOT / d / "index.html"
