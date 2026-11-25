@@ -107,7 +107,7 @@
       if (!changed) return;
       pending = true;
       if (isSafe()) reloadNow();
-      else { note("新しい版は、ホームにもどると自動で入ります"); waitSafe(); }
+      else { note("更新中…"); waitSafe(); }
     });
   }
 
