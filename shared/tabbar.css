@@ -4,7 +4,9 @@
 .kt{
   --kt-bg:rgba(255,255,255,.92); --kt-line:#dbe2ea; --kt-sub:#5d6a7e; --kt-on:#1d6fd8; --kt-on-bg:#e5effc;
   --kt-shadow:0 2px 10px rgba(15,27,45,.08);
-  position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;
+  position:fixed;left:0;right:0;margin:0 auto;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:60;
+  /* 中央寄せは transform を使わず margin:auto で。transform は下の「ずれ直し」(--kt-dy) だけに使う */
+  transform:translate3d(0,var(--kt-dy,0px),0);
   width:min(420px,calc(100% - 32px));display:flex;gap:4px;padding:4px;
   background:var(--kt-bg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
   border:1px solid var(--kt-line);border-radius:999px;box-shadow:var(--kt-shadow);
