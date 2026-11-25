@@ -40,14 +40,60 @@
       `<a href="${root ? root + h : (h || "#")}" data-v="${v}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON[v]}</svg>${label}</a>`).join("");
     document.body.appendChild(nav);
     skin(); paintCur(); vis();
-    new MutationObserver(vis).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    new MutationObserver(() => { vis(); later(); }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    watch();
+  }
+
+  /* ずれ直し：iPad / iPhone（iOS 26 の Safari・ホーム画面アプリ）で、ページの一番下までスクロールしたときなどに
+     position:fixed のバーが画面の下からはなれて、ページの途中に残ることがある（Safari 側の不具合）。
+     スクロールが止まるたびに「バーの下はしが、画面の下から決めた位置にあるか」をはかり、
+     ずれていたら ①描き直させる ②それでもずれていたら、ずれた分だけ動かして画面の下にもどす。
+     小さなずれ（Safari のツールバーぶん程度）や、ピンチで拡大しているときは動かさない。 */
+  let dy = 0, raf = 0, tm = 0;
+  function gap(){ const b = parseFloat(getComputedStyle(nav).bottom); return isFinite(b) ? b : 10; }
+  function off(){
+    // 見えている画面の下はし（visualViewport）から決めた位置と、バーの下はしの差（＋ならバーが上にずれている）
+    const vv = window.visualViewport;
+    const H = vv ? vv.offsetTop + vv.height : (window.innerHeight || document.documentElement.clientHeight);
+    return (H - gap()) - nav.getBoundingClientRect().bottom;
+  }
+  const bad = d => d > 60 || d < -20; // 上に60px以上、または画面の外へ20px以上
+  function fix(){
+    raf = 0;
+    if (!nav || nav.hidden) return;
+    const vv = window.visualViewport;
+    if (vv && vv.scale > 1.05) return;
+    // ① 描き直し：スクロールが止まるたびにバーを描き直させる（同じフレーム内なのでちらつかない）
+    nav.style.display = "none"; void nav.offsetHeight; nav.style.display = "";
+    const d = off();
+    if (!bad(d)) return;
+    // ② それでもずれていたら、ずれた分だけ動かす
+    dy += d;
+    if (Math.abs(dy) > window.innerHeight) dy = 0; // ありえない値になったら元にもどす
+    nav.style.setProperty("--kt-dy", dy + "px");
+  }
+  function reset(){
+    // 画面の大きさが変わったら、いったん動かした分をもどしてからはかり直す
+    if (dy && nav) { dy = 0; nav.style.removeProperty("--kt-dy"); }
+    later();
+  }
+  function now(){ if (!raf) raf = requestAnimationFrame(fix); }
+  function later(){ clearTimeout(tm); tm = setTimeout(now, 150); }
+  function watch(){
+    addEventListener("scroll", later, { passive: true });
+    addEventListener("scrollend", now, { passive: true });
+    addEventListener("touchend", later, { passive: true });
+    addEventListener("resize", reset);
+    addEventListener("orientationchange", reset);
+    if (window.visualViewport) { visualViewport.addEventListener("resize", reset); visualViewport.addEventListener("scroll", later); }
+    later();
   }
   window.KQTab = {
-    set(v){ cur = v; paintCur(); },
+    set(v){ cur = v; paintCur(); if (nav) later(); },
     skin
   };
   if (document.body) mount(); else document.addEventListener("DOMContentLoaded", mount);
   // ほかのタブ・ページで見た目を変えたとき
   window.addEventListener("storage", skin);
-  window.addEventListener("pageshow", () => { skin(); vis(); });
+  window.addEventListener("pageshow", () => { skin(); vis(); if (nav) later(); });
 })();
