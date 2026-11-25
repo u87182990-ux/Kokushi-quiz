@@ -1,8 +1,9 @@
 /* いつも最新版を出すためのしくみ（全ページ共通）
    1) サービスワーカー（sw.js）を登録 … ひらくたびにネットから最新を取る
-   2) ホーム画面のアプリにもどってきた時、サイトが更新されていないか確かめる
-      ・5分以上はなれていたら → 自動で読みこみ直す
-      ・それより短い時 → 下に「新しい版があります」を出して、タップで更新
+   2) ホーム画面のアプリにもどってきた時・30分ごとに、サイトが更新されていないか確かめる
+      ・区切り（ホーム・一覧など）にいる時 → 自動で読みこみ直して、上に小さく「最新版になりました」
+      ・問題を解いている途中 → 上に小さく知らせるだけ（ボタンなし）。ホームにもどった時に自動で入れかえる
+      ※ページが自分で「いま途中」と言いたい時は window.KQBusy = () => true を用意する
    記録は localStorage とクラウドに入っているので、読みこみ直しても消えません。 */
 (function () {
   "use strict";
@@ -42,10 +43,9 @@
 
   if (!window.fetch || !window.performance || !performance.getEntriesByType) return;
 
-  var AWAY_RELOAD_MS = 5 * 60 * 1000;
   var CHECK_EVERY_MS = 30 * 60 * 1000;
   var stamps = null;   // { url: "ETag か Last-Modified" }
-  var hiddenAt = 0, lastCheck = 0, busy = false, shown = false;
+  var hiddenAt = 0, lastCheck = 0, busy = false;
 
   function watchList() {
     var urls = [location.href.split("#")[0]];
@@ -74,20 +74,54 @@
     });
   }
 
-  function check(awayMs) {
-    if (busy || shown || !stamps || !navigator.onLine) return;
+  // いま「区切り」にいるか（＝読みこみ直しても、解いている途中の問題が消えない所か）
+  //  ・トップページ … ふだんはOK（入力中・ひらいた小窓がある時だけ待つ）
+  //  ・演習ページ（過去問・治療など）… ホーム／一覧の画面にいる時だけOK
+  //  ・1ページで解くドリル（医用工学など）… ページにいる間は待つ（次にひらいた時は最新が出る）
+  var SAFE_VIEWS = { "view-home": 1, "view-list": 1, "view-tags": 1 };
+  function isSafe() {
+    var b = document.body;
+    if (!b) return false;
+    if (window.KQBusy && window.KQBusy()) return false;
+    if (b.classList.contains("in-quiz")) return false;
+    var a = document.activeElement;
+    if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return false;
+    if (document.querySelector("dialog[open], [role=dialog]:not([hidden]), [aria-modal=true]:not([hidden])")) return false;
+    var views = document.querySelectorAll("section.view");
+    if (views.length) {
+      for (var i = 0; i < views.length; i++) if (!views[i].hidden) return !!SAFE_VIEWS[views[i].id];
+      return false;
+    }
+    if (document.getElementById("card") || document.getElementById("stage")) return false;
+    return true;
+  }
+
+  var pending = false;   // 新しい版が見つかって、区切りを待っているところ
+  function check() {
+    if (busy || pending || !stamps || !navigator.onLine) return;
     busy = true; lastCheck = Date.now();
     var urls = Object.keys(stamps);
     takeStamps(urls).then(function (now) {
       busy = false;
       var changed = urls.some(function (u) { return stamps[u] && now[u] && stamps[u] !== now[u]; });
       if (!changed) return;
-      if (awayMs >= AWAY_RELOAD_MS) reloadNow();
-      else showToast();
+      pending = true;
+      if (isSafe()) reloadNow();
+      else { note("新しい版は、ホームにもどると自動で入ります"); waitSafe(); }
     });
   }
 
+  // 区切り（ホームにもどった時など）になったら、そっと入れかえる
+  function waitSafe() {
+    var t = setInterval(function () {
+      if (document.visibilityState === "visible" && isSafe()) { clearInterval(t); setTimeout(function () { if (isSafe()) reloadNow(); else waitSafe(); }, 600); }
+    }, 1000);
+  }
+
+  var FLAG = "kq-updated";
   function reloadNow() {
+    // 読みこみ直したあと、同じ場所（スクロール位置）にもどす
+    try { sessionStorage.setItem(FLAG, JSON.stringify({ url: location.href, y: window.scrollY || 0 })); } catch (_) {}
     var go = function () { location.reload(); };
     if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
       navigator.serviceWorker.getRegistration().then(function (r) {
@@ -96,33 +130,37 @@
     } else go();
   }
 
-  function showToast() {
-    shown = true;
-    var box = document.createElement("div");
-    box.setAttribute("role", "status");
-    box.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:99999;" +
-      "display:flex;align-items:center;gap:12px;max-width:calc(100% - 32px);box-sizing:border-box;padding:10px 10px 10px 16px;border-radius:14px;" +
-      "background:#0f1b2d;color:#e8f1fb;box-shadow:0 6px 24px rgba(0,0,0,.3);font:600 14px/1.4 system-ui,-apple-system,sans-serif";
-    var t = document.createElement("span");
-    t.textContent = "新しい版があります";
-    var b = document.createElement("button");
-    b.type = "button";
-    b.textContent = "更新する";
-    b.style.cssText = "border:0;border-radius:10px;padding:8px 14px;background:#7fd3ff;color:#06121f;font:700 14px system-ui,-apple-system,sans-serif;cursor:pointer";
-    b.onclick = function () { b.disabled = true; b.textContent = "更新中…"; reloadNow(); };
-    var x = document.createElement("button");
-    x.type = "button";
-    x.textContent = "×";
-    x.setAttribute("aria-label", "あとで");
-    x.style.cssText = "border:0;background:none;color:#8fa6c2;font:700 18px system-ui;padding:4px 6px;cursor:pointer";
-    x.onclick = function () { box.remove(); };
-    box.appendChild(t); box.appendChild(b); box.appendChild(x);
-    document.body.appendChild(box);
+  // 上に小さく出す（ボタンなし・さわれない・3秒で消える）
+  function note(msg) {
+    function put() {
+      var box = document.createElement("div");
+      box.setAttribute("role", "status");
+      box.textContent = msg;
+      box.style.cssText = "position:fixed;left:50%;top:calc(8px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:99999;" +
+        "pointer-events:none;max-width:calc(100% - 32px);box-sizing:border-box;padding:4px 10px;border-radius:14px;" +
+        "background:rgba(15,27,45,.86);color:#e8f1fb;border:1px solid rgba(232,241,251,.16);font:600 12px/1.5 system-ui,-apple-system,sans-serif;" +
+        "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .2s";
+      document.body.appendChild(box);
+      requestAnimationFrame(function () { box.style.opacity = "1"; });
+      setTimeout(function () { box.style.opacity = "0"; setTimeout(function () { box.remove(); }, 250); }, 3000);
+    }
+    if (document.body) put(); else document.addEventListener("DOMContentLoaded", put);
   }
 
-  function onBack(awayMs) {
+  // 更新して読みこみ直した直後：スクロール位置をもどして「最新版になりました」
+  (function () {
+    var f = null;
+    try { f = JSON.parse(sessionStorage.getItem(FLAG) || "null"); sessionStorage.removeItem(FLAG); } catch (_) {}
+    if (!f) return;
+    window.addEventListener("load", function () {
+      if (f.url === location.href && f.y) setTimeout(function () { window.scrollTo(0, f.y); }, 50);
+      note("✓ 最新版になりました");
+    });
+  })();
+
+  function onBack() {
     if (!stamps) return;
-    check(awayMs);
+    check();
   }
 
   window.addEventListener("load", function () {
@@ -135,12 +173,12 @@
 
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "hidden") hiddenAt = Date.now();
-    else if (hiddenAt) { var away = Date.now() - hiddenAt; hiddenAt = 0; onBack(away); }
+    else if (hiddenAt) { hiddenAt = 0; onBack(); }
   });
   // iPhone/iPad で、前の画面がそのまま出てきた時
-  window.addEventListener("pageshow", function (e) { if (e.persisted) onBack(AWAY_RELOAD_MS); });
+  window.addEventListener("pageshow", function (e) { if (e.persisted) onBack(); });
   // ひらきっぱなしの時も、30分ごとにそっと確認
   setInterval(function () {
-    if (document.visibilityState === "visible" && Date.now() - lastCheck >= CHECK_EVERY_MS) check(0);
+    if (document.visibilityState === "visible" && Date.now() - lastCheck >= CHECK_EVERY_MS) check();
   }, 60 * 1000);
 })();
