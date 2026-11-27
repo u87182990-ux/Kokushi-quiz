@@ -11,7 +11,7 @@
 <script src="shared/account.js?v=1795300000"></script>
 <script src="shared/stats.js?v=1796000000"></script>
 <script src="shared/plan.js?v=1795500000"></script>
-<script src="shared/guide.js?v=1795300000" defer></script>
+<script src="shared/guide.js?v=1796500000" defer></script>
 <link rel="stylesheet" href="shared/skins.css?v=1795400000">
 <link rel="stylesheet" href="shared/tabbar.css?v=1796200000">
 <script src="shared/tabbar.js?v=1796200000" data-root="" data-tab="home"></script>
@@ -946,10 +946,11 @@ body{letter-spacing:.01em}
   }
   function paintPlan(k, m){
     const goal = +avGet().goal || 10, done = (m[KQStats.ymd(Date.now())] || [0])[0];
-    const met = done >= goal, total = met ? goal : goal - done;
+    const unl = goal < 0;   // 上限なし：50問ずつ、何セットでも続けられる
+    const met = !unl && done >= goal, total = unl ? 50 : met ? goal : goal - done;
     $("#h-today-prog").hidden = false;
-    $("#h-today-lab").textContent = met ? `今日の目標 ${goal}問 達成！（${fmtN(done)}問）` : `今日の目標 ${goal}問のうち ${fmtN(done)}問 済み`;
-    $("#h-today-bar").style.width = Math.min(100, done / goal * 100) + "%";
+    $("#h-today-lab").textContent = unl ? `今日 ${fmtN(done)}問 解きました（目標：上限なし）` : met ? `今日の目標 ${goal}問 達成！（${fmtN(done)}問）` : `今日の目標 ${goal}問のうち ${fmtN(done)}問 済み`;
+    $("#h-today-bar").style.width = (unl ? 100 : Math.min(100, done / goal * 100)) + "%";
     const go = $("#h-today-go");
     go.classList.toggle("done", met);
     if (!META) { loadMeta().then(x => { if (x) paintPlan(drillData(DRILLS[0]), dayMap()); }); return; }
@@ -981,7 +982,7 @@ body{letter-spacing:.01em}
   }
 
   /* ---------- 試験日カウントダウン（1日の目標は案内キャラと同じ設定） ---------- */
-  const GOALS = [5, 10, 20, 30, 50, 80, 100];
+  const GOALS = [5, 10, 20, 30, 50, 80, 100, 150, 200, 300, 500];
   const EXAM_DAY = "2027-02-18";   // 第79回 診療放射線技師国家試験（厚生労働省の発表）
   const avGet = () => (window.KQ && KQ.avatar.get()) || {};
   const avPut = (patch) => { if (!window.KQ) return; KQ.avatar.set(Object.assign({}, avGet(), patch)); if (window.KQGuide && KQGuide.push) KQGuide.push(); };
@@ -989,7 +990,7 @@ body{letter-spacing:.01em}
     if (avGet().exam === "2027-02-20") avPut({ exam: EXAM_DAY });   // 第79回の試験日は2月18日（前の2月20日を直す）
     const av = avGet(), goal = +av.goal || 10, date = typeof av.exam === "string" && /^\d{4}-\d{2}-\d{2}$/.test(av.exam) ? av.exam : EXAM_DAY;
     $("#ex-date").value = date;
-    $("#ex-goal").innerHTML = [...new Set([...GOALS, goal])].sort((a, b) => a - b).map(g => `<option value="${g}"${g === goal ? " selected" : ""}>${g}問</option>`).join("");
+    $("#ex-goal").innerHTML = [...new Set([...GOALS, goal])].filter(g => g > 0).sort((a, b) => a - b).map(g => `<option value="${g}"${g === goal ? " selected" : ""}>${g}問</option>`).join("") + `<option value="-1"${goal < 0 ? " selected" : ""}>上限なし</option>`;
     const left = Math.max(0, 2670 - solved);
     if (!date) { $("#ex-days").textContent = "–"; $("#ex-pace").innerHTML = "試験日を入れると、まだ解いていない問題を何日で終えられるか、1日何問ペースかが出ます"; $("#ex-msg").textContent = ""; return; }
     const [y, m, d] = date.split("-").map(Number), days = Math.round((new Date(y, m - 1, d) - dayStart(Date.now())) / 864e5);
@@ -997,7 +998,7 @@ body{letter-spacing:.01em}
     $("#ex-days").textContent = fmtN(days);
     const pace = days ? Math.ceil(left / days) : left;
     $("#ex-pace").innerHTML = left ? `<span class="ex-lab">まだ解いていない問題（過去問＋対策問題集）</span><br><b class="num">${fmtN(left)}</b>問<br>1周するには <em class="num" style="white-space:nowrap">1日${fmtN(pace)}問</em> ペース` : "過去問と対策問題集をぜんぶ1回解きました！苦手リストの復習で仕上げよう。";
-    $("#ex-msg").textContent = !left ? "" : goal >= pace ? `いまの目標（1日${goal}問）なら、試験日の${Math.floor(days - left / goal)}日前に1周できます。` : `いまの目標（1日${goal}問）だと、試験日までに${fmtN(goal * days)}問。1周するには目標を${pace}問以上にしよう。`;
+    $("#ex-msg").textContent = !left ? "" : goal < 0 ? `目標は上限なし。1周するには1日${pace}問ペースを目安にしよう。` : goal >= pace ? `いまの目標（1日${goal}問）なら、試験日の${Math.floor(days - left / goal)}日前に1周できます。` : `いまの目標（1日${goal}問）だと、試験日までに${fmtN(goal * days)}問。1周するには目標を${pace}問以上にしよう。`;
   }
   $("#ex-date").addEventListener("change", e => { avPut({ exam: e.target.value || "" }); paintHome(); });
   $("#ex-goal").addEventListener("change", e => { avPut({ goal: +e.target.value }); paintHome(); });
