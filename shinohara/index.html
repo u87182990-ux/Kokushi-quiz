@@ -119,6 +119,37 @@ figure.fig{background:var(--sheet);--card:var(--sheet);--film:#c98318;--filmsoft
 :root[data-theme="dark"] figure.fig{--film:#e9ae4e;--filmsoft:#3a2e17;--dose:#86a8f2;--dosesoft:#1d2a47}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) figure.fig{--film:#e9ae4e;--filmsoft:#3a2e17;--dose:#86a8f2;--dosesoft:#1d2a47}}
 svg.fig{width:100%;min-width:300px;height:auto;display:block}
+/* ダークのとき、篠原先生の図（色を直接書いたSVG）を暗い背景でも見える色に置きかえる */
+:root[data-theme="dark"] .fig svg [fill="#222"],.fig svg[fill="#222"]{fill:var(--ink)}
+:root[data-theme="dark"] .fig svg [stroke="#222"],.fig svg [stroke="#333"]{stroke:var(--ink)}
+:root[data-theme="dark"] .fig svg [fill="#888"]{fill:var(--muted)}
+:root[data-theme="dark"] .fig svg [stroke="#888"]{stroke:var(--muted)}
+:root[data-theme="dark"] .fig svg [stroke="#ddd"],.fig svg [stroke="#eee"],.fig svg [stroke="#ccc"]{stroke:var(--rule)}
+:root[data-theme="dark"] .fig svg [fill="#fff"],.fig svg [fill="#f7f7f7"],.fig svg [fill="#f2f2f2"],.fig svg [fill="#eee"]{fill:var(--chip)}
+:root[data-theme="dark"] .fig svg [fill="#1f6fb2"]{fill:var(--focus)}
+:root[data-theme="dark"] .fig svg [stroke="#1f6fb2"]{stroke:var(--focus)}
+:root[data-theme="dark"] .fig svg [fill="#c0392b"]{fill:var(--red)}
+:root[data-theme="dark"] .fig svg [stroke="#c0392b"]{stroke:var(--red)}
+:root[data-theme="dark"] .fig svg [fill="#fbf3f2"]{fill:var(--red-soft)}
+:root[data-theme="dark"] .fig svg [fill="#f3f6fb"]{fill:var(--chip)}
+:root[data-theme="dark"] .fig figcaption{color:var(--muted)}
+:root[data-theme="dark"] .fig figcaption::before{color:var(--red)}
+@media (prefers-color-scheme: dark){
+:root:not([data-theme="light"]) .fig svg [fill="#222"],.fig svg[fill="#222"]{fill:var(--ink)}
+:root:not([data-theme="light"]) .fig svg [stroke="#222"],.fig svg [stroke="#333"]{stroke:var(--ink)}
+:root:not([data-theme="light"]) .fig svg [fill="#888"]{fill:var(--muted)}
+:root:not([data-theme="light"]) .fig svg [stroke="#888"]{stroke:var(--muted)}
+:root:not([data-theme="light"]) .fig svg [stroke="#ddd"],.fig svg [stroke="#eee"],.fig svg [stroke="#ccc"]{stroke:var(--rule)}
+:root:not([data-theme="light"]) .fig svg [fill="#fff"],.fig svg [fill="#f7f7f7"],.fig svg [fill="#f2f2f2"],.fig svg [fill="#eee"]{fill:var(--chip)}
+:root:not([data-theme="light"]) .fig svg [fill="#1f6fb2"]{fill:var(--focus)}
+:root:not([data-theme="light"]) .fig svg [stroke="#1f6fb2"]{stroke:var(--focus)}
+:root:not([data-theme="light"]) .fig svg [fill="#c0392b"]{fill:var(--red)}
+:root:not([data-theme="light"]) .fig svg [stroke="#c0392b"]{stroke:var(--red)}
+:root:not([data-theme="light"]) .fig svg [fill="#fbf3f2"]{fill:var(--red-soft)}
+:root:not([data-theme="light"]) .fig svg [fill="#f3f6fb"]{fill:var(--chip)}
+:root:not([data-theme="light"]) .fig figcaption{color:var(--muted)}
+:root:not([data-theme="light"]) .fig figcaption::before{color:var(--red)}
+}
 svg .grid{stroke:var(--grid);stroke-width:1}
 svg .grid2{stroke:var(--grid);stroke-width:.5}
 svg .frame{fill:none;stroke:var(--muted);stroke-width:1}
