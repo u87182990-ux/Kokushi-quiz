@@ -39,7 +39,7 @@
     { id: "ribbon", name: "リボン" }, { id: "crown", name: "王冠" }, { id: "phones", name: "ヘッドホン" },
     { id: "badge", name: "名札" }
   ];
-  const GOALS = [5, 10, 20, 30, 50, 80, 100];
+  const GOALS = [5, 10, 20, 30, 50, 80, 100, 150, 200, 300, 500];
   const DEF = { type: "neko", color: "#ffc48a", ocolor: "orig", outfit: "hakui", acc: "none", name: "ナビ", goal: 10, pos: "br" };
   // キャラのいる場所。四すみか、指でつかんで動かした好きな場所（free：xy に画面の何割の位置かを入れる）
   const POS = [{ id: "bl", name: "左下" }, { id: "br", name: "右下" }, { id: "tl", name: "左上" }, { id: "tr", name: "右上" }, { id: "free", name: "動かした場所" }];
@@ -338,7 +338,7 @@
     v.type = valid(TYPES, v.type, DEF.type); v.color = valid(COLORS, v.color, DEF.color);
     v.ocolor = valid(OCOLORS, v.ocolor, DEF.ocolor);
     v.outfit = valid(OUTFITS, v.outfit, DEF.outfit); v.acc = valid(ACCS, v.acc, DEF.acc);
-    v.goal = GOALS.includes(+v.goal) ? +v.goal : DEF.goal;
+    v.goal = Number.isInteger(+v.goal) && +v.goal >= 1 && +v.goal <= 999 ? +v.goal : DEF.goal;   // 上限なし（選べる数のほかに、999問まで）
     v.pos = valid(POS, v.pos, DEF.pos);
     const okXY = Array.isArray(v.xy) && v.xy.length === 2 && v.xy.every(n => typeof n === "number" && n >= 0 && n <= 1);
     v.xy = okXY ? v.xy : null;

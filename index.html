@@ -11,7 +11,7 @@
 <script src="shared/account.js?v=1795300000"></script>
 <script src="shared/stats.js?v=1796000000"></script>
 <script src="shared/plan.js?v=1795500000"></script>
-<script src="shared/guide.js?v=1795300000" defer></script>
+<script src="shared/guide.js?v=1796400000" defer></script>
 <link rel="stylesheet" href="shared/skins.css?v=1795400000">
 <link rel="stylesheet" href="shared/tabbar.css?v=1796200000">
 <script src="shared/tabbar.js?v=1796200000" data-root="" data-tab="home"></script>
@@ -981,7 +981,7 @@ body{letter-spacing:.01em}
   }
 
   /* ---------- 試験日カウントダウン（1日の目標は案内キャラと同じ設定） ---------- */
-  const GOALS = [5, 10, 20, 30, 50, 80, 100];
+  const GOALS = [5, 10, 20, 30, 50, 80, 100, 150, 200, 300, 500];
   const EXAM_DAY = "2027-02-18";   // 第79回 診療放射線技師国家試験（厚生労働省の発表）
   const avGet = () => (window.KQ && KQ.avatar.get()) || {};
   const avPut = (patch) => { if (!window.KQ) return; KQ.avatar.set(Object.assign({}, avGet(), patch)); if (window.KQGuide && KQGuide.push) KQGuide.push(); };
