@@ -110,7 +110,7 @@ summary{cursor:pointer;font-weight:700}
 
   <details id="statBox"><summary>分野ごとの習得度</summary><div class="bars" id="bars"></div>
     <div class="legend"><span><i style="background:var(--good)"></i>定着（21日以上）</span><span><i style="background:var(--lv2);opacity:.75"></i>学習中</span></div>
-    <div class="row2" style="margin-top:12px"><label class="tg">1日の新規カード <select id="newSel"><option>10</option><option selected>20</option><option>30</option><option>50</option></select></label><button class="btn ghost" id="resetBtn">記録をリセット</button><span class="foot" id="resetMsg"></span></div>
+    <div class="row2" style="margin-top:12px"><label class="tg">1日の新規カード <select id="newSel"><option>10</option><option>20</option><option>30</option><option>50</option><option>100</option><option value="9999" selected>上限なし</option></select></label><button class="btn ghost" id="resetBtn">記録をリセット</button><span class="foot" id="resetMsg"></span></div>
   </details>
   <p class="foot">採点の目安：もう一回＝思い出せない／難しい＝時間がかかった／OK＝思い出せた／簡単＝即答。鬼モードは★★★と★★の「違い」「逆向き」カードを、入力ありで出す。記録はこの端末のブラウザにだけ保存される。</p>
 </div>
@@ -129,7 +129,7 @@ const store = { get(k, d) { try { const v = localStorage.getItem("kc_" + k + KSF
 let S = store.get("state", {});          // id -> {due, ivl, ease, reps, lapses}
 let log = store.get("log", { day: today(), done: 0, newSeen: 0 });
 if (log.day !== today()) log = { day: today(), done: 0, newSeen: 0 };
-let newPerDay = store.get("newPerDay", 20);
+let newPerDay = store.get("newPerDay2", 9999);   // 2026-11 から上限なしが標準（前の 20枚設定はリセット）
 // ?start=due&n=12 … トップの「今日やること」から：復習期限が来たカードだけ（新しいカードは出さない）
 const P0 = new URLSearchParams(location.search); let dueOnly = P0.get("start") === "due", dueN = +P0.get("n") || 0;
 let mode = "srs", sec = "", lvMin = 0, typing = store.get("typing", false);
@@ -231,7 +231,7 @@ $("lvSel").addEventListener("change", (e) => { lvMin = +e.target.value; buildQue
 $("typeChk").checked = typing;
 $("typeChk").addEventListener("change", (e) => { typing = e.target.checked; store.set("typing", typing); render(); });
 $("newSel").value = String(newPerDay);
-$("newSel").addEventListener("change", (e) => { newPerDay = +e.target.value; store.set("newPerDay", newPerDay); if (mode === "srs") { buildQueue(); next(); } else renderQueue(); });
+$("newSel").addEventListener("change", (e) => { newPerDay = +e.target.value; store.set("newPerDay2", newPerDay); if (mode === "srs") { buildQueue(); next(); } else renderQueue(); });
 document.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => { dueOnly = false; setMode(b.dataset.mode); }));
 let armed = false;
 $("resetBtn").addEventListener("click", () => {

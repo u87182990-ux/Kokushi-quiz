@@ -338,7 +338,7 @@
     v.type = valid(TYPES, v.type, DEF.type); v.color = valid(COLORS, v.color, DEF.color);
     v.ocolor = valid(OCOLORS, v.ocolor, DEF.ocolor);
     v.outfit = valid(OUTFITS, v.outfit, DEF.outfit); v.acc = valid(ACCS, v.acc, DEF.acc);
-    v.goal = Number.isInteger(+v.goal) && +v.goal >= 1 && +v.goal <= 999 ? +v.goal : DEF.goal;   // 上限なし（選べる数のほかに、999問まで）
+    v.goal = +v.goal === -1 || (Number.isInteger(+v.goal) && +v.goal >= 1 && +v.goal <= 9999) ? +v.goal : DEF.goal;   // -1＝上限なし
     v.pos = valid(POS, v.pos, DEF.pos);
     const okXY = Array.isArray(v.xy) && v.xy.length === 2 && v.xy.every(n => typeof n === "number" && n >= 0 && n <= 1);
     v.xy = okXY ? v.xy : null;
@@ -544,6 +544,7 @@
   }
   function progressLine(s){
     const n = todayN(s), g = av.goal;
+    if (g < 0) return n ? `今日は${n}問解いたよ。目標は上限なし、どこまでいけるかな？` : "今日の目標は上限なし。まずは1問いってみよう！";
     if (n >= g) return `今日はもう${n}問解いたよ。目標${g}問クリア、すごい！`;
     if (n === 0) return `今日の目標は${g}問。まずは1問いってみよう！`;
     return `今日は${n}問解いたよ。目標まであと${g - n}問！`;
@@ -649,7 +650,7 @@
     const ni = document.createElement("input"); ni.maxLength = 10; ni.value = draft.name; ni.setAttribute("aria-label", "キャラの名前");
     ni.oninput = () => { draft.name = ni.value; };
     nameRow.append(nl, ni);
-    const goalRow = chipRow("1日の目標（問題数）", GOALS.map(g => ({ id: g, name: g + "問" })), "goal");
+    const goalRow = chipRow("1日の目標（問題数）", [...GOALS.map(g => ({ id: g, name: g + "問" })), { id: -1, name: "上限なし" }], "goal");
     const posRow = chipRow("いる場所（キャラを長押ししてから動かすと、好きな場所に置けます）", draft.xy ? POS : POS.filter(x => x.id !== "free"), "pos");
     const msg = document.createElement("div"); msg.className = "kqg-msg"; msg.setAttribute("role", "status");
     const foot = document.createElement("div"); foot.className = "kqg-foot";
