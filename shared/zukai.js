@@ -1779,6 +1779,9 @@ const ALIAS = {
 };
 window.ZUKAI_ALIAS = ALIAS;
 
+// ほかのページ用の図（houka/zukai-houka.js など）から部品を使えるように公開
+window.ZUKAI_H = {P, T, L, A, G, R, Bar, Dim, Grid, Flow, expFig};
+
 /* ---------- 表示部品 ---------- */
 // 解説の箱 host の中に図解を入れる。問題に図解がなければ何もしない。
 const CSS = `.zk{--zk-ink:var(--ink);--zk-muted:var(--muted,var(--sub));--zk-rule:var(--rule,var(--line));--zk-red:var(--red,var(--ng));--zk-red-soft:var(--red-soft,var(--ng-soft));--zk-ok:var(--ok);--zk-ok-soft:var(--ok-soft);--zk-blue:var(--focus,var(--accent));--zk-chip:var(--chip,var(--paper));--zk-sheet:var(--sheet);--zk-font:var(--f-body);--zk-num:var(--f-num);color:var(--zk-ink);text-align:left;line-height:1.7}
