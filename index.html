@@ -281,6 +281,8 @@ input:focus{outline:2px solid var(--accent);outline-offset:1px}
 @media (min-width:700px){.pick-modal{align-items:center}.pick-in{border-radius:20px;max-height:80vh}}
 body.modal-open{overflow:hidden}
 .pk{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line2);border-radius:10px;cursor:pointer}
+.mode i.new,.pk i.new{display:inline-block;font-style:normal;font:700 10.5px/1 var(--f-body);letter-spacing:.04em;padding:4px 8px;margin-left:4px;border-radius:14px;background:var(--accent);color:var(--accent-ink);vertical-align:2px}
+.mode.is-new{border-color:var(--accent)}
 .pk input{width:20px;height:20px;margin:2px 0 0;flex:none}.subj{margin:6px 0 0;font-size:.85rem;opacity:.75}.pk b{display:block}.pk small{display:block;opacity:.7}
 .me{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
 .me b{font-size:18px}
@@ -432,7 +434,7 @@ body{letter-spacing:.01em}
 .simple .tile b,.simple .big-card .pct b{font-weight:700}
 .simple .nudge{border-radius:12px}
 </style>
-<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><script src="shared/update.js" defer></script><script src="shared/notice.js?v=1795600000" defer></script>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0f1b2d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="国試ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><script src="shared/update.js" defer></script><script src="shared/notice.js?v=1795700000" defer></script>
 </head>
 <body>
 <div class="topbar" id="topbar"><span class="logo"><i></i><span id="top-title">国試ドリル</span></span></div>
@@ -1140,8 +1142,8 @@ body{letter-spacing:.01em}
     const tg = KQTags.count("kokushi-rec-v1" + sfx(), cloud.kakomon?.tag), tn = tg[1] + tg[2] + tg[3];
     $("#d-tags").innerHTML = tn ? `完璧 <b class="num" style="font-size:inherit;margin:0">${tg[1]}</b>・復習中 <b class="num" style="font-size:inherit;margin:0">${tg[2]}</b>・要学習 <b class="num" style="font-size:inherit;margin:0">${tg[3]}</b>問` : "完璧・復習中・要学習の印をつけた問題と一覧";
     $("#d-fields").innerHTML = FIELDS.map(([f, n]) => `<a class="chip" href="kakomon/?field=${encodeURIComponent(f)}">${esc(f)} <small class="num">(${n})</small></a>`).join("");
-    const list = EXTRA.filter(x => exGet().includes(x.id));
-    $("#d-extra").innerHTML = list.map(x => `<a class="mode" href="${x.id}/"><span class="ic">${x.ic}</span><b>${esc(x.name)}</b><span>${esc(x.sub)}</span></a>`).join("");
+    const list = exList();
+    $("#d-extra").innerHTML = list.map(exCard).join("");
     $("#d-extra").hidden = !list.length;
   }
 
@@ -1304,13 +1306,23 @@ body{letter-spacing:.01em}
   const exKey = () => "kq-extra-v2" + sfx();
   function exGet(){ try { const v = JSON.parse(localStorage.getItem(exKey()) || "[]"); return Array.isArray(v) ? v : []; } catch { return []; } }
   const exSet = v => { try { localStorage.setItem(exKey(), JSON.stringify(v)); } catch {} };
+  /* 新しく入ったドリル（notice.json の pop に drill がある間）は NEW をつけ、えらんでいなくても出す */
+  const newIds = () => (window.KQNew && KQNew.drills) || [];
+  const newTag = id => newIds().includes(id) ? `<i class="new">NEW</i>` : "";
+  const exCard = x => `<a class="mode${newIds().includes(x.id) ? " is-new" : ""}" href="${x.id}/"><span class="ic">${x.ic}</span><b>${esc(x.name)}${newTag(x.id)}</b><span>${esc(x.sub)}</span></a>`;
+  const exList = () => { const on = exGet(); return EXTRA.filter(x => on.includes(x.id) || newIds().includes(x.id)); };
+  window.KQExtra = {
+    info: id => EXTRA.find(x => x.id === id) || null,
+    add: id => { const on = exGet(); if (!on.includes(id)) { on.push(id); exSet(on); } paintExtra(); }
+  };
+  window.addEventListener("kq-new", () => { paintExtra(); if (!$("#v-drill").hidden) paintDrill(); });
   function paintExtra(){
-    const on = exGet(), list = EXTRA.filter(x => on.includes(x.id));
-    $("#extra-list").innerHTML = list.map(x => `<a class="mode" href="${x.id}/"><span class="ic">${x.ic}</span><b>${esc(x.name)}</b><span>${esc(x.sub)}</span></a>`).join("");
+    const on = exGet(), list = exList();
+    $("#extra-list").innerHTML = list.map(exCard).join("");
     $("#extra-list").hidden = !list.length;
     $("#extra-note").textContent = list.length ? "自分で選んだドリルです。「えらぶ」で入れかえられます。" : "科目ごとのドリルです。「えらぶ」で、使いたいものだけ自分のメニューに出せます。";
     const subs = [...new Set(EXTRA.map(x => x.subj))];
-    $("#extra-pick-body").innerHTML = `<p class="note">いろんな科目から選べます。チェックしたものが上のメニューに出ます。<b>チェックはその場で保存</b>されるので、「とじる」・Esc・まわりをタップ、どれで閉じても同じです。</p>` + subs.map(s => `<h3 class="subj">${esc(s)}</h3>` + EXTRA.filter(x => x.subj === s).map(x => `<label class="pk"><input type="checkbox" autocomplete="off" value="${x.id}"${on.includes(x.id) ? " checked" : ""}><span><b>${esc(x.name)}</b><small>${esc(x.sub)}</small></span></label>`).join("")).join("");
+    $("#extra-pick-body").innerHTML = `<p class="note">いろんな科目から選べます。チェックしたものが上のメニューに出ます。<b>チェックはその場で保存</b>されるので、「とじる」・Esc・まわりをタップ、どれで閉じても同じです。</p>` + subs.map(s => `<h3 class="subj">${esc(s)}</h3>` + EXTRA.filter(x => x.subj === s).map(x => `<label class="pk"><input type="checkbox" autocomplete="off" value="${x.id}"${on.includes(x.id) ? " checked" : ""}><span><b>${esc(x.name)}${newTag(x.id)}</b><small>${esc(x.sub)}</small></span></label>`).join("")).join("");
   }
   $("#extra-pick").addEventListener("change", () => pickSave());
   const pickSave = () => { exSet([...$("#extra-pick").querySelectorAll("input:checked")].map(i => i.value)); paintExtra(); };
