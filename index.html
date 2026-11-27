@@ -696,6 +696,12 @@ body{letter-spacing:.01em}
       </div>
     </div>
 
+    <div class="panel" id="calc-box">
+      <h2>関数電卓</h2>
+      <p class="note" id="calc-note">問題を解く画面の左下に、電卓ボタンが出ます。右上のボタンで「基本」と「関数（log・ln・eˣ・xʸ・√ など）」を切りかえられます。本番の国試では電卓は使えないので、練習用です（模試の画面には出ません）。</p>
+      <div class="row-btns"><button class="btn" id="calc-off" type="button">電卓ボタンを出さない</button></div>
+    </div>
+
     <div class="panel" id="off-box">
       <h2>オフラインで使う</h2>
       <p class="note">電波がないところ（電車・地下・機内など）でも、問題と解説が使えます。解いた記録はこの端末にたまって、つながったときに自動でクラウドに送られます。</p>
@@ -1312,6 +1318,18 @@ body{letter-spacing:.01em}
   $("#extra-tog").onclick = () => pickOpen(true);
   $("#extra-pick").addEventListener("click", e => { if (e.target.closest("[data-close]") || e.target === e.currentTarget) pickOpen(false); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#extra-pick").hidden) pickOpen(false); });
+
+  /* ---------- 関数電卓（shared/calc.js）のボタンを出す・出さない ---------- */
+  (function bootCalc(){
+    if (!window.KQCalc) return setTimeout(bootCalc, 300);
+    const paint = () => {
+      const off = KQCalc.isOff();
+      $("#calc-off").textContent = off ? "電卓ボタンを出す" : "電卓ボタンを出さない";
+      $("#calc-note").firstChild.textContent = off ? "いまは電卓ボタンを出していません。「電卓ボタンを出す」で、問題を解く画面の左下にまた出ます。" : "問題を解く画面の左下に、電卓ボタンが出ます。右上のボタンで「基本」と「関数（log・ln・eˣ・xʸ・√ など）」を切りかえられます。本番の国試では電卓は使えないので、練習用です（模試の画面には出ません）。";
+    };
+    KQCalc.onChange(paint); paint();
+    $("#calc-off").onclick = () => KQCalc.setOff(!KQCalc.isOff());
+  })();
 
   /* ---------- オフラインで使う（shared/offline.js） ---------- */
   function paintOff(o){

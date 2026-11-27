@@ -41,6 +41,12 @@
   off.async = true;
   (document.head || document.documentElement).appendChild(off);
 
+  // 関数電卓（shared/calc.js）… 問題を解く画面の左下にボタン
+  var calc = document.createElement("script");
+  calc.src = new URL("shared/calc.js", root).href;
+  calc.async = true;
+  (document.head || document.documentElement).appendChild(calc);
+
   if (!window.fetch || !window.performance || !performance.getEntriesByType) return;
 
   var CHECK_EVERY_MS = 30 * 60 * 1000;
