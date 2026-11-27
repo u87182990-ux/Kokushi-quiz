@@ -114,7 +114,7 @@ async function startReview(){{
         "  $(\"#weak-start\").disabled = !list.length; $(\"#weak-start\").textContent = `苦手リストを全部解く（${list.length}問）`;\n"
         "  " + MARK + "{ const tv = todayRv(false), nx = KQSrs.nextDue(weak), all = Q.filter(q => isWeak(q.id)).length;\n"
         "    $(\"#weak-today\").disabled = !tv.ids.length; $(\"#weak-today\").textContent = tv.ids.length ? `今日の復習を解く（${tv.ids.length}問）` : \"今日の復習はおわり\";\n"
-        "    $(\"#weak-sum\").innerHTML = `今日の復習 <b class=\"num\">${tv.ids.length}</b>問<small style=\"color:var(--sub)\">（1日${KQSrs.CAP}問まで・苦手リスト${all}問）</small>${nx ? `<br><small style=\"color:var(--sub)\">次の復習日：${KQSrs.dayLabel(nx.d)} ${nx.n}問</small>` : \"\"}`; }\n")
+        "    $(\"#weak-sum\").innerHTML = `今日の復習 <b class=\"num\">${tv.ids.length}</b>問<small style=\"color:var(--sub)\">（上限なし・苦手リスト${all}問）</small>${nx ? `<br><small style=\"color:var(--sub)\">次の復習日：${KQSrs.dayLabel(nx.d)} ${nx.n}問</small>` : \"\"}`; }\n")
 
     # 答えたあと・結果画面
     rep(r"function weakNote\(w, ok\)\{\n.*?\n\}\n",
