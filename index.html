@@ -10,13 +10,13 @@
 <script src="shared/config.js?v=1795000000"></script>
 <script src="shared/account.js?v=1795300000"></script>
 <script src="shared/stats.js?v=1796000000"></script>
-<script src="shared/plan.js?v=1795500000"></script>
-<script src="shared/guide.js?v=1796500000" defer></script>
+<script src="shared/srs.js?v=1796600000"></script><script src="shared/plan.js?v=1796100000"></script>
+<script src="shared/guide.js?v=1796600000" defer></script>
 <link rel="stylesheet" href="shared/skins.css?v=1795400000">
 <link rel="stylesheet" href="shared/tabbar.css?v=1796200000">
 <script src="shared/tabbar.js?v=1796200000" data-root="" data-tab="home"></script>
-<script src="shared/weekly.js?v=1795800000"></script>
-<script src="shared/tags.js?v=1795900000"></script>
+<script src="shared/weekly.js?v=1796100000"></script>
+<script src="shared/tags.js?v=1796100000"></script>
 <script>
 /* 見た目の設定（シンプル）を、画面が出る前に当てる（ちらつき防止） */
 /* 見た目（4種類は書体も）を、画面が出る前に当てる（ちらつき防止） */
@@ -509,7 +509,7 @@ body{letter-spacing:.01em}
     <div class="modes">
       <a class="mode" href="kakomon/"><span class="ic">📚</span><b>過去問クイズ</b><span>第67〜78回<br>全2,400問・解説つき</span></a>
       <a class="mode" href="kakomon/?start=random"><span class="ic">🎲</span><b>ランダム10問</b><span>過去問から<br>サクッと10問</span></a>
-      <a class="mode" href="kakomon/?start=weak"><span class="fusen" id="h-weak-tag" hidden></span><span class="ic">🔁</span><b>苦手を復習</b><span id="h-weak">まちがえた問題を<br>どこで解いても2回続けて正解で卒業</span></a>
+      <a class="mode" href="kakomon/?start=weak"><span class="fusen" id="h-weak-tag" hidden></span><span class="ic">🔁</span><b>苦手を復習</b><span id="h-weak">まちがえた問題を<br>復習日に正解でステージが進み、3回で卒業</span></a>
       <a class="mode" href="kakomon/?start=unsolved"><span class="ic">✨</span><b>まだ解いてない</b><span id="h-unsolved">はじめての問題から<br>20問</span></a>
       <a class="mode wide" href="kakomon/?start=mock"><span class="ic">⏱️</span><b>模試モード</b><span id="h-mock">本番と同じ200問・タイマーつき・中断しても続きから</span></a>
       <a class="mode wide" href="prep/"><span class="ic">🎯</span><b>対策問題集</b><span>よく出るポイントのオリジナル270問・22テーマ</span></a>
@@ -542,7 +542,7 @@ body{letter-spacing:.01em}
     <div class="modes">
       <a class="mode" href="kakomon/"><span class="ic">📚</span><b>過去問クイズ</b><span>第67〜78回<br>回ごと・分野ごと</span></a>
       <a class="mode" href="kakomon/?start=random"><span class="ic">🎲</span><b>ランダム10問</b><span>過去問から<br>サクッと10問</span></a>
-      <a class="mode" href="kakomon/?start=weak"><span class="ic">🔁</span><b>苦手を復習</b><span id="d-weak">2回続けて正解で卒業</span></a>
+      <a class="mode" href="kakomon/?start=weak"><span class="ic">🔁</span><b>苦手を復習</b><span id="d-weak">復習日に正解でステージが進み、3回で卒業</span></a>
       <a class="mode" href="kakomon/?start=unsolved"><span class="ic">✨</span><b>まだ解いてない</b><span id="d-unsolved">はじめての問題から<br>20問</span></a>
       <a class="mode wide" href="#bm"><span class="ic">🔖</span><b>ブックマーク</b><span id="d-bm">☆で保存した問題を見直す</span></a>
       <a class="mode wide" href="kakomon/?start=tags"><span class="ic">🏷️</span><b>問題タグ</b><span id="d-tags">完璧・復習中・要学習の印をつけた問題と一覧</span></a>
@@ -622,7 +622,7 @@ body{letter-spacing:.01em}
 
     <h2 class="sec">カテゴリー別成績<small>タップで分野ごと</small></h2>
     <div class="cats" id="s-cats"></div>
-    <p class="note" style="margin-top:12px">ことばの意味：<b>解いた問題</b>＝ちがう問題の数。<b>回答（のべ）</b>＝同じ問題を2回解いたら2回と数える。<b>正答率</b>＝正解した回数÷のべ回答（どの画面も同じ計算です）。<b>苦手</b>＝まちがえて苦手リストに入った問題（2回続けて正解で卒業）。医用工学 計算ドリル・画像情報 杉浦先生ドリルは1問に1回だけ答える形（やり直すときは記録を消す）なので、解いた問題の数＝のべ回答になり、正答率の計算も同じです。</p>
+    <p class="note" style="margin-top:12px">ことばの意味：<b>解いた問題</b>＝ちがう問題の数。<b>回答（のべ）</b>＝同じ問題を2回解いたら2回と数える。<b>正答率</b>＝正解した回数÷のべ回答（どの画面も同じ計算です）。<b>苦手</b>＝まちがえて苦手リストに入った問題（あした→3日後→7日後の復習日に正解するとステージが進み、3回で卒業。復習日より前の正解では進みません）。医用工学 計算ドリル・画像情報 杉浦先生ドリルは1問に1回だけ答える形（やり直すときは記録を消す）なので、解いた問題の数＝のべ回答になり、正答率の計算も同じです。</p>
     <div class="sync" id="s-sync"></div>
   </section>
 
@@ -797,8 +797,11 @@ body{letter-spacing:.01em}
     if (d.kind === "rec") {
       const rec = merged(lsGet(d.ls + sfx(), {}), cloud[d.app]?.rec);
       const weak = merged(lsGet(d.ls + sfx() + "-weak", {}), cloud[d.app]?.weak);
+      // 苦手リストの間隔反復（shared/srs.js）：前の記録はステージ1・復習日あしたとして数える。rv＝今日の復習（1日30問）
+      KQSrs.fixAll(weak);
+      const rv = KQSrs.mergeRv(lsGet(d.ls + sfx() + "-rv", null), cloud[d.app]?.rv);
       const vals = Object.values(rec);
-      return { rec, weakMap: weak, done: vals.length, ok: vals.filter(r => r.r === 1).length, att: vals.reduce((a, r) => a + (r.c || 0) + (r.w || 0), 0), okc: vals.reduce((a, r) => a + (r.c || 0), 0), weak: Object.values(weak).filter(w => w && !w.out).length };
+      return { rec, weakMap: weak, rv, due: KQSrs.dueCount(weak, rv), next: KQSrs.nextDue(weak), done: vals.length, ok: vals.filter(r => r.r === 1).length, att: vals.reduce((a, r) => a + (r.c || 0) + (r.w || 0), 0), okc: vals.reduce((a, r) => a + (r.c || 0), 0), weak: Object.values(weak).filter(w => w && !w.out).length };
     }
     if (d.kind === "res") {
       const vals = Object.values(lsGet(d.ls + sfx(), {}));
@@ -842,7 +845,11 @@ body{letter-spacing:.01em}
     // 21時〜朝5時は「苦手の復習」をいちばん上に（苦手リストがあるときだけ）
     const hr = new Date().getHours(), night = (hr >= 21 || hr < 5) && k.weak > 0;
     $("#h-night").hidden = !night;
-    if (night) $("#h-night").querySelector("b").innerHTML = `夜は苦手の復習から　<span class="num">${k.weak}</span>問`, $("#h-night-sub").textContent = "21時〜朝5時は、苦手の復習がいちばん上に出ます。2回続けて正解で卒業";
+    if (night) {
+      $("#h-night").querySelector("b").innerHTML = k.due ? `夜は苦手の復習から　<span class="num">${k.due}</span>問` : "今日の苦手の復習はおわり";
+      $("#h-night-sub").textContent = k.due ? `今日が復習日の問題（上限なし）。正解でステージが進みます`
+        : `苦手リスト${k.weak}問${k.next ? `。次の復習日は${KQSrs.dayLabel(k.next.d)}（${k.next.n}問）` : ""}。タップで苦手リストを見られます`;
+    }
     // 苦手の件数は付箋。前に見たときより減っていたら（＝卒業した）、古い付箋をはがして新しい数を見せる
     const tag = $("#h-weak-tag"), seenKey = "kq-weak-seen" + sfx();
     let seen = null; try { seen = localStorage.getItem(seenKey); } catch {}
@@ -852,7 +859,7 @@ body{letter-spacing:.01em}
       tag.after(old); requestAnimationFrame(() => old.classList.add("peel")); setTimeout(() => old.remove(), 300);
     }
     try { localStorage.setItem(seenKey, String(k.weak)); } catch {}
-    $("#h-weak").innerHTML = k.weak ? `苦手リスト <b class="num">${k.weak}</b>問<br>どこで解いても2回続けて正解で卒業` : "まちがえた問題を<br>どこで解いても2回続けて正解で卒業";
+    $("#h-weak").innerHTML = k.weak ? `今日の復習 <b class="num">${k.due}</b>問<br>苦手リスト${k.weak}問（3ステージで卒業）` : `まちがえた問題を<br>${KQSrs.RULE_SHORT}`;
     $("#h-unsolved").innerHTML = `まだ解いていない<br><b class="num">${fmtN(2400 - k.done)}</b>問から20問`;
     $("#h-login").hidden = !!KQ.session() || loginNudgeOff();
     const mk = [lsGet("kokushi-rec-v1" + sfx() + "-mock", null), cloud.kakomon?.mock].filter(x => x && x.at).sort((a, b) => b.at - a.at)[0];
@@ -954,7 +961,7 @@ body{letter-spacing:.01em}
     const go = $("#h-today-go");
     go.classList.toggle("done", met);
     if (!META) { loadMeta().then(x => { if (x) paintPlan(drillData(DRILLS[0]), dayMap()); }); return; }
-    const p = KQPlan.today(META, k.rec, k.weakMap || {}, { total, cardsDue: cardsDue() });
+    const p = KQPlan.today(META, k.rec, k.weakMap || {}, { total, cardsDue: cardsDue(), dueIds: KQSrs.todays(META.map(q => q.id), k.weakMap || {}, null, k.rv).ids });
     const parts = [];
     if (p.weak.length) parts.push(`苦手の復習 ${p.weak.length}問`);
     if (p.cards) parts.push(`暗記カード ${p.cards}枚`);
@@ -1043,7 +1050,7 @@ body{letter-spacing:.01em}
       const x = drillData(d);
       const pc = x.card ? null : x.att ? Math.round(x.okc / x.att * 100) : null;
       const sub = x.card ? `学習したカード ${fmtN(x.done)} / ${fmtN(d.n)}枚` : `解いた問題 ${fmtN(x.done)} / ${fmtN(d.n)}問${x.att ? `・のべ${fmtN(x.att)}回答で正解${fmtN(x.okc)}回` : ""}`;
-      const weakBtn = x.weak && d.kind === "rec" ? `<a class="mini ng" href="${d.id}/?start=weak">苦手 ${x.weak}問を解く</a>` : x.weak ? `<span class="mini ng">まちがい ${x.weak}問</span>` : "";
+      const weakBtn = x.weak && d.kind === "rec" ? `<a class="mini ng" href="${d.id}/?start=weak">${x.due ? `今日の苦手の復習 ${x.due}問` : `苦手リスト ${x.weak}問（今日の復習はおわり）`}</a>` : x.weak ? `<span class="mini ng">まちがい ${x.weak}問</span>` : "";
       return `<div class="cat" data-id="${d.id}">
         <div class="cat-top"><span>${d.ic}</span><b>${esc(d.name)}</b><span class="pc num pc-c" style="${pc === null ? "" : KQPlan.pcAttr(pc / 100)}">${pc === null ? "" : pc + "%"}</span></div>
         <div class="cat-sub num">${sub}</div>
@@ -1120,7 +1127,7 @@ body{letter-spacing:.01em}
   /* ---------- 演習（下のタブ） ---------- */
   function paintDrill(){
     const k = drillData(DRILLS[0]);
-    $("#d-weak").innerHTML = k.weak ? `苦手リスト <b class="num">${k.weak}</b>問<br>2回続けて正解で卒業` : "まちがえた問題を<br>2回続けて正解で卒業";
+    $("#d-weak").innerHTML = k.weak ? `今日の復習 <b class="num">${k.due}</b>問<br>苦手リスト${k.weak}問（3ステージで卒業）` : `まちがえた問題を<br>${KQSrs.RULE_SHORT}`;
     $("#d-unsolved").innerHTML = `まだ解いていない<br><b class="num">${fmtN(2400 - k.done)}</b>問から20問`;
     const nb = KQStats.bm.list().length;
     $("#d-bm").innerHTML = nb ? `☆で保存した問題 <b class="num" style="font-size:inherit;margin:0">${nb}</b>問を見直す` : "☆で保存した問題を見直す";

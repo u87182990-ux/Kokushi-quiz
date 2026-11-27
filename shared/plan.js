@@ -65,13 +65,14 @@
   /* ---------- 今日やること ---------- */
   // total：今日ここで解く数（目標 − 今日もう解いた数。目標達成ずみなら目標ぶんもう1セット）
   // cardsDue：暗記カードの復習期限が来た枚数（暗記カードを使っていない人は 0）
-  // 優先順：①復習（苦手リストの卒業待ち・暗記カードの期限分）→ ②弱点分野のまだ解いていない問題 → ③新しい問題
+  // 優先順：①復習（苦手リストの今日が復習日の問題・暗記カードの期限分）→ ②弱点分野のまだ解いていない問題 → ③新しい問題
   // 暗記カードは数が多い日もあるので、最大で全体の半分まで（のこりは次の日に回る）。問題の数は total − 暗記カード
   function today(items, rec, weak, opt){
     const total = Math.max(1, opt.total | 0), seed = todayKey();
-    const isW = id => weak[id] && !weak[id].out;
-    // 卒業まであと1回の問題 → 古い順
-    const w = items.filter(q => isW(q.id)).sort((a, b) => (weak[b.id].s || 0) - (weak[a.id].s || 0) || (weak[a.id].t || 0) - (weak[b.id].t || 0)).map(q => q.id);
+    // 苦手の復習：今日が復習日の問題（shared/srs.js の「今日の復習」1日30問。opt.dueIds があればその順）
+    const w = Array.isArray(opt.dueIds) ? opt.dueIds.slice()
+      : window.KQSrs ? KQSrs.pick(items.map(q => q.id), weak, null)
+      : items.filter(q => weak[q.id] && !weak[q.id].out).sort((a, b) => (weak[a.id].t || 0) - (weak[b.id].t || 0)).map(q => q.id);
     // 復習の中で、暗記カードは最大で全体の半分。のこりを苦手リストの問題に
     const cards = Math.min(opt.cardsDue || 0, total > 1 ? Math.floor(total / 2) : 0);
     const weakIds = w.slice(0, total - cards);
