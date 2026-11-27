@@ -141,7 +141,7 @@
   ".kqc-fab svg{width:22px;height:22px}" +
   ".kqc{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:440px;z-index:9050;background:#0f1b2d;color:#fff;border-radius:14px 14px 0 0;" +
     "padding:10px 16px calc(16px + env(safe-area-inset-bottom));border:1px solid rgba(255,255,255,.08);border-bottom:0;box-shadow:0 -1px 10px rgba(5,9,15,.25);" +
-    "font-family:var(--f-body,\"BIZ UDPGothic\",\"Hiragino Sans\",\"Noto Sans JP\",sans-serif);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;" +
+    "font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Display\",\"Helvetica Neue\",\"Hiragino Sans\",\"Noto Sans JP\",Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;" +
     "animation:kqc-up .2s ease-out}" +
   "@keyframes kqc-up{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}" +
   "@media (prefers-reduced-motion:reduce){.kqc{animation:none}}" +
@@ -153,14 +153,14 @@
   ".kqc-menu button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:#fff;font:inherit;font-size:16px;padding:10px 16px;border-radius:10px;cursor:pointer;text-align:left}" +
   ".kqc-menu button:active{background:rgba(255,255,255,.08)}" +
   ".kqc-menu .ck{width:16px;color:#7fd3ff;font-weight:700}" +
-  ".kqc-menu .sy{width:28px;color:#8fa6c2;font-family:var(--f-num,\"Outfit\",system-ui,sans-serif);font-size:14px}" +
+  ".kqc-menu .sy{width:28px;color:#8fa6c2;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Display\",\"Helvetica Neue\",\"Hiragino Sans\",\"Noto Sans JP\",Roboto,Arial,sans-serif;font-size:14px}" +
   ".kqc-disp{padding:8px 4px 10px;text-align:right;min-height:84px;display:flex;flex-direction:column;justify-content:flex-end}" +
   ".kqc-row{display:flex;align-items:flex-end;gap:8px}" +
   ".kqc-deg{font-size:12px;color:#8fa6c2;padding-bottom:8px}" +
-  ".kqc-exp{font-family:var(--f-num,\"Outfit\",system-ui,sans-serif);font-size:16px;line-height:1.4;color:#8fa6c2;min-height:22px;overflow-x:auto;white-space:nowrap;direction:rtl;scrollbar-width:none}" +
+  ".kqc-exp{font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Display\",\"Helvetica Neue\",\"Hiragino Sans\",\"Noto Sans JP\",Roboto,Arial,sans-serif;font-size:16px;line-height:1.4;color:#8fa6c2;min-height:22px;overflow-x:auto;white-space:nowrap;direction:rtl;scrollbar-width:none}" +
   ".kqc-exp::-webkit-scrollbar{display:none}" +
   ".kqc-exp span{direction:ltr;unicode-bidi:embed}" +
-  ".kqc-out{flex:1;font-family:var(--f-num,\"Outfit\",system-ui,sans-serif);font-weight:300;font-size:48px;line-height:1.1;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
+  ".kqc-out{flex:1;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Display\",\"Helvetica Neue\",\"Hiragino Sans\",\"Noto Sans JP\",Roboto,Arial,sans-serif;font-weight:300;font-size:48px;line-height:1.1;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
   ".kqc-out.sm{font-size:34px}.kqc-out.xs{font-size:24px}" +
   ".kqc-out.err{font-size:24px;color:#ff7b73}" +
   ".kqc-sci{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:10px}" +
@@ -168,9 +168,10 @@
   ".kqc-pad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}" +
   ".kqc button.k{border:0;border-radius:999px;font-weight:400;line-height:1;color:#fff;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;touch-action:manipulation;transition:filter .1s}" +
   ".kqc button.k:active{filter:brightness(1.35)}" +
-  ".kqc-sci .k{height:38px;font-weight:400;background:rgba(255,255,255,.07);font-size:15px;font-family:var(--f-num,\"Outfit\",system-ui,sans-serif)}" +
-  ".kqc-sci .k sup{font-size:11px;margin-left:1px;vertical-align:8px;line-height:0}.kqc-sci .k sub{font-size:10px;vertical-align:-4px;line-height:0}" +
-  ".kqc-pad .k{height:60px;font-weight:400;background:rgba(255,255,255,.14);font-family:var(--f-num,\"Outfit\",system-ui,sans-serif);font-size:28px}" +
+  ".kqc-sci .k{height:38px;font-weight:400;background:rgba(255,255,255,.07);font-size:15px;font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Display\",\"Helvetica Neue\",\"Hiragino Sans\",\"Noto Sans JP\",Roboto,Arial,sans-serif}" +
+  ".kqc .kqc-sci .k .sp{display:inline-block;font-size:11px;line-height:1;margin-left:1px;transform:translateY(-6px)}.kqc .kqc-sci .k .sb{display:inline-block;font-size:10px;line-height:1;margin-left:1px;transform:translateY(4px)}" +
+  ".kqc,.kqc *{letter-spacing:normal;font-feature-settings:normal;font-variant-ligatures:none}" +
+  ".kqc-pad .k{height:60px;font-weight:400;background:rgba(255,255,255,.14);font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Display\",\"Helvetica Neue\",\"Hiragino Sans\",\"Noto Sans JP\",Roboto,Arial,sans-serif;font-size:28px}" +
   ".kqc.fx .kqc-pad .k{height:48px;font-size:24px}" +
   ".kqc-pad .k.g{background:rgba(255,255,255,.3);font-size:22px}" +
   ".kqc-pad .k.o{background:#1d6fd8;font-size:30px}" +
@@ -186,8 +187,8 @@
 
   // 関数のボタン（6列×3段）  [表示, 押したときに入るトークン, 読み上げ]
   var SCI = [
-    ["(", "(", "かっこ"], [")", ")", "かっことじ"], ["x<sup>2</sup>", "²", "2乗"], ["x<sup>y</sup>", "^(", "べき乗"], ["e<sup>x</sup>", "e^(", "eのx乗"], ["10<sup>x</sup>", "10^(", "10のx乗"],
-    ["<sup>1</sup>/x", "⁻¹", "逆数"], ["√x", "√(", "ルート"], ["∛x", "∛(", "3乗根"], ["ln", "ln(", "自然対数"], ["log<sub>10</sub>", "log(", "常用対数"], ["EE", "ᴇ", "かける10のn乗"],
+    ["(", "(", "かっこ"], [")", ")", "かっことじ"], ["x<span class='sp'>2</span>", "²", "2乗"], ["x<span class='sp'>y</span>", "^(", "べき乗"], ["e<span class='sp'>x</span>", "e^(", "eのx乗"], ["10<span class='sp'>x</span>", "10^(", "10のx乗"],
+    ["<span class='sp'>1</span>/x", "⁻¹", "逆数"], ["√x", "√(", "ルート"], ["∛x", "∛(", "3乗根"], ["ln", "ln(", "自然対数"], ["log<span class='sb'>10</span>", "log(", "常用対数"], ["EE", "ᴇ", "かける10のn乗"],
     ["x!", "!", "階乗"], ["sin", "sin(", "サイン（度）"], ["cos", "cos(", "コサイン（度）"], ["tan", "tan(", "タンジェント（度）"], ["e", "e", "ネイピア数e"], ["π", "π", "円周率"]
   ];
   var PAD = [
